@@ -11,6 +11,7 @@ const PAGE = 300; // max rows rendered per query
 const $ = (s, r = document) => r.querySelector(s);
 const status = $("#status");
 let db = null;
+let NEO_MAP = {};   // lowercased neo name (EN or JP) -> array of its set codes (deck-construction group)
 
 const escHtml = s => (s == null ? "" : String(s).replace(/[&<>"]/g,
   c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])));
@@ -69,6 +70,17 @@ function initFilters() {
   fillSelect("#f-cost", ints("cost"));
   fillSelect("#f-soul", ints("soul"));
 
+  // neo-standard autocomplete: each neo is a separate deck-construction group (EN + JP names)
+  const opts = new Set();
+  query("SELECT jp_name, en_name, codes FROM neos").forEach(n => {
+    const codes = (n.codes || "").split(" ").filter(Boolean);
+    [n.en_name, n.jp_name].forEach(nm => { if (nm) { NEO_MAP[nm.toLowerCase()] = codes; opts.add(nm); } });
+  });
+  const dl = document.createElement("datalist"); dl.id = "neo-list";
+  dl.innerHTML = Array.from(opts).sort().map(o => `<option value="${escHtml(o)}"></option>`).join("");
+  document.body.appendChild(dl);
+  $("#f-neo").setAttribute("list", "neo-list");
+
   const deb = debounce(run, 250);
   $("#app").addEventListener("input", e => { if (e.target.matches("input")) deb(); });
   $("#app").addEventListener("change", e => { if (e.target.matches("select")) run(); });
@@ -120,8 +132,15 @@ function buildWhere() {
   if (pmax !== "") { w.push("power <= ?"); p.push(+pmax); }
 
   const likeFld = (id, col) => { const v = $(id).value.trim(); if (v) { w.push(`${col} LIKE ?`); p.push("%" + v + "%"); } };
-  likeFld("#f-trait", "traits");
-  likeFld("#f-neo", "neo_titles");
+  // trait: match JP (魔法) or EN (Magic); title: the search blob holds JP name + kana + codes + EN franchise
+  const trv = $("#f-trait").value.trim();
+  if (trv) { w.push("(traits LIKE ? OR traits_en LIKE ?)"); p.push("%" + trv + "%", "%" + trv + "%"); }
+  const neov = $("#f-neo").value.trim();
+  if (neov) {
+    const codes = NEO_MAP[neov.toLowerCase()];        // exact neo pick -> match only its codes
+    if (codes && codes.length) { w.push(`series IN (${codes.map(() => "?").join(",")})`); p.push(...codes); }
+    else { w.push("title_search LIKE ?"); p.push("%" + neov.toLowerCase() + "%"); }
+  }
   likeFld("#f-series", "series");
 
   // ability power cost: card has at least one effect in [min,max] (and matching confidence)
@@ -211,7 +230,8 @@ function showDetail(cn) {
           ${chip("Soul", c.soul)}${chip("Trigger", c.trigger)}${chip("Rare", c.rare)}${chip("Era", c.era)}
         </div>
         <div class="statline">
-          ${chip("Series", c.series)}${chip("Title", c.neo_titles)}${chip("Traits", c.traits)}
+          ${chip("Series", c.series)}${chip("Title", c.neo_titles)}
+          ${chip("Traits", c.traits)}${chip("Traits (EN)", c.traits_en)}
         </div>
       </div>
     </div>

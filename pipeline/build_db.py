@@ -70,12 +70,18 @@ def ability_type(markers):
 clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
 en_cards = json.load(open(os.path.join(D, "cardlist_en.json"), encoding="utf-8"))
 era = json.load(open(os.path.join(D, "card_era.json"), encoding="utf-8"))
-try:
-    _rawcache = json.load(open(os.path.join(D, "translation_cache.json"), encoding="utf-8"))
-except FileNotFoundError:
-    _rawcache = {}
-CACHE = {_nk(k): v for k, v in _rawcache.items()}
-print("cards:", len(clean), "| en:", len(en_cards), "| translation cache:", len(_rawcache))
+def _load(fn):
+    try: return json.load(open(os.path.join(D, fn), encoding="utf-8"))
+    except FileNotFoundError: return {}
+# Complete per-ability JP->EN translations (agent-made, official style), keyed by full JP text
+# "【marker】 text". variant_tr_full.json (~15.9k, the complete set) takes precedence over the
+# older partial translation_cache.json. Both keyed by normalized full text.
+_cache = _load("translation_cache.json")
+_vtf = _load("variant_tr_full.json")
+CACHE = {}
+for k, v in {**_cache, **_vtf}.items():
+    CACHE[_nk(k)] = v
+print(f"cards: {len(clean)} | en: {len(en_cards)} | translations: {len(CACHE)} (cache {len(_cache)} + full {len(_vtf)})")
 
 # --- STRICT EN matching: same publisher + SET + number (e.g. ("DAL","W131",2)).
 # The old official_en._key dropped the SET, so DAL/W131-002, DAL/W79-002, DAL/WE33-002 all
@@ -90,6 +96,54 @@ EN_BY = {}
 for e in en_cards:
     kk = strict_key(e.get("code", ""))
     if kk: EN_BY.setdefault(kk, e)
+
+# --- traits JP->EN dictionary: align clean.traits[i] <-> EN attributes[i] on exact-matched
+#     cards (same count); the most common EN per JP trait wins (robust to occasional misorder). ---
+_tp = collections.defaultdict(collections.Counter)
+for c in clean:
+    ec = EN_BY.get(strict_key(c["card_number"]))
+    if not ec: continue
+    jt, et = c.get("traits") or [], ec.get("attributes") or []
+    if len(jt) == len(et):
+        for a, b in zip(jt, et):
+            if a and b: _tp[a][b] += 1
+TRAIT_EN = {k: v.most_common(1)[0][0] for k, v in _tp.items()}
+
+# --- neo-standard: neo_titles.json maps a neo-standard NAME (JP) to its series codes.
+#     The franchise's ENGLISH name lives in the EN 'expansion' field -> gather them per neo so
+#     the Title filter matches both JP ("デート・ア・ライブ") and EN ("Date A Live"). ---
+neo_data = json.load(open(os.path.join(D, "pipeline", "neo_titles.json"), encoding="utf-8"))
+NAME2NEO = {nt["name"]: nt for nt in neo_data}
+CODE2NEO = {code: nt for nt in neo_data for code in nt.get("codes", [])}
+NEO_EXP = collections.defaultdict(collections.Counter)   # neo JP name -> Counter(expansion -> #cards)
+for e in en_cards:
+    nt = CODE2NEO.get((e.get("code") or "").split("/")[0])
+    if nt and e.get("expansion"): NEO_EXP[nt["name"]][e["expansion"]] += 1
+# one clean EN franchise name per neo: the most common expansion BY CARD COUNT, stripped of
+# vol/edition noise. Each neo is a SEPARATE standard (Fate, Fate/Grand Order, Apocrypha, Prisma).
+def _clean_exp(s):
+    s = re.sub(r"\s*Vol\.\s*\d+", "", s)
+    s = re.sub(r"^\[TD\]\s*|^(Trial Deck|Booster Pack|Extra Booster)\s+", "", s)
+    s = re.sub(r"\s*【[^】]*】|\s*（[^）]*）", "", s)
+    return "" if s.startswith("PR Card") else s.strip()
+NEO_ENNAME = {}
+for nm, exps in NEO_EXP.items():
+    cnt = collections.Counter()
+    for raw, k in exps.items():
+        ce = _clean_exp(raw)
+        if ce: cnt[ce] += k
+    if cnt: NEO_ENNAME[nm] = cnt.most_common(1)[0][0]
+
+# --- per-series SIDE corrections (source data left these as 'Other'); user-provided, per code. ---
+_W, _S, _O = "Weiss", "Schwarz", "Other"
+SIDE_FIX = {
+    "G86": _S, "GIM": _W, "GAS": _W, "GAW": _S, "GBB": _S, "GBC": _S, "GBD": _S, "GBL": _S,
+    "GBY": _W, "GC3": _S, "GDC": _W, "GDR": _S, "GDS": _W, "GDY": _W, "GEM": _W, "GFQ": _S,
+    "GGA": _S, "GGG": _S, "GGH": _S, "GGU": _S, "GHH": _S, "GHM": _W, "GID": _W, "GIY": _S,
+    "GKB": _S, "GKL": _S, "GKM": _S, "GLT": _W, "GMF": _S, "GMM": _W, "GMR": _S, "GMS": _W,
+    "GNH": _W, "GNM": _S, "GNS": _S, "GNY": _W, "GOI": _W, "GOK": _W, "GOM": _W, "GOS": _W,
+    "GRK": _W,
+}
 
 # ---------------- cost model: measured -> residual -> estimated (Characters only) ----------
 variant_occ = collections.defaultdict(list)
@@ -166,7 +220,7 @@ CREATE TABLE cards (
   type TEXT, color TEXT, level INTEGER, cost INTEGER, power INTEGER, soul INTEGER,
   trigger TEXT, traits TEXT, rare TEXT, side TEXT, expansion INTEGER, parallel INTEGER, era TEXT,
   power_base INTEGER, budget INTEGER, model_cost_total INTEGER, real_delta INTEGER,
-  picture TEXT, image_en TEXT
+  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT
 );
 CREATE TABLE abilities (
   card_number TEXT, idx INTEGER, ability_type TEXT, family TEXT,
@@ -199,17 +253,27 @@ for c in clean:
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
     name_en = ec.get("name") if ec else None
+    # traits in EN (translated via the dictionary) + a hidden title-search blob (JP + EN franchise)
+    traits_en = " / ".join([x for x in (TRAIT_EN.get(t) for t in (c.get("traits") or [])) if x])
+    neos = c.get("neo_titles") or []
+    ts = list(neos)
+    for nm in neos:
+        nt = NAME2NEO.get(nm)
+        if nt:
+            ts.append(nt.get("name_kana", "")); ts += nt.get("codes", []); ts.append(NEO_ENNAME.get(nm, ""))
+    title_search = " ".join(t for t in ts if t).lower()
+    side = SIDE_FIX.get((c.get("series") or "").upper(), c.get("side"))   # per-code side correction
     crows.append((
         cn, base_num(cn), c.get("series"), c.get("name"), name_en, c.get("name_kana"),
         join(c.get("neo_titles")), c.get("type"), c.get("color"), c.get("level"), c.get("cost"),
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
-        c.get("rare"), c.get("side"), c.get("expansion"), c.get("parallel"), era.get(cn),
+        c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
-        c.get("picture"), (ec.get("image") if ec else None),
+        c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search,
     ))
     arows.extend(ab_buf)
 
-db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*26), crows)
+db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*28), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
 db.executescript("""
 CREATE INDEX i_color ON cards(color);
@@ -231,6 +295,12 @@ meta = [
     ("note", "Power cost per ability is WIP. Confidence: HIGH=measured, MEDIUM=residual, LOW=estimated."),
 ]
 db.executemany("INSERT INTO meta VALUES (?,?)", meta)
+# neo-standards (official deck-construction groups): each is a SEPARATE standard with its own
+# set codes. The app uses this for an exact title filter (pick a neo -> match its codes only).
+db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT)")
+db.executemany("INSERT INTO neos VALUES (?,?,?,?)", [
+    (nt["name"], NEO_ENNAME.get(nt["name"], ""), nt.get("name_kana", ""), " ".join(nt.get("codes", [])))
+    for nt in neo_data])
 db.commit()
 db.execute("VACUUM"); db.commit(); db.close()
 sz = os.path.getsize(OUT) / 1048576
