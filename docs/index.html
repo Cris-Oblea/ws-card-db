@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weiss Schwarz — Card DB &amp; power cost per ability</title>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 <header>
@@ -73,12 +73,26 @@
   </aside>
 
   <main>
-    <div id="resultbar" class="resultbar"></div>
+    <div id="resultbar" class="resultbar">
+      <span id="count"></span>
+      <span class="pager">
+        <label>per page
+          <select id="page-size">
+            <option value="50">50</option>
+            <option value="100" selected>100</option>
+            <option value="300">300</option>
+            <option value="1000">1000</option>
+            <option value="0">all</option>
+          </select></label>
+        <button id="prev" type="button" title="previous">‹</button>
+        <span id="pageinfo"></span>
+        <button id="next" type="button" title="next">›</button>
+      </span>
+    </div>
     <table id="results"><thead><tr>
       <th>No.</th><th>Name</th><th>Type</th><th>Color</th>
       <th>Lv</th><th>Co</th><th>Pow</th><th>So</th><th>Effects cost</th>
     </tr></thead><tbody></tbody></table>
-    <div id="more" class="more" hidden></div>
   </main>
 </div>
 
@@ -92,6 +106,6 @@
 <!-- sql.js (SQLite in the browser) + pako (gunzip) from CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
