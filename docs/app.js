@@ -29,7 +29,7 @@ async function boot() {
   try {
     const [SQL, gz] = await Promise.all([
       initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
-      fetch("ws.sqlite.gz?v=8").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+      fetch("ws.sqlite.gz?v=9").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
     ]);
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));
@@ -147,8 +147,9 @@ function buildWhere() {
   if (neov) {
     const m = NEO_MAP[neov.toLowerCase()];            // exact neo pick -> its set codes + JP/EN edition
     if (m && m.codes.length) {
-      w.push(`(series IN (${m.codes.map(() => "?").join(",")}) AND en_exclusive = ?)`);
-      p.push(...m.codes, m.en_only);
+      const ph = m.codes.map(() => "?").join(",");
+      if (m.en_only === 2) { w.push(`series IN (${ph})`); p.push(...m.codes); }          // EN title incl. JP cards
+      else { w.push(`(series IN (${ph}) AND en_exclusive = ?)`); p.push(...m.codes, m.en_only); }
     } else { w.push("title_search LIKE ?"); p.push("%" + neov.toLowerCase() + "%"); }
   }
   likeFld("#f-series", "series");
