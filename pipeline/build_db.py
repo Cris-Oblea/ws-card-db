@@ -143,6 +143,14 @@ SIDE_FIX = {
     "GKB": _S, "GKL": _S, "GKM": _S, "GLT": _W, "GMF": _S, "GMM": _W, "GMR": _S, "GMS": _W,
     "GNH": _W, "GNM": _S, "GNS": _S, "GNY": _W, "GOI": _W, "GOK": _W, "GOM": _W, "GOS": _W,
     "GRK": _W,
+    "GSB": _S, "GSC": _S, "GSD": _S, "GSK": _S, "GSO": _S, "GSP": _W, "GSR": _W, "GSS": _W,
+    "GTD": _W, "GYF": _S,
+}
+# per-card overrides (side and/or color) for individual source-data glitches.
+CARD_FIX = {
+    "IAS/S93-E01": {"side": _S}, "IMC/W115-E01": {"side": _W}, "IMS/S93-E01": {"side": _S},
+    "ISC/S110-E01": {"side": _S}, "WS/WSPR-P26": {"side": _W}, "WS/WSPR-P27": {"side": _W},
+    "VA/WE30-55": {"color": "red"},
 }
 
 # ---------------- cost model: measured -> residual -> estimated (Characters only) ----------
@@ -262,10 +270,12 @@ for c in clean:
         if nt:
             ts.append(nt.get("name_kana", "")); ts += nt.get("codes", []); ts.append(NEO_ENNAME.get(nm, ""))
     title_search = " ".join(t for t in ts if t).lower()
-    side = SIDE_FIX.get((c.get("series") or "").upper(), c.get("side"))   # per-code side correction
+    fix = CARD_FIX.get(cn, {})                                             # per-card overrides win
+    side = fix.get("side") or SIDE_FIX.get((c.get("series") or "").upper(), c.get("side"))
+    color = fix.get("color", c.get("color"))
     crows.append((
         cn, base_num(cn), c.get("series"), c.get("name"), name_en, c.get("name_kana"),
-        join(c.get("neo_titles")), c.get("type"), c.get("color"), c.get("level"), c.get("cost"),
+        join(c.get("neo_titles")), c.get("type"), color, c.get("level"), c.get("cost"),
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
         c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
