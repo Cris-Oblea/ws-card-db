@@ -75,9 +75,11 @@ era = json.load(open(os.path.join(D, "card_era.json"), encoding="utf-8"))
 # listed under two codes, e.g. Frieren SFN/S108 == SFN/S128). A card = same publisher prefix + name +
 # stats + EXACT effects (cards that differ in effect keep their own row). The representative prefers
 # a printing that HAS an official EN match (so we keep its English), then a base rarity. ---
-def _skey(code):
-    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-E?(\d+)", code or "")
-    return (m.group(1).upper(), m.group(2).upper(), int(m.group(3))) if m else None
+def _skey(code):   # publisher + set + normalized card id. Handles EN's inserted 'E' (E001/TE08/PE01)
+    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-(.+)$", code or "")   # and trial(T)/promo(P) prefixes + parallels
+    if not m: return None
+    suf = re.sub(r"(\d)[A-Za-z]+$", r"\1", re.sub(r"^([A-Za-z]*)E(\d)", r"\1\2", m.group(3).upper(), count=1))
+    return (m.group(1).upper(), m.group(2).upper(), suf)
 EN_STRICT = {_skey(e.get("code", "")) for e in en_cards}; EN_STRICT.discard(None)
 def _ckey(c):
     return ((c.get("card_number", "") or "").split("/")[0], _nk(c.get("name")), c.get("power"),
@@ -119,9 +121,11 @@ print(f"cards: {len(clean)} | en: {len(en_cards)} | translations: {len(CACHE)} (
 # The old official_en._key dropped the SET, so DAL/W131-002, DAL/W79-002, DAL/WE33-002 all
 # collapsed to ("DAL",2) and cross-contaminated names/effects. We only assign EN data when the
 # EXACT same card exists in the EN list; otherwise we leave it blank (better no EN than wrong EN).
-def strict_key(code):
-    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-E?(\d+)", code or "")
-    return (m.group(1).upper(), m.group(2).upper(), int(m.group(3))) if m else None
+def strict_key(code):   # same as _skey above: tolerant of EN's 'E' and trial(T)/promo(P)/parallel suffixes
+    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-(.+)$", code or "")
+    if not m: return None
+    suf = re.sub(r"(\d)[A-Za-z]+$", r"\1", re.sub(r"^([A-Za-z]*)E(\d)", r"\1\2", m.group(3).upper(), count=1))
+    return (m.group(1).upper(), m.group(2).upper(), suf)
 def _ra_en(e):
     return [a for a in (e.get("ability") or []) if a and a.strip()]
 EN_BY = {}
