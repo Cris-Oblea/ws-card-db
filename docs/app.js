@@ -33,7 +33,8 @@ async function boot() {
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));
     db = new SQL.Database(bytes);
-    const meta = Object.fromEntries(query("SELECT key,value FROM meta").map(r => [r.key, r.value]));
+    const meta = {};
+    query("SELECT key,value FROM meta").forEach(r => { meta[r.key] = r.value; });
     status.innerHTML = `${(+meta.cards).toLocaleString()} cards · ${(+meta.abilities).toLocaleString()} abilities ` +
       `· <span title="${escHtml(meta.note)}">cost model WIP (${escHtml(meta.validation)})</span>`;
     initFilters();
@@ -145,8 +146,8 @@ function run() {
         ${r.name_en && r.name ? `<br><span class="jp">${escHtml(r.name)}</span>` : ""}</td>
       <td>${escHtml(r.type)}</td>
       <td>${r.color ? dot(r.color) + escHtml(r.color) : ""}</td>
-      <td>${r.level ?? ""}</td><td>${r.cost ?? ""}</td>
-      <td>${r.power ?? ""}</td><td>${r.soul ?? ""}</td>
+      <td>${r.level == null ? "" : r.level}</td><td>${r.cost == null ? "" : r.cost}</td>
+      <td>${r.power == null ? "" : r.power}</td><td>${r.soul == null ? "" : r.soul}</td>
       <td class="cost-cell">${r.model_cost_total == null ? "—" : "−" + r.model_cost_total}</td>
     </tr>`).join("");
   $("#results tbody").querySelectorAll("tr").forEach(tr =>
