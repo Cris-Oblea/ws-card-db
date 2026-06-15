@@ -41,12 +41,28 @@ for c in clean:
             for a, b in zip(jt, et):
                 if a and b: TRAIT_OFFICIAL.setdefault(a, b)
 
+# ability text with OFFICIAL EN (strict match + equal ability count) -> store it (propagated by
+# text to every card with that JP ability) and don't translate it.
+AB_OFFICIAL_EN = {}
+for c in clean:
+    if c.get("excluded"): continue
+    ec = EN_BY.get(skey(c["card_number"]))
+    if not ec: continue
+    en_ab = [a for a in (ec.get("ability") or []) if a.strip()]
+    jp_ab = ra(c)
+    if len(en_ab) == len(jp_ab):
+        for a, e_t in zip(jp_ab, en_ab):
+            key = ("".join(a.get("markers") or []) + " " + (a.get("text") or "")).strip()
+            AB_OFFICIAL_EN.setdefault(key, e_t)
+json.dump(AB_OFFICIAL_EN, open(os.path.join(D, "abilities_official_en.json"), "w", encoding="utf-8"), ensure_ascii=False)
+AB_OFF = {_nk(k) for k in AB_OFFICIAL_EN}
+
 ab_need, name_need, trait_need = set(), set(), set()
 for c in clean:
     if c.get("excluded"): continue
     for a in ra(c):
         key = ("".join(a.get("markers") or []) + " " + (a.get("text") or "")).strip()
-        if _nk(key) not in CACHE: ab_need.add(key)
+        if _nk(key) not in CACHE and _nk(key) not in AB_OFF: ab_need.add(key)
     nm = c.get("name")
     if nm and nm not in NAME_OFFICIAL and nm not in NAME_TR: name_need.add(nm)
     for t in (c.get("traits") or []):

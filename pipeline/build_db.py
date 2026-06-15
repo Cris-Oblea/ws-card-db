@@ -108,9 +108,10 @@ def _load(fn):
 # older partial translation_cache.json. Both keyed by normalized full text.
 _cache = _load("translation_cache.json")
 _vtf = _load("variant_tr_full.json")
+_aboff = _load("abilities_official_en.json")     # official EN abilities (strict match) propagated by text
 _abtr = _load("abilities_tr.json")               # agent-translated abilities (full bilingual pass)
 CACHE = {}
-for k, v in {**_cache, **_vtf, **_abtr}.items():
+for k, v in {**_cache, **_vtf, **_aboff, **_abtr}.items():
     CACHE[_nk(k)] = v
 print(f"cards: {len(clean)} | en: {len(en_cards)} | translations: {len(CACHE)} (cache {len(_cache)} + full {len(_vtf)})")
 
