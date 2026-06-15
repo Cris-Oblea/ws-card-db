@@ -72,6 +72,15 @@ function initFilters() {
   const deb = debounce(run, 250);
   $("#app").addEventListener("input", e => { if (e.target.matches("input")) deb(); });
   $("#app").addEventListener("change", e => { if (e.target.matches("select")) run(); });
+  // per-filter clear (the ✕ next to each control)
+  $("#filters").addEventListener("click", e => {
+    const b = e.target.closest(".clr"); if (!b) return;
+    e.preventDefault();
+    const el = document.getElementById(b.dataset.clear);
+    if (el.multiple) Array.from(el.options).forEach(o => o.selected = false);
+    else el.value = "";
+    run();
+  });
   $("#reset").addEventListener("click", () => {
     $("#filters").querySelectorAll("input").forEach(i => i.value = "");
     $("#filters").querySelectorAll("select").forEach(s => [...s.options].forEach(o => o.selected = false));
@@ -190,7 +199,7 @@ function showDetail(cn) {
   $("#detail-body").innerHTML = `
     <div class="d-head">
       ${imgUrl
-        ? `<img class="d-img" src="${escHtml(imgUrl)}" alt=""
+        ? `<img class="d-img${c.type === 'Climax' ? ' climax' : ''}" src="${escHtml(imgUrl)}" alt=""
              onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'d-img placeholder',textContent:'image not available'}))">`
         : `<div class="d-img placeholder">no image</div>`}
       <div>
