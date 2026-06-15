@@ -42,7 +42,15 @@ select[multiple]{padding:2px}
 
 main{overflow:auto;padding:0 14px 40px}
 .resultbar{position:sticky;top:0;background:var(--bg);padding:10px 2px;color:var(--dim);
-  font-size:13px;z-index:2}
+  font-size:13px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pager{display:flex;align-items:center;gap:8px}
+.pager label{margin:0;color:var(--dim);display:flex;align-items:center;gap:4px}
+.pager select{width:auto;margin:0;padding:3px 6px}
+.pager button{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:6px;cursor:pointer;padding:2px 11px;font-size:15px;line-height:1.2}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager button:not(:disabled):hover{border-color:var(--accent)}
+#pageinfo{min-width:84px;text-align:center}
 table{width:100%;border-collapse:collapse}
 th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
 th{position:sticky;top:38px;background:var(--bg);color:var(--dim);font-weight:600;font-size:12px;z-index:1}

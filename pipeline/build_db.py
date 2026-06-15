@@ -133,6 +133,10 @@ for nm, exps in NEO_EXP.items():
         ce = _clean_exp(raw)
         if ce: cnt[ce] += k
     if cnt: NEO_ENNAME[nm] = cnt.most_common(1)[0][0]
+def _has_cjk(s):
+    return any("぀" <= ch <= "ヿ" or "㐀" <= ch <= "鿿" or "＀" <= ch <= "￯" for ch in (s or ""))
+def neo_en(nm):   # display/search name in EN: the official name if it's already Latin (Fate, FAIRY
+    return nm if (nm and not _has_cjk(nm)) else NEO_ENNAME.get(nm, "")   # TAIL...), else from expansion
 
 # --- per-series SIDE corrections (source data left these as 'Other'); user-provided, per code. ---
 _W, _S, _O = "Weiss", "Schwarz", "Other"
@@ -268,7 +272,7 @@ for c in clean:
     for nm in neos:
         nt = NAME2NEO.get(nm)
         if nt:
-            ts.append(nt.get("name_kana", "")); ts += nt.get("codes", []); ts.append(NEO_ENNAME.get(nm, ""))
+            ts.append(nt.get("name_kana", "")); ts += nt.get("codes", []); ts.append(neo_en(nm))
     title_search = " ".join(t for t in ts if t).lower()
     fix = CARD_FIX.get(cn, {})                                             # per-card overrides win
     side = fix.get("side") or SIDE_FIX.get((c.get("series") or "").upper(), c.get("side"))
@@ -309,7 +313,7 @@ db.executemany("INSERT INTO meta VALUES (?,?)", meta)
 # set codes. The app uses this for an exact title filter (pick a neo -> match its codes only).
 db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT)")
 db.executemany("INSERT INTO neos VALUES (?,?,?,?)", [
-    (nt["name"], NEO_ENNAME.get(nt["name"], ""), nt.get("name_kana", ""), " ".join(nt.get("codes", [])))
+    (nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])))
     for nt in neo_data])
 db.commit()
 db.execute("VACUUM"); db.commit(); db.close()

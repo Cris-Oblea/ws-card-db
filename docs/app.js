@@ -6,7 +6,7 @@
 // build the URL from the `picture` path. TODO: confirm the JP base in a real browser; the app
 // falls back to a placeholder if an image fails to load.
 const IMG_BASE_JP = "https://ws-tcg.com/wordpress/wp-content/images/cardlist/";
-const PAGE = 300; // max rows rendered per query
+let page = 0, pageSize = 100;   // pagination state
 
 const $ = (s, r = document) => r.querySelector(s);
 const status = $("#status");
@@ -70,20 +70,28 @@ function initFilters() {
   fillSelect("#f-cost", ints("cost"));
   fillSelect("#f-soul", ints("soul"));
 
-  // neo-standard autocomplete: each neo is a separate deck-construction group (EN + JP names)
-  const opts = new Set();
+  // neo-standard autocomplete: ONE entry per official neo (deck-construction group), shown in
+  // English (JP original as a hint). Search matches BOTH languages via NEO_MAP. No duplicates.
+  const items = [], seen = new Set();
   query("SELECT jp_name, en_name, codes FROM neos").forEach(n => {
     const codes = (n.codes || "").split(" ").filter(Boolean);
-    [n.en_name, n.jp_name].forEach(nm => { if (nm) { NEO_MAP[nm.toLowerCase()] = codes; opts.add(nm); } });
+    if (n.jp_name) NEO_MAP[n.jp_name.toLowerCase()] = codes;   // JP search
+    if (n.en_name) NEO_MAP[n.en_name.toLowerCase()] = codes;   // EN search
+    const disp = n.en_name || n.jp_name;                       // one name per neo (English preferred)
+    if (disp && !seen.has(disp.toLowerCase())) { seen.add(disp.toLowerCase()); items.push({ v: disp, jp: n.jp_name || "" }); }
   });
+  items.sort((a, b) => a.v.localeCompare(b.v));
   const dl = document.createElement("datalist"); dl.id = "neo-list";
-  dl.innerHTML = Array.from(opts).sort().map(o => `<option value="${escHtml(o)}"></option>`).join("");
+  dl.innerHTML = items.map(o => `<option value="${escHtml(o.v)}">${escHtml(o.jp !== o.v ? o.jp : "")}</option>`).join("");
   document.body.appendChild(dl);
   $("#f-neo").setAttribute("list", "neo-list");
 
   const deb = debounce(run, 250);
   $("#app").addEventListener("input", e => { if (e.target.matches("input")) deb(); });
-  $("#app").addEventListener("change", e => { if (e.target.matches("select")) run(); });
+  $("#app").addEventListener("change", e => { if (e.target.matches("select") && e.target.id !== "page-size") run(); });
+  $("#page-size").addEventListener("change", e => { pageSize = +e.target.value; run(); });
+  $("#prev").addEventListener("click", () => { page -= 1; run(false); });
+  $("#next").addEventListener("click", () => { page += 1; run(false); });
   // per-filter clear (the ✕ next to each control)
   $("#filters").addEventListener("click", e => {
     const b = e.target.closest(".clr"); if (!b) return;
@@ -158,14 +166,20 @@ function buildWhere() {
 }
 
 // ---- run query + render list ----
-function run() {
+function run(reset) {
+  if (reset !== false) page = 0;
   const { where, params } = buildWhere();
   const total = query(`SELECT COUNT(*) n FROM cards ${where}`, params)[0].n;
+  const pages = pageSize === 0 ? 1 : Math.max(1, Math.ceil(total / pageSize));
+  page = Math.min(Math.max(0, page), pages - 1);
+  const lim = pageSize === 0 ? "" : `LIMIT ${pageSize} OFFSET ${page * pageSize}`;
   const rows = query(
     `SELECT card_number,name,name_en,type,color,level,cost,power,soul,model_cost_total
-     FROM cards ${where} ORDER BY series, card_number LIMIT ${PAGE}`, params);
-  $("#resultbar").textContent =
-    `${total.toLocaleString()} card${total === 1 ? "" : "s"}` + (total > PAGE ? ` — showing first ${PAGE}` : "");
+     FROM cards ${where} ORDER BY series, card_number ${lim}`, params);
+  $("#count").textContent = `${total.toLocaleString()} card${total === 1 ? "" : "s"}`;
+  $("#pageinfo").textContent = total ? `page ${page + 1} / ${pages}` : "";
+  $("#prev").disabled = page <= 0;
+  $("#next").disabled = page >= pages - 1;
   const dot = c => `<span class="dot c-${escHtml(c)}"></span>`;
   $("#results tbody").innerHTML = rows.map(r => `
     <tr data-cn="${escHtml(r.card_number)}">
