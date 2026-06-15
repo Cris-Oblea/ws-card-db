@@ -71,16 +71,24 @@ clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8")
 en_cards = json.load(open(os.path.join(D, "cardlist_en.json"), encoding="utf-8"))
 era = json.load(open(os.path.join(D, "card_era.json"), encoding="utf-8"))
 
-# --- de-duplicate alt-art / rarity parallels (the JP list is full of them). A physical card =
-# same base number + name + stats + EXACT effects. Cards that share a number/name but DIFFER in
-# effect keep their own row. Keep the plain base printing as the representative. ---
+# --- de-duplicate the JP list: alt-art/rarity parallels AND cross-set-code reprints (some sets are
+# listed under two codes, e.g. Frieren SFN/S108 == SFN/S128). A card = same publisher prefix + name +
+# stats + EXACT effects (cards that differ in effect keep their own row). The representative prefers
+# a printing that HAS an official EN match (so we keep its English), then a base rarity. ---
+def _skey(code):
+    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-E?(\d+)", code or "")
+    return (m.group(1).upper(), m.group(2).upper(), int(m.group(3))) if m else None
+EN_STRICT = {_skey(e.get("code", "")) for e in en_cards}; EN_STRICT.discard(None)
 def _ckey(c):
-    return (base_num(c.get("card_number", "")), _nk(c.get("name")), c.get("power"), c.get("level"),
-            c.get("cost"), c.get("soul"), tuple((a.get("type"), _nk(a.get("text"))) for a in ra(c)))
+    return ((c.get("card_number", "") or "").split("/")[0], _nk(c.get("name")), c.get("power"),
+            c.get("level"), c.get("cost"), c.get("soul"),
+            tuple((a.get("type"), _nk(a.get("text"))) for a in ra(c)))
 BASE_RARE = {"RR", "R", "U", "C", "CR", "CC", "TD"}           # base rarities; anything else = alt-art
 def _better(cand, cur):
+    ce, ue = _skey(cand.get("card_number", "")) in EN_STRICT, _skey(cur.get("card_number", "")) in EN_STRICT
+    if ce != ue: return ce                                    # keep the printing that has an EN match
     cb, ub = cand.get("rare") in BASE_RARE, cur.get("rare") in BASE_RARE
-    if cb != ub: return cb                                    # a base-rarity printing wins
+    if cb != ub: return cb                                    # else a base-rarity printing
     b = base_num(cand.get("card_number", ""))
     pc, pu = cand.get("card_number") == b, cur.get("card_number") == b
     if pc != pu: return pc                                    # else the plain base number
@@ -91,7 +99,7 @@ for c in clean:
     k = _ckey(c)
     if k not in _dd or _better(c, _dd[k]): _dd[k] = c
 _before = len(clean); clean = list(_dd.values())
-print(f"alt-art de-dup: {_before} -> {len(clean)} distinct JP cards (removed {_before - len(clean)})")
+print(f"de-dup (alt-art + cross-set): {_before} -> {len(clean)} distinct JP cards")
 def _load(fn):
     try: return json.load(open(os.path.join(D, fn), encoding="utf-8"))
     except FileNotFoundError: return {}
@@ -100,8 +108,9 @@ def _load(fn):
 # older partial translation_cache.json. Both keyed by normalized full text.
 _cache = _load("translation_cache.json")
 _vtf = _load("variant_tr_full.json")
+_abtr = _load("abilities_tr.json")               # agent-translated abilities (full bilingual pass)
 CACHE = {}
-for k, v in {**_cache, **_vtf}.items():
+for k, v in {**_cache, **_vtf, **_abtr}.items():
     CACHE[_nk(k)] = v
 print(f"cards: {len(clean)} | en: {len(en_cards)} | translations: {len(CACHE)} (cache {len(_cache)} + full {len(_vtf)})")
 
@@ -118,6 +127,12 @@ EN_BY = {}
 for e in en_cards:
     kk = strict_key(e.get("code", ""))
     if kk: EN_BY.setdefault(kk, e)
+# agent translations (full bilingual pass) + reuse of official EN names across same-name cards
+NAME_TR = _load("name_tr.json"); TRAIT_TR = _load("trait_tr.json")
+NAME_OFFICIAL = {}
+for c in clean:
+    ec = EN_BY.get(strict_key(c["card_number"]))
+    if ec and ec.get("name"): NAME_OFFICIAL.setdefault(c.get("name"), ec["name"])
 
 # --- traits JP->EN dictionary: align clean.traits[i] <-> EN attributes[i] on exact-matched
 #     cards (same count); the most common EN per JP trait wins (robust to occasional misorder). ---
@@ -287,9 +302,9 @@ for c in clean:
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
-    name_en = ec.get("name") if ec else None
-    # traits in EN (translated via the dictionary) + a hidden title-search blob (JP + EN franchise)
-    traits_en = " / ".join([x for x in (TRAIT_EN.get(t) for t in (c.get("traits") or [])) if x])
+    name_en = ec.get("name") if ec else (NAME_OFFICIAL.get(c.get("name")) or NAME_TR.get(c.get("name")))
+    # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
+    traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []
     ts = list(neos)
     for nm in neos:

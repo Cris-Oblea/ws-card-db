@@ -17,3 +17,7 @@ docs/ws.sqlite
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# translation workflow temp
+pipeline/_tr_batches/
+pipeline/_tr_manifest.json
