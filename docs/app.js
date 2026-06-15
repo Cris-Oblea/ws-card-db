@@ -81,8 +81,11 @@ function initFilters() {
     if (disp && !seen.has(disp.toLowerCase())) { seen.add(disp.toLowerCase()); items.push({ v: disp, jp: n.jp_name || "" }); }
   });
   items.sort((a, b) => a.v.localeCompare(b.v));
+  // Firefox/Waterfox filters datalist options by the option's VISIBLE TEXT, not its value, so the
+  // English title must be the text (no JP label) — otherwise typing English shows nothing in FF.
+  // JP search still works via NEO_MAP (independent of the dropdown).
   const dl = document.createElement("datalist"); dl.id = "neo-list";
-  dl.innerHTML = items.map(o => `<option value="${escHtml(o.v)}">${escHtml(o.jp !== o.v ? o.jp : "")}</option>`).join("");
+  dl.innerHTML = items.map(o => `<option value="${escHtml(o.v)}"></option>`).join("");
   document.body.appendChild(dl);
   $("#f-neo").setAttribute("list", "neo-list");
 
