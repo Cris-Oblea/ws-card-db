@@ -275,7 +275,7 @@ CREATE TABLE cards (
   type TEXT, color TEXT, level INTEGER, cost INTEGER, power INTEGER, soul INTEGER,
   trigger TEXT, traits TEXT, rare TEXT, side TEXT, expansion INTEGER, parallel INTEGER, era TEXT,
   power_base INTEGER, budget INTEGER, model_cost_total INTEGER, real_delta INTEGER,
-  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER
+  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER, text_en TEXT
 );
 CREATE TABLE abilities (
   card_number TEXT, idx INTEGER, ability_type TEXT, family TEXT,
@@ -327,6 +327,7 @@ for c in clean:
         c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
         c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search, 0,
+        (" ".join(en_abs) if (ec is not None and not align) else None),   # official full EN when the JP/EN ability split differs
     ))
     arows.extend(ab_buf)
 
@@ -448,11 +449,12 @@ for c in ex_cards:
         " / ".join(c["attrs"]), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
         None, 0, None, c["pbase"], (c["pbase"] - 500 if c["pbase"] is not None else None),
         (model_total if have else None), c["delta"], "", e.get("image"), " / ".join(c["attrs"]), title.lower(), 1,
+        None,   # text_en (EN-exclusive abilities are already per-ability)
     ))
     arows.extend(ab_buf)
 print(f"English-exclusive cards added (WX/SX): {len(ex_cards)}")
 
-db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*29), crows)
+db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*30), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
 db.executescript("""
 CREATE INDEX i_color ON cards(color);
