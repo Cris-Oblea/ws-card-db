@@ -1,0 +1,19 @@
+# --- Regenerable / heavy data (rebuilt by the pipeline) ---
+# Raw harvest (~59 MB) and features (~73 MB): re-derivable. Not versioned.
+pipeline/pipeline/cardlist_full.json
+pipeline/pipeline/features_by_card.csv
+
+# --- Cache and transient artifacts ---
+__pycache__/
+*.pyc
+pipeline/_tr/
+pipeline/_archive/
+to_translate.json
+
+# --- App build (the DB is generated; the site is published) ---
+# (will be adjusted once app/ exists)
+
+# --- OS junk ---
+Thumbs.db
+.DS_Store
+desktop.ini
