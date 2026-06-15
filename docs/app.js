@@ -29,7 +29,7 @@ async function boot() {
   try {
     const [SQL, gz] = await Promise.all([
       initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
-      fetch("ws.sqlite.gz?v=7").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+      fetch("ws.sqlite.gz?v=8").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
     ]);
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));
@@ -73,10 +73,10 @@ function initFilters() {
   // neo-standard autocomplete: ONE entry per official neo (deck-construction group), shown in
   // English (JP original as a hint). Search matches BOTH languages via NEO_MAP. No duplicates.
   const items = [], seen = new Set();
-  query("SELECT jp_name, en_name, codes FROM neos").forEach(n => {
-    const codes = (n.codes || "").split(" ").filter(Boolean);
-    if (n.jp_name) NEO_MAP[n.jp_name.toLowerCase()] = codes;   // JP search
-    if (n.en_name) NEO_MAP[n.en_name.toLowerCase()] = codes;   // EN search
+  query("SELECT jp_name, en_name, codes, en_only FROM neos").forEach(n => {
+    const v = { codes: (n.codes || "").split(" ").filter(Boolean), en_only: n.en_only };
+    if (n.jp_name) NEO_MAP[n.jp_name.toLowerCase()] = v;       // JP search
+    if (n.en_name) NEO_MAP[n.en_name.toLowerCase()] = v;       // EN search
     const disp = n.en_name || n.jp_name;                       // one name per neo (English preferred)
     if (disp && !seen.has(disp.toLowerCase())) { seen.add(disp.toLowerCase()); items.push({ v: disp, jp: n.jp_name || "" }); }
   });
@@ -145,9 +145,11 @@ function buildWhere() {
   if (trv) { w.push("(traits LIKE ? OR traits_en LIKE ?)"); p.push("%" + trv + "%", "%" + trv + "%"); }
   const neov = $("#f-neo").value.trim();
   if (neov) {
-    const codes = NEO_MAP[neov.toLowerCase()];        // exact neo pick -> match only its codes
-    if (codes && codes.length) { w.push(`series IN (${codes.map(() => "?").join(",")})`); p.push(...codes); }
-    else { w.push("title_search LIKE ?"); p.push("%" + neov.toLowerCase() + "%"); }
+    const m = NEO_MAP[neov.toLowerCase()];            // exact neo pick -> its set codes + JP/EN edition
+    if (m && m.codes.length) {
+      w.push(`(series IN (${m.codes.map(() => "?").join(",")}) AND en_exclusive = ?)`);
+      p.push(...m.codes, m.en_only);
+    } else { w.push("title_search LIKE ?"); p.push("%" + neov.toLowerCase() + "%"); }
   }
   likeFld("#f-series", "series");
 
