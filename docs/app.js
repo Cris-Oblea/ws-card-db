@@ -1,0 +1,214 @@
+"use strict";
+/* Weiss Schwarz card DB — static query app.
+   Loads ws.sqlite.gz in the browser (pako -> sql.js) and queries it in memory. */
+
+// Official card-image bases. EN images come straight from the dataset; for JP-only cards we
+// build the URL from the `picture` path. TODO: confirm the JP base in a real browser; the app
+// falls back to a placeholder if an image fails to load.
+const IMG_BASE_JP = "https://ws-tcg.com/wordpress/wp-content/images/cardlist/";
+const PAGE = 300; // max rows rendered per query
+
+const $ = (s, r = document) => r.querySelector(s);
+const status = $("#status");
+let db = null;
+
+const escHtml = s => (s == null ? "" : String(s).replace(/[&<>"]/g,
+  c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])));
+
+function query(sql, params) {
+  const stmt = db.prepare(sql);
+  if (params) stmt.bind(params);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
+
+async function boot() {
+  try {
+    const [SQL, gz] = await Promise.all([
+      initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
+      fetch("ws.sqlite.gz").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+    ]);
+    status.textContent = "Decompressing…";
+    const bytes = pako.inflate(new Uint8Array(gz));
+    db = new SQL.Database(bytes);
+    const meta = Object.fromEntries(query("SELECT key,value FROM meta").map(r => [r.key, r.value]));
+    status.innerHTML = `${(+meta.cards).toLocaleString()} cards · ${(+meta.abilities).toLocaleString()} abilities ` +
+      `· <span title="${escHtml(meta.note)}">cost model WIP (${escHtml(meta.validation)})</span>`;
+    initFilters();
+    $("#app").hidden = false;
+    run();
+  } catch (e) {
+    status.className = "status err";
+    status.textContent = "Could not load the database: " + e.message;
+    console.error(e);
+  }
+}
+
+// ---- filters ----
+function fillSelect(id, values, fmt) {
+  const sel = $(id);
+  sel.innerHTML = values.map(v => `<option value="${escHtml(v)}">${escHtml(fmt ? fmt(v) : v)}</option>`).join("");
+}
+function distinct(col) {
+  return query(`SELECT DISTINCT ${col} v FROM cards WHERE ${col} IS NOT NULL AND ${col}<>'' ORDER BY ${col}`).map(r => r.v);
+}
+function initFilters() {
+  fillSelect("#f-type", distinct("type"));
+  fillSelect("#f-color", distinct("color"));
+  fillSelect("#f-side", distinct("side"));
+  // trigger is stored joined ("soul" / "soul / soul"); split into distinct tokens
+  const trig = new Set();
+  query("SELECT DISTINCT trigger v FROM cards WHERE trigger<>''").forEach(r =>
+    r.v.split(" / ").forEach(t => t && trig.add(t)));
+  fillSelect("#f-trigger", [...trig].sort());
+  const ints = c => query(`SELECT DISTINCT ${c} v FROM cards WHERE ${c} IS NOT NULL ORDER BY ${c}`).map(r => r.v);
+  fillSelect("#f-level", ints("level"));
+  fillSelect("#f-cost", ints("cost"));
+  fillSelect("#f-soul", ints("soul"));
+
+  const deb = debounce(run, 250);
+  $("#app").addEventListener("input", e => { if (e.target.matches("input")) deb(); });
+  $("#app").addEventListener("change", e => { if (e.target.matches("select")) run(); });
+  $("#reset").addEventListener("click", () => {
+    $("#filters").querySelectorAll("input").forEach(i => i.value = "");
+    $("#filters").querySelectorAll("select").forEach(s => [...s.options].forEach(o => o.selected = false));
+    run();
+  });
+  $("#detail-close").addEventListener("click", closeDetail);
+  $("#detail").addEventListener("click", e => { if (e.target.id === "detail") closeDetail(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
+}
+const multi = id => Array.from($(id).selectedOptions).map(o => o.value);
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+// ---- build WHERE from filters ----
+function buildWhere() {
+  const w = [], p = [];
+  const inClause = (col, vals) => { if (vals.length) { w.push(`${col} IN (${vals.map(() => "?").join(",")})`); p.push(...vals); } };
+
+  const q = $("#q").value.trim();
+  if (q) {
+    const like = "%" + q + "%";
+    w.push(`(name LIKE ? OR name_en LIKE ? OR neo_titles LIKE ? OR card_number LIKE ?
+            OR card_number IN (SELECT card_number FROM abilities WHERE en_text LIKE ? OR jp_text LIKE ?))`);
+    p.push(like, like, like, like, like, like);
+  }
+  inClause("type", multi("#f-type"));
+  inClause("color", multi("#f-color"));
+  inClause("side", multi("#f-side"));
+  inClause("level", multi("#f-level").map(Number));
+  inClause("cost", multi("#f-cost").map(Number));
+  inClause("soul", multi("#f-soul").map(Number));
+
+  const trig = multi("#f-trigger");
+  if (trig.length) { w.push("(" + trig.map(() => "trigger LIKE ?").join(" OR ") + ")"); p.push(...trig.map(t => "%" + t + "%")); }
+
+  const pmin = $("#f-power-min").value, pmax = $("#f-power-max").value;
+  if (pmin !== "") { w.push("power >= ?"); p.push(+pmin); }
+  if (pmax !== "") { w.push("power <= ?"); p.push(+pmax); }
+
+  const likeFld = (id, col) => { const v = $(id).value.trim(); if (v) { w.push(`${col} LIKE ?`); p.push("%" + v + "%"); } };
+  likeFld("#f-trait", "traits");
+  likeFld("#f-neo", "neo_titles");
+  likeFld("#f-series", "series");
+
+  // ability power cost: card has at least one effect in [min,max] (and matching confidence)
+  const amin = $("#f-ac-min").value, amax = $("#f-ac-max").value, confs = multi("#f-conf");
+  if (amin !== "" || amax !== "" || confs.length) {
+    const sub = [], sp = [];
+    if (amin !== "") { sub.push("power_cost >= ?"); sp.push(+amin); }
+    if (amax !== "") { sub.push("power_cost <= ?"); sp.push(+amax); }
+    if (amin === "" && amax === "") sub.push("power_cost IS NOT NULL");
+    if (confs.length) { sub.push(`confidence IN (${confs.map(() => "?").join(",")})`); sp.push(...confs); }
+    w.push(`card_number IN (SELECT card_number FROM abilities WHERE ${sub.join(" AND ")})`);
+    p.push(...sp);
+  }
+  return { where: w.length ? "WHERE " + w.join(" AND ") : "", params: p };
+}
+
+// ---- run query + render list ----
+function run() {
+  const { where, params } = buildWhere();
+  const total = query(`SELECT COUNT(*) n FROM cards ${where}`, params)[0].n;
+  const rows = query(
+    `SELECT card_number,name,name_en,type,color,level,cost,power,soul,model_cost_total
+     FROM cards ${where} ORDER BY series, card_number LIMIT ${PAGE}`, params);
+  $("#resultbar").textContent =
+    `${total.toLocaleString()} card${total === 1 ? "" : "s"}` + (total > PAGE ? ` — showing first ${PAGE}` : "");
+  const dot = c => `<span class="dot c-${escHtml(c)}"></span>`;
+  $("#results tbody").innerHTML = rows.map(r => `
+    <tr data-cn="${escHtml(r.card_number)}">
+      <td>${escHtml(r.card_number)}</td>
+      <td class="name"><span class="en">${escHtml(r.name_en || r.name || "")}</span>
+        ${r.name_en && r.name ? `<br><span class="jp">${escHtml(r.name)}</span>` : ""}</td>
+      <td>${escHtml(r.type)}</td>
+      <td>${r.color ? dot(r.color) + escHtml(r.color) : ""}</td>
+      <td>${r.level ?? ""}</td><td>${r.cost ?? ""}</td>
+      <td>${r.power ?? ""}</td><td>${r.soul ?? ""}</td>
+      <td class="cost-cell">${r.model_cost_total == null ? "—" : "−" + r.model_cost_total}</td>
+    </tr>`).join("");
+  $("#results tbody").querySelectorAll("tr").forEach(tr =>
+    tr.addEventListener("click", () => showDetail(tr.dataset.cn)));
+}
+
+// ---- detail ----
+function showDetail(cn) {
+  const c = query("SELECT * FROM cards WHERE card_number=?", [cn])[0];
+  if (!c) return;
+  const abs = query("SELECT * FROM abilities WHERE card_number=? ORDER BY idx", [cn]);
+  const chip = (k, v) => v == null || v === "" ? "" : `<span class="chip">${escHtml(k)}: ${escHtml(v)}</span>`;
+  const imgUrl = c.image_en || (c.picture ? IMG_BASE_JP + c.picture : "");
+
+  let budget = "";
+  if (c.power_base != null) {
+    const gap = c.real_delta - (c.model_cost_total || 0);
+    const match = gap === 0
+      ? `<span class="ok">model reconstructs it exactly</span>`
+      : `<span class="warn">model −${c.model_cost_total || 0} vs actual −${c.real_delta} (gap ${gap > 0 ? "+" : ""}${gap}, cost model is WIP)</span>`;
+    budget = `<div class="budget">
+      Vanilla <b>power_base ${c.power_base}</b> · budget ${c.budget}
+      · effects spend <b>−${c.real_delta}</b> of power → printed power ${c.power}.<br>${match}</div>`;
+  } else {
+    budget = `<div class="budget"><span class="na">The power-cost model applies to Characters only.</span></div>`;
+  }
+
+  const abHtml = abs.map(a => `
+    <div class="ab">
+      <div class="ab-top">
+        <span><span class="ab-type">${escHtml(a.ability_type)}</span>
+          <span class="fam">${escHtml(a.family || "")}</span></span>
+        <span class="ab-cost">${a.power_cost == null ? '<span class="na">n/a</span>'
+          : "−" + a.power_cost}${a.confidence ? `<span class="conf ${a.confidence}">${a.confidence}</span>` : ""}</span>
+      </div>
+      <div class="txt">${escHtml(a.en_text || "") || '<span class="na">(no English text)</span>'}</div>
+      ${a.jp_text ? `<div class="jp">${escHtml(a.jp_text)}</div>` : ""}
+    </div>`).join("") || `<p class="na">No abilities.</p>`;
+
+  $("#detail-body").innerHTML = `
+    <div class="d-head">
+      ${imgUrl
+        ? `<img class="d-img" src="${escHtml(imgUrl)}" alt=""
+             onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'d-img placeholder',textContent:'image not available'}))">`
+        : `<div class="d-img placeholder">no image</div>`}
+      <div>
+        <p class="d-title">${escHtml(c.name_en || c.name || c.card_number)}</p>
+        <p class="d-sub">${escHtml(c.card_number)}${c.name_en && c.name ? " · " + escHtml(c.name) : ""}</p>
+        <div class="statline">
+          ${chip("Type", c.type)}${chip("Color", c.color)}${chip("Side", c.side)}
+          ${chip("Level", c.level)}${chip("Cost", c.cost)}${chip("Power", c.power)}
+          ${chip("Soul", c.soul)}${chip("Trigger", c.trigger)}${chip("Rare", c.rare)}${chip("Era", c.era)}
+        </div>
+        <div class="statline">
+          ${chip("Series", c.series)}${chip("Title", c.neo_titles)}${chip("Traits", c.traits)}
+        </div>
+      </div>
+    </div>
+    ${budget}
+    <div class="abilities">${abHtml}</div>`;
+  $("#detail").hidden = false;
+}
+function closeDetail() { $("#detail").hidden = true; }
+
+boot();

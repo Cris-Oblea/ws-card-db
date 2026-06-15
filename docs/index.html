@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Weiss Schwarz — Card DB &amp; power cost per ability</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Weiss Schwarz <span class="sub">card DB &amp; power cost per ability</span></h1>
+  <div id="status" class="status">Loading database…</div>
+</header>
+
+<div id="app" hidden>
+  <aside id="filters">
+    <div class="search-row">
+      <input id="q" type="search" placeholder="Search name, title, card no. or effect text…" autocomplete="off">
+    </div>
+
+    <details open><summary>Card</summary>
+      <label>Type <select id="f-type" multiple size="3"></select></label>
+      <label>Color <select id="f-color" multiple size="4"></select></label>
+      <label>Side <select id="f-side" multiple size="2"></select></label>
+      <label>Trigger <select id="f-trigger" multiple size="4"></select></label>
+    </details>
+
+    <details open><summary>Stats</summary>
+      <div class="grid2">
+        <label>Level <select id="f-level" multiple size="4"></select></label>
+        <label>Cost <select id="f-cost" multiple size="4"></select></label>
+        <label>Soul <select id="f-soul" multiple size="4"></select></label>
+      </div>
+      <label>Power ≥ <input id="f-power-min" type="number" step="500" placeholder="min"></label>
+      <label>Power ≤ <input id="f-power-max" type="number" step="500" placeholder="max"></label>
+    </details>
+
+    <details open><summary>Text</summary>
+      <label>Trait <input id="f-trait" type="text" placeholder="e.g. 魔法 / Magic"></label>
+      <label>Title (Neo-Standard) <input id="f-neo" type="text" placeholder="e.g. ペルソナ"></label>
+      <label>Series <input id="f-series" type="text" placeholder="e.g. P3"></label>
+    </details>
+
+    <details open><summary>Ability power cost <span class="hint">(how much an effect lowers power)</span></summary>
+      <div class="grid2">
+        <label>Cost ≥ <input id="f-ac-min" type="number" step="500" placeholder="min"></label>
+        <label>Cost ≤ <input id="f-ac-max" type="number" step="500" placeholder="max"></label>
+      </div>
+      <label>Confidence <select id="f-conf" multiple size="3">
+        <option value="HIGH">HIGH (measured)</option>
+        <option value="MEDIUM">MEDIUM (residual)</option>
+        <option value="LOW">LOW (estimated)</option>
+      </select></label>
+      <p class="note">Matches cards with at least one effect in this cost range.</p>
+    </details>
+
+    <button id="reset" type="button">Reset filters</button>
+  </aside>
+
+  <main>
+    <div id="resultbar" class="resultbar"></div>
+    <table id="results"><thead><tr>
+      <th>No.</th><th>Name</th><th>Type</th><th>Color</th>
+      <th>Lv</th><th>Co</th><th>Pow</th><th>So</th><th>Effects cost</th>
+    </tr></thead><tbody></tbody></table>
+    <div id="more" class="more" hidden></div>
+  </main>
+</div>
+
+<div id="detail" class="detail" hidden>
+  <div class="detail-card" role="dialog" aria-modal="true">
+    <button id="detail-close" class="close" aria-label="Close">×</button>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- sql.js (SQLite in the browser) + pako (gunzip) from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
