@@ -87,6 +87,8 @@ td.name .en{color:var(--text)} td.name .jp{color:var(--dim);font-size:12px}
   border:1px solid var(--line);font-size:13px}
 .budget b{color:var(--accent2)}
 .budget .ok{color:var(--hi)} .budget .warn{color:var(--med)}
+.text-en{margin:12px 0;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.55}
+.text-en b{color:var(--accent2)}
 .abilities{margin-top:10px}
 .ab{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;background:var(--panel2)}
 .ab-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
