@@ -233,7 +233,7 @@ CREATE TABLE cards (
   type TEXT, color TEXT, level INTEGER, cost INTEGER, power INTEGER, soul INTEGER,
   trigger TEXT, traits TEXT, rare TEXT, side TEXT, expansion INTEGER, parallel INTEGER, era TEXT,
   power_base INTEGER, budget INTEGER, model_cost_total INTEGER, real_delta INTEGER,
-  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT
+  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER
 );
 CREATE TABLE abilities (
   card_number TEXT, idx INTEGER, ability_type TEXT, family TEXT,
@@ -284,11 +284,56 @@ for c in clean:
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
         c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
-        c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search,
+        c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search, 0,
     ))
     arows.extend(ab_buf)
 
-db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*28), crows)
+# --- English-EXCLUSIVE sets (WX/SX set codes): present ONLY in the EN cardlist, absent from the
+# JP source. Add them as their OWN English titles (en_exclusive=1) — they NEVER merge with the JP
+# title (CCS-JP and CCS-EN are separate; AOT-JP and AOT-EN are separate). Per-ability power cost
+# stays NULL (the cost model is measured from JP data; computing it the same way for these only is
+# a future task). EX_TITLE = the English title per EN-exclusive series ("(EN)" where a JP one exists. ---
+EX_TITLE = {
+    "ATLA": "Avatar: The Last Airbender", "AT": "Adventure Time", "BNJ": "Batman Ninja",
+    "EIS": "The Eminence in Shadow", "GGST": "Guilty Gear -Strive-", "MOB": "Mob Psycho 100",
+    "RWBY": "RWBY", "SDS": "The Seven Deadly Sins",
+    "AOT": "Attack on Titan (EN)", "CCS": "Cardcaptor Sakura (EN)",   # overlap with a JP title
+}
+EX = re.compile(r"^([^/]+)/(?:WX|SX)\d+-", re.I)
+def _en_type(txt):
+    if "【CONT】" in txt or "【CONTINUOUS】" in txt: return "CONT"
+    if "【AUTO】" in txt: return "AUTO"
+    if "【ACT】" in txt: return "ACT"
+    return "OTHER"
+def _i(x):
+    try: return int(x)
+    except (TypeError, ValueError): return None      # EN cardlist stores stats as strings ("" for n/a)
+seen_ex = set(); n_ex = 0; ex_series = set()
+for e in en_cards:
+    code = e.get("code") or ""
+    if not EX.match(code) or code in seen_ex: continue
+    seen_ex.add(code)
+    series = code.split("/")[0]; ex_series.add(series)
+    title = EX_TITLE.get(series, series)
+    lv, co, pw, so = _i(e.get("level")), _i(e.get("cost")), _i(e.get("power")), _i(e.get("soul"))
+    is_char = e.get("type") == "Character" and None not in (lv, co, pw, so)
+    trig = [str(x).lower() for x in (e.get("trigger") or [])]
+    pbase = (3000 + 2500*lv + 1500*co - 1000*(1 if "soul" in trig else 0) - 1000*(so-1)) if is_char else None
+    nm = e.get("name"); attrs = e.get("attributes") or []
+    abils = [a for a in (e.get("ability") or []) if a and a.strip()]
+    crows.append((
+        code, base_num(code), series, nm, nm, "", title, e.get("type"), (e.get("color") or "").lower(),
+        lv, co, pw, so, " / ".join(trig), " / ".join(attrs), e.get("rarity"),
+        {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")), None, 0, None,
+        pbase, (pbase - 500 if pbase is not None else None), None, (pbase - pw if pbase is not None else None),
+        "", e.get("image"), " / ".join(attrs), title.lower(), 1,
+    ))
+    for i, a in enumerate(abils):
+        arows.append((code, i, _en_type(a), None, "", a, None, None, None))
+    n_ex += 1
+print(f"English-exclusive cards added (WX/SX): {n_ex}")
+
+db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*29), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
 db.executescript("""
 CREATE INDEX i_color ON cards(color);
@@ -312,10 +357,13 @@ meta = [
 db.executemany("INSERT INTO meta VALUES (?,?)", meta)
 # neo-standards (official deck-construction groups): each is a SEPARATE standard with its own
 # set codes. The app uses this for an exact title filter (pick a neo -> match its codes only).
-db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT)")
-db.executemany("INSERT INTO neos VALUES (?,?,?,?)", [
-    (nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])))
-    for nt in neo_data])
+db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT, en_only INTEGER)")
+neo_rows = [(nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])), 0)
+            for nt in neo_data]
+# EN-exclusive titles (one per EN-exclusive series). codes = the series; en_only=1 so the filter
+# matches only en_exclusive cards (keeps them separate from the JP title of the same series).
+neo_rows += [("", EX_TITLE.get(s, s), "", s, 1) for s in sorted(ex_series)]
+db.executemany("INSERT INTO neos VALUES (?,?,?,?,?)", neo_rows)
 db.commit()
 db.execute("VACUUM"); db.commit(); db.close()
 sz = os.path.getsize(OUT) / 1048576
