@@ -133,10 +133,11 @@ for nm, exps in NEO_EXP.items():
         ce = _clean_exp(raw)
         if ce: cnt[ce] += k
     if cnt: NEO_ENNAME[nm] = cnt.most_common(1)[0][0]
+NEO_EN_OFFICIAL = _load("neo_en.json")   # curated OFFICIAL EN franchise titles (all 164 neo names)
 def _has_cjk(s):
     return any("぀" <= ch <= "ヿ" or "㐀" <= ch <= "鿿" or "＀" <= ch <= "￯" for ch in (s or ""))
-def neo_en(nm):   # display/search name in EN: the official name if it's already Latin (Fate, FAIRY
-    return nm if (nm and not _has_cjk(nm)) else NEO_ENNAME.get(nm, "")   # TAIL...), else from expansion
+def neo_en(nm):   # EN title: curated official franchise name first; else Latin-as-is; else from set
+    return NEO_EN_OFFICIAL.get(nm) or (nm if (nm and not _has_cjk(nm)) else NEO_ENNAME.get(nm, ""))
 
 # --- per-series SIDE corrections (source data left these as 'Other'); user-provided, per code. ---
 _W, _S, _O = "Weiss", "Schwarz", "Other"
