@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weiss Schwarz — Card DB &amp; power cost per ability</title>
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <header>
@@ -19,34 +19,49 @@
     </div>
 
     <details open><summary>Card</summary>
-      <label>Type <select id="f-type" multiple size="3"></select></label>
-      <label>Color <select id="f-color" multiple size="4"></select></label>
-      <label>Side <select id="f-side" multiple size="2"></select></label>
-      <label>Trigger <select id="f-trigger" multiple size="4"></select></label>
+      <label>Type <button class="clr" data-clear="f-type" type="button" title="clear">✕</button>
+        <select id="f-type" multiple size="3"></select></label>
+      <label>Color <button class="clr" data-clear="f-color" type="button" title="clear">✕</button>
+        <select id="f-color" multiple size="4"></select></label>
+      <label>Side <button class="clr" data-clear="f-side" type="button" title="clear">✕</button>
+        <select id="f-side" multiple size="2"></select></label>
+      <label>Trigger <button class="clr" data-clear="f-trigger" type="button" title="clear">✕</button>
+        <select id="f-trigger" multiple size="4"></select></label>
     </details>
 
     <details open><summary>Stats</summary>
       <div class="grid2">
-        <label>Level <select id="f-level" multiple size="4"></select></label>
-        <label>Cost <select id="f-cost" multiple size="4"></select></label>
-        <label>Soul <select id="f-soul" multiple size="4"></select></label>
+        <label>Level <button class="clr" data-clear="f-level" type="button" title="clear">✕</button>
+          <select id="f-level" multiple size="4"></select></label>
+        <label>Cost <button class="clr" data-clear="f-cost" type="button" title="clear">✕</button>
+          <select id="f-cost" multiple size="4"></select></label>
+        <label>Soul <button class="clr" data-clear="f-soul" type="button" title="clear">✕</button>
+          <select id="f-soul" multiple size="4"></select></label>
       </div>
-      <label>Power ≥ <input id="f-power-min" type="number" step="500" placeholder="min"></label>
-      <label>Power ≤ <input id="f-power-max" type="number" step="500" placeholder="max"></label>
+      <label>Power ≥ <button class="clr" data-clear="f-power-min" type="button" title="clear">✕</button>
+        <input id="f-power-min" type="number" step="500" placeholder="min"></label>
+      <label>Power ≤ <button class="clr" data-clear="f-power-max" type="button" title="clear">✕</button>
+        <input id="f-power-max" type="number" step="500" placeholder="max"></label>
     </details>
 
     <details open><summary>Text</summary>
-      <label>Trait <input id="f-trait" type="text" placeholder="e.g. 魔法 / Magic"></label>
-      <label>Title (Neo-Standard) <input id="f-neo" type="text" placeholder="e.g. ペルソナ"></label>
-      <label>Series <input id="f-series" type="text" placeholder="e.g. P3"></label>
+      <label>Trait <button class="clr" data-clear="f-trait" type="button" title="clear">✕</button>
+        <input id="f-trait" type="text" placeholder="e.g. 魔法 / Magic"></label>
+      <label>Title (Neo-Standard) <button class="clr" data-clear="f-neo" type="button" title="clear">✕</button>
+        <input id="f-neo" type="text" placeholder="e.g. ペルソナ"></label>
+      <label>Series <button class="clr" data-clear="f-series" type="button" title="clear">✕</button>
+        <input id="f-series" type="text" placeholder="e.g. P3"></label>
     </details>
 
     <details open><summary>Ability power cost <span class="hint">(how much an effect lowers power)</span></summary>
       <div class="grid2">
-        <label>Cost ≥ <input id="f-ac-min" type="number" step="500" placeholder="min"></label>
-        <label>Cost ≤ <input id="f-ac-max" type="number" step="500" placeholder="max"></label>
+        <label>Cost ≥ <button class="clr" data-clear="f-ac-min" type="button" title="clear">✕</button>
+          <input id="f-ac-min" type="number" step="500" placeholder="min"></label>
+        <label>Cost ≤ <button class="clr" data-clear="f-ac-max" type="button" title="clear">✕</button>
+          <input id="f-ac-max" type="number" step="500" placeholder="max"></label>
       </div>
-      <label>Confidence <select id="f-conf" multiple size="3">
+      <label>Confidence <button class="clr" data-clear="f-conf" type="button" title="clear">✕</button>
+        <select id="f-conf" multiple size="3">
         <option value="HIGH">HIGH (measured)</option>
         <option value="MEDIUM">MEDIUM (residual)</option>
         <option value="LOW">LOW (estimated)</option>
@@ -54,7 +69,7 @@
       <p class="note">Matches cards with at least one effect in this cost range.</p>
     </details>
 
-    <button id="reset" type="button">Reset filters</button>
+    <button id="reset" type="button">Reset all filters</button>
   </aside>
 
   <main>
@@ -77,6 +92,6 @@
 <!-- sql.js (SQLite in the browser) + pako (gunzip) from CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
