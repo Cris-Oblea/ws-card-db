@@ -313,20 +313,25 @@ def gen_en(t):   # generalize EN ability text (trait/name -> placeholder, KEEP n
     t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
     t = re.sub(r"、?《T》(?:[ /／・]《T》)+", "《T》", t)
     return re.sub(r"\s+", " ", t).strip().lower()
-# (a) cross-language: the EN translation of every JP ability whose cost we already measured -> cost
+# (a) raw JP costs per EN-sig (keep ALL samples to combine with EN measurements -> robust mode)
 xs = collections.defaultdict(list)
 for r in arows:                                  # arows so far = JP abilities only
     if r[5] and r[6] is not None: xs[gen_en(r[5])].append(r[6])
-encost = {s: mode500(v) for s, v in xs.items()}; enmethod = {s: "matched" for s in xs}
-EN_FAM = [("Backup","backup"),("Assist","assist"),("Brainstorm","brainstorm"),("Encore","encore"),
-          ("Experience","experience"),("Memory","memory"),("Bond","bond"),("Change","change"),
-          ("Heal","clock"),("Draw","draw"),("Salvage","salvage")]
-def en_family(t):
-    tl = t.lower()
-    for fam, kw in EN_FAM:
-        if kw in tl: return fam
+def en_family(t):   # ordered, precise EN family detection (CX combo / burn / clock-kick BEFORE heal)
+    tl = re.sub(r"\s+", " ", t.lower())
+    if "cxcombo" in tl.replace(" ", "").replace("【", "").replace("】", "") or "cx combo" in tl: return "CX Combo"
     if re.search(r"deal \d+ damage to your opponent", tl): return "Burn"
+    if "into your opponent's clock" in tl or "into their clock" in tl: return "Clock Kick"  # field disruption
+    if re.search(r"(top card of |a card from )?your clock[^.]{0,40}your waiting room", tl): return "Heal"  # OWN clock only
+    for fam, kw in (("Backup", "backup"), ("Assist", "assist"), ("Brainstorm", "brainstorm"),
+                    ("Encore", "encore"), ("Experience", "experience"), ("Memory", "memory")):
+        if kw in tl: return fam
+    if re.search(r"return[^.]{0,40}opponent[^.]{0,20}(character|hand)", tl): return "Bounce"
+    if re.search(r"(look at|reveal|search)[^.]{0,40}deck", tl): return "Search"
+    if "your waiting room" in tl and " hand" in tl: return "Salvage"
+    if "draw" in tl: return "Draw"
     if re.search(r"[+\-]\d+ power", tl): return "Power Pump"
+    if re.search(r"[+\-]\d+ soul", tl): return "Soul"
     return "Other"
 # (b) collect EN-exclusive cards
 ex_cards = []; seen_ex = set(); ex_series = set()
@@ -343,10 +348,16 @@ for e in en_cards:
                      "trig": trig, "attrs": e.get("attributes") or [], "pbase": pbase,
                      "delta": (pbase - pw) if pbase is not None else None, "is_char": is_char,
                      "sigs": [(i, _en_type(a), a, gen_en(a)) for i, a in enumerate(abils)]})
-# (c) direct measurement on EN single-ability Character cards (delta = that ability's cost) -> HIGH
+# (c) base cost per EN-sig = MODE of all samples (JP cross + EN single-ability deltas). The mode
+#     (not one card's delta) avoids outliers and lets the many JP samples dominate -> robust.
+en_direct = collections.defaultdict(list)
 for c in ex_cards:
     if c["is_char"] and len(c["sigs"]) == 1 and c["delta"] is not None:
-        s = c["sigs"][0][3]; encost[s] = c["delta"]; enmethod[s] = "measured"
+        en_direct[c["sigs"][0][3]].append(c["delta"])
+encost = {}; enmethod = {}
+for s in set(xs) | set(en_direct):
+    encost[s] = mode500(xs.get(s, []) + en_direct.get(s, []))
+    enmethod[s] = "measured" if s in en_direct else "matched"
 # (d) residual on multi-ability EN cards (fill the one unknown from delta - sum(known))
 multi = [c for c in ex_cards if c["is_char"] and len(c["sigs"]) > 1 and c["delta"] is not None]
 for _ in range(10):
@@ -363,6 +374,11 @@ for _ in range(10):
 for c in ex_cards:
     for (_, _, txt, s) in c["sigs"]:
         if s not in encost: encost[s] = fam_med.get(en_family(txt), 500); enmethod[s] = "estimated"
+# (f) CX-combo / hard-gate floor: such an ability is worth >= 500 (you pay by assembling the combo)
+for c in ex_cards:
+    for (_, _, txt, s) in c["sigs"]:
+        if en_family(txt) == "CX Combo" and encost.get(s, 0) < 500:
+            encost[s] = 500; enmethod[s] = "estimated"
 ENCONF = {"measured": "HIGH", "matched": "MEDIUM", "residual": "MEDIUM", "estimated": "LOW"}
 # (f) emit rows
 for c in ex_cards:
