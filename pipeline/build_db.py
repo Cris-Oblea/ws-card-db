@@ -308,30 +308,79 @@ def _en_type(txt):
 def _i(x):
     try: return int(x)
     except (TypeError, ValueError): return None      # EN cardlist stores stats as strings ("" for n/a)
-seen_ex = set(); n_ex = 0; ex_series = set()
+# --- cost model for EN-exclusive cards: SAME methodology as JP, applied over the ENGLISH text ---
+def gen_en(t):   # generalize EN ability text (trait/name -> placeholder, KEEP numbers), like JP gen()
+    t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
+    t = re.sub(r"、?《T》(?:[ /／・]《T》)+", "《T》", t)
+    return re.sub(r"\s+", " ", t).strip().lower()
+# (a) cross-language: the EN translation of every JP ability whose cost we already measured -> cost
+xs = collections.defaultdict(list)
+for r in arows:                                  # arows so far = JP abilities only
+    if r[5] and r[6] is not None: xs[gen_en(r[5])].append(r[6])
+encost = {s: mode500(v) for s, v in xs.items()}; enmethod = {s: "matched" for s in xs}
+EN_FAM = [("Backup","backup"),("Assist","assist"),("Brainstorm","brainstorm"),("Encore","encore"),
+          ("Experience","experience"),("Memory","memory"),("Bond","bond"),("Change","change"),
+          ("Heal","clock"),("Draw","draw"),("Salvage","salvage")]
+def en_family(t):
+    tl = t.lower()
+    for fam, kw in EN_FAM:
+        if kw in tl: return fam
+    if re.search(r"deal \d+ damage to your opponent", tl): return "Burn"
+    if re.search(r"[+\-]\d+ power", tl): return "Power Pump"
+    return "Other"
+# (b) collect EN-exclusive cards
+ex_cards = []; seen_ex = set(); ex_series = set()
 for e in en_cards:
     code = e.get("code") or ""
     if not EX.match(code) or code in seen_ex: continue
-    seen_ex.add(code)
-    series = code.split("/")[0]; ex_series.add(series)
-    title = EX_TITLE.get(series, series)
+    seen_ex.add(code); series = code.split("/")[0]; ex_series.add(series)
     lv, co, pw, so = _i(e.get("level")), _i(e.get("cost")), _i(e.get("power")), _i(e.get("soul"))
     is_char = e.get("type") == "Character" and None not in (lv, co, pw, so)
     trig = [str(x).lower() for x in (e.get("trigger") or [])]
     pbase = (3000 + 2500*lv + 1500*co - 1000*(1 if "soul" in trig else 0) - 1000*(so-1)) if is_char else None
-    nm = e.get("name"); attrs = e.get("attributes") or []
     abils = [a for a in (e.get("ability") or []) if a and a.strip()]
+    ex_cards.append({"e": e, "code": code, "series": series, "lv": lv, "co": co, "pw": pw, "so": so,
+                     "trig": trig, "attrs": e.get("attributes") or [], "pbase": pbase,
+                     "delta": (pbase - pw) if pbase is not None else None, "is_char": is_char,
+                     "sigs": [(i, _en_type(a), a, gen_en(a)) for i, a in enumerate(abils)]})
+# (c) direct measurement on EN single-ability Character cards (delta = that ability's cost) -> HIGH
+for c in ex_cards:
+    if c["is_char"] and len(c["sigs"]) == 1 and c["delta"] is not None:
+        s = c["sigs"][0][3]; encost[s] = c["delta"]; enmethod[s] = "measured"
+# (d) residual on multi-ability EN cards (fill the one unknown from delta - sum(known))
+multi = [c for c in ex_cards if c["is_char"] and len(c["sigs"]) > 1 and c["delta"] is not None]
+for _ in range(10):
+    res = collections.defaultdict(list); new = 0
+    for c in multi:
+        unk = [s for (_, _, _, s) in c["sigs"] if s not in encost]
+        if len(unk) == 1:
+            res[unk[0]].append(c["delta"] - sum(encost[s] for (_, _, _, s) in c["sigs"] if s in encost))
+    for s, vals in res.items():
+        if s in encost: continue
+        encost[s] = mode500(vals); enmethod[s] = "residual"; new += 1
+    if new == 0: break
+# (e) estimate the rest by family median (reuse the JP family medians)
+for c in ex_cards:
+    for (_, _, txt, s) in c["sigs"]:
+        if s not in encost: encost[s] = fam_med.get(en_family(txt), 500); enmethod[s] = "estimated"
+ENCONF = {"measured": "HIGH", "matched": "MEDIUM", "residual": "MEDIUM", "estimated": "LOW"}
+# (f) emit rows
+for c in ex_cards:
+    e = c["e"]; code = c["code"]; title = EX_TITLE.get(c["series"], c["series"])
+    model_total = 0; have = False; ab_buf = []
+    for (i, atype, txt, s) in c["sigs"]:
+        pc = encost.get(s); meth = enmethod.get(s)
+        if pc is not None: model_total += pc; have = True
+        ab_buf.append((code, i, atype, en_family(txt), "", txt, pc, meth, ENCONF.get(meth)))
     crows.append((
-        code, base_num(code), series, nm, nm, "", title, e.get("type"), (e.get("color") or "").lower(),
-        lv, co, pw, so, " / ".join(trig), " / ".join(attrs), e.get("rarity"),
-        {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")), None, 0, None,
-        pbase, (pbase - 500 if pbase is not None else None), None, (pbase - pw if pbase is not None else None),
-        "", e.get("image"), " / ".join(attrs), title.lower(), 1,
+        code, base_num(code), c["series"], e.get("name"), e.get("name"), "", title, e.get("type"),
+        (e.get("color") or "").lower(), c["lv"], c["co"], c["pw"], c["so"], " / ".join(c["trig"]),
+        " / ".join(c["attrs"]), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
+        None, 0, None, c["pbase"], (c["pbase"] - 500 if c["pbase"] is not None else None),
+        (model_total if have else None), c["delta"], "", e.get("image"), " / ".join(c["attrs"]), title.lower(), 1,
     ))
-    for i, a in enumerate(abils):
-        arows.append((code, i, _en_type(a), None, "", a, None, None, None))
-    n_ex += 1
-print(f"English-exclusive cards added (WX/SX): {n_ex}")
+    arows.extend(ab_buf)
+print(f"English-exclusive cards added (WX/SX): {len(ex_cards)}")
 
 db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*29), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
