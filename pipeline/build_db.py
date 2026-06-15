@@ -360,9 +360,12 @@ db.executemany("INSERT INTO meta VALUES (?,?)", meta)
 db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT, en_only INTEGER)")
 neo_rows = [(nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])), 0)
             for nt in neo_data]
-# EN-exclusive titles (one per EN-exclusive series). codes = the series; en_only=1 so the filter
-# matches only en_exclusive cards (keeps them separate from the JP title of the same series).
-neo_rows += [("", EX_TITLE.get(s, s), "", s, 1) for s in sorted(ex_series)]
+# EN-exclusive titles (one per EN-exclusive series). codes = the series.
+#  en_only=1: the English title is ONLY the exclusive cards (CCS-EN: the JP CCS cards differ).
+#  en_only=2: the English title ALSO includes the JP cards (AOT: AOT1/AOT2 are identical in EN+JP,
+#             so the EN title = JP cards + exclusive; the JP title stays just AOT1/AOT2).
+EX_MERGE_JP = {"AOT"}
+neo_rows += [("", EX_TITLE.get(s, s), "", s, 2 if s in EX_MERGE_JP else 1) for s in sorted(ex_series)]
 db.executemany("INSERT INTO neos VALUES (?,?,?,?,?)", neo_rows)
 db.commit()
 db.execute("VACUUM"); db.commit(); db.close()
