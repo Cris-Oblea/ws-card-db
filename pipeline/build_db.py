@@ -70,6 +70,28 @@ def ability_type(markers):
 clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
 en_cards = json.load(open(os.path.join(D, "cardlist_en.json"), encoding="utf-8"))
 era = json.load(open(os.path.join(D, "card_era.json"), encoding="utf-8"))
+
+# --- de-duplicate alt-art / rarity parallels (the JP list is full of them). A physical card =
+# same base number + name + stats + EXACT effects. Cards that share a number/name but DIFFER in
+# effect keep their own row. Keep the plain base printing as the representative. ---
+def _ckey(c):
+    return (base_num(c.get("card_number", "")), _nk(c.get("name")), c.get("power"), c.get("level"),
+            c.get("cost"), c.get("soul"), tuple((a.get("type"), _nk(a.get("text"))) for a in ra(c)))
+BASE_RARE = {"RR", "R", "U", "C", "CR", "CC", "TD"}           # base rarities; anything else = alt-art
+def _better(cand, cur):
+    cb, ub = cand.get("rare") in BASE_RARE, cur.get("rare") in BASE_RARE
+    if cb != ub: return cb                                    # a base-rarity printing wins
+    b = base_num(cand.get("card_number", ""))
+    pc, pu = cand.get("card_number") == b, cur.get("card_number") == b
+    if pc != pu: return pc                                    # else the plain base number
+    return len(cand.get("card_number", "")) < len(cur.get("card_number", ""))  # else the shortest
+_dd = {}
+for c in clean:
+    if c.get("excluded"): continue
+    k = _ckey(c)
+    if k not in _dd or _better(c, _dd[k]): _dd[k] = c
+_before = len(clean); clean = list(_dd.values())
+print(f"alt-art de-dup: {_before} -> {len(clean)} distinct JP cards (removed {_before - len(clean)})")
 def _load(fn):
     try: return json.load(open(os.path.join(D, fn), encoding="utf-8"))
     except FileNotFoundError: return {}
@@ -347,7 +369,16 @@ for e in en_cards:
     ex_cards.append({"e": e, "code": code, "series": series, "lv": lv, "co": co, "pw": pw, "so": so,
                      "trig": trig, "attrs": e.get("attributes") or [], "pbase": pbase,
                      "delta": (pbase - pw) if pbase is not None else None, "is_char": is_char,
+                     "rare": e.get("rarity"),
                      "sigs": [(i, _en_type(a), a, gen_en(a)) for i, a in enumerate(abils)]})
+# de-dup EN-exclusive alt-art parallels too (same rule: base-rarity printing represents the card)
+_exdd = {}
+for c in ex_cards:
+    k = (base_num(c["code"]), _nk(c["e"].get("name")), c["pw"], c["lv"], c["co"], c["so"],
+         tuple((at, _nk(tx)) for (_, at, tx, _) in c["sigs"]))
+    cur = _exdd.get(k)
+    if cur is None or (c["rare"] in BASE_RARE and cur["rare"] not in BASE_RARE): _exdd[k] = c
+ex_cards = list(_exdd.values())
 # (c) base cost per EN-sig = MODE of all samples (JP cross + EN single-ability deltas). The mode
 #     (not one card's delta) avoids outliers and lets the many JP samples dominate -> robust.
 en_direct = collections.defaultdict(list)
