@@ -10,8 +10,8 @@ pipeline/_tr/
 pipeline/_archive/
 to_translate.json
 
-# --- App build (the DB is generated; the site is published) ---
-# (will be adjusted once app/ exists)
+# --- App build: ship only the compressed DB (the app fetches ws.sqlite.gz) ---
+docs/ws.sqlite
 
 # --- OS junk ---
 Thumbs.db
