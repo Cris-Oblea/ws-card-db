@@ -401,12 +401,14 @@ for _ in range(10):
         if s in encost: continue
         encost[s] = mode500(vals); enmethod[s] = "residual"; new += 1
     if new == 0: break
-# (e) estimate the rest by family median (reuse the JP family medians)
+# (e) estimate the rest by family median (reuse the JP family medians) -- Characters only
 for c in ex_cards:
+    if not c["is_char"]: continue
     for (_, _, txt, s) in c["sigs"]:
         if s not in encost: encost[s] = fam_med.get(en_family(txt), 500); enmethod[s] = "estimated"
 # (f) CX-combo / hard-gate floor: such an ability is worth >= 500 (you pay by assembling the combo)
 for c in ex_cards:
+    if not c["is_char"]: continue
     for (_, _, txt, s) in c["sigs"]:
         if en_family(txt) == "CX Combo" and encost.get(s, 0) < 500:
             encost[s] = 500; enmethod[s] = "estimated"
@@ -416,7 +418,8 @@ for c in ex_cards:
     e = c["e"]; code = c["code"]; title = EX_TITLE.get(c["series"], c["series"])
     model_total = 0; have = False; ab_buf = []
     for (i, atype, txt, s) in c["sigs"]:
-        pc = encost.get(s); meth = enmethod.get(s)
+        pc = encost.get(s) if c["is_char"] else None         # cost model is Characters only
+        meth = enmethod.get(s) if pc is not None else None
         if pc is not None: model_total += pc; have = True
         ab_buf.append((code, i, atype, en_family(txt), "", txt, pc, meth, ENCONF.get(meth)))
     crows.append((
