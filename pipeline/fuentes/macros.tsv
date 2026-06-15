@@ -1,0 +1,236 @@
+family	macro	description
+PARTS OF AUTO ACT EFFECTS	Scry	Look at the top card of your deck, return it to the top or put it into the waiting room
+PARTS OF AUTO ACT EFFECTS	ScryToBottom	Look at the bottom card of your deck, return it to the top or bottom of the deck
+PARTS OF AUTO ACT EFFECTS	ChangeWaitingRoom	Choose a character with this name in your waiting room and put it in this card's previous position
+PARTS OF AUTO ACT EFFECTS	OptionalDraw	You MAY draw a card
+PARTS OF AUTO ACT EFFECTS	OptionalDrawDiscard	You MAY Draw 1, and if you do discard 1
+PARTS OF AUTO ACT EFFECTS	OptionalBlindStock	You MAY Put the top card of your deck into your stock
+PARTS OF AUTO ACT EFFECTS	OptionalBurn	You MAY deal _ damage to your opponent
+PARTS OF AUTO ACT EFFECTS	OptionalHeal	You MAY put the top card of your clock into the waiting room
+PARTS OF AUTO ACT EFFECTS	SearchDeckToPlaceOnStage	Search your deck for a character that meets a requirement and place it on the stage
+PARTS OF AUTO ACT EFFECTS	ShuffleOpponentClimax	Ask if you want to, and if you do, choose a climax in your opponent's waiting room and shuffle it into the deck
+PARTS OF AUTO ACT EFFECTS	ShuffleOpponentClimax_Required	Choose a climax in the opponent's waiting room and shuffle it into the deck
+PARTS OF AUTO ACT EFFECTS	Check5Add1	Look at up to 5 cards from the top of your deck, choose 1 character to add to hand and put the rest into the waiting room
+PARTS OF AUTO ACT EFFECTS	Check4Add1	Look at up to 4 cards from the top of your deck, choose 1 character to add to hand and put the rest into the waiting room
+PARTS OF AUTO ACT EFFECTS	Check3Add1	Look at up to 3 cards from the top of your deck, choose 1 character to add to hand and put the rest into the waiting room
+PARTS OF AUTO ACT EFFECTS	Check2Add1	Look at up to 2 cards from the top of your deck, choose 1 character to add to hand and put the rest into the waiting room
+PARTS OF AUTO ACT EFFECTS	Check4Add1Level1OrHigher	Look at up to 4 cards from the top of your deck, choose 1 level 1 or higher card to add to hand and put the rest into the waiting room
+PARTS OF AUTO ACT EFFECTS	CheckTopXOfOpponentDeckSendAny	Look at up to NUMBER cards from the top of opponent's deck, choose up to NUMBER to put into the waiting room and shuffle the rest back
+PARTS OF AUTO ACT EFFECTS	SendEarlyPlayToWaitingRoom	Choose an opponent's character whose level is higher than opponent's level and put it into the waiting room
+PARTS OF AUTO ACT EFFECTS	BottomDeckEarlyPlay	Choose an opponent's character whose level is higher than opponent's level and put it on the bottom of opponent's deck
+PARTS OF AUTO ACT EFFECTS	PlayCharacterFromHand	Choose a character in your hand that meets the requirement and place it on any position of your stage
+PARTS OF AUTO ACT EFFECTS	RockPaperScissors	Both players select rock/paper/scissors
+PARTS OF AUTO ACT EFFECTS	GainBounceWhenFrontalAttacked	Give target Auto: when frontal attacked you may return this to hand, until end of opponent's turn
+PARTS OF AUTO ACT EFFECTS	ClockSaboutage	Choose a card in opponent's clock and put it into the waiting room to put top of opponent's deck into clock
+PARTS OF AUTO ACT EFFECTS	CheckAndAdd	Look at up to NUMBER cards from top of deck, add one to hand and put the rest into the waiting room (no reveal)
+PARTS OF AUTO ACT EFFECTS	CheckTopAddDiscard	Reveal top card of deck, if character with this trait add to hand and discard
+PARTS OF AUTO ACT EFFECTS	CheckTopTraitOrEventAddDiscard	Reveal top card of deck, if event or character with this trait add to hand and discard
+PARTS OF AUTO ACT EFFECTS	GiveCharacterPower	Choose 1 of your TRAITLIST characters, it gets +POWER power
+PARTS OF AUTO ACT EFFECTS	GiveOtherCharacterPower	Choose 1 of your other TRAITLIST characters, it gets +POWER power
+PARTS OF AUTO ACT EFFECTS	Downgrade	For each target, opponent chooses a character in waiting room whose level is less and exchanges it
+PARTS OF AUTO ACT EFFECTS	Saboutage	Choose up to 1 card in opponent's waiting room and place it on top of opponent's deck
+PARTS OF AUTO ACT EFFECTS	ExchangeCardInLevelWithWaitingRoom	Exchange a card in your level meeting condition 1 with a card in waiting room meeting condition 2
+PARTS OF AUTO ACT EFFECTS	CheckAndAddOne	Look at up to NUMBER from top, choose up to 1 REQUIREMENT card to add to hand, rest to waiting room
+PARTS OF AUTO ACT EFFECTS	CheckAndAddAll	Look at up to NUMBER from top, add all REQUIREMENT cards to hand, rest to waiting room
+PARTS OF AUTO ACT EFFECTS	CountColors	Set X to number of different colors among targeted cards
+PARTS OF AUTO ACT EFFECTS	ExchangeOpponentsCharactersOrMoveToOpenPosition	Exchange target opponent character with another or move it to an open stage position
+PARTS OF AUTO ACT EFFECTS	ReturnToDeckInAnyOrder	Return target cards to top of deck in any order
+PARTS OF AUTO ACT EFFECTS	ChooseCardsToPutIntoWaitingRoomReturnTheRestInAnyOrder	Choose MIN-MAX targets to waiting room, return rest to top of deck in any order
+PARTS OF AUTO ACT EFFECTS	ChooseCardsToReturnInAnyOrder	Choose MIN-MAX targets to top of deck in any order, rest into waiting room
+PARTS OF AUTO ACT EFFECTS	PutCardFromWaitingRoomIntoStock	Choose up to 1 card meeting requirement in waiting room, put into stock
+PARTS OF AUTO ACT EFFECTS	Exchange2OfOpponentsCharacters	Choose 2 of opponent's characters, stand and swap them
+PARTS OF AUTO ACT EFFECTS	ClimaxExchangeFromDeck	Search deck for up to 1 climax, exchange with a climax in hand
+PARTS OF AUTO ACT EFFECTS	Check2ReturnAny	Look at up to 2 from top, choose up to 2 to top of deck in any order, rest to waiting room
+CLIMAXES	DrawClimax	On play draw 1 card, choose a character to give +1 soul and +2000 power
+CLIMAXES	OldStockSoulClimax	On play put top of deck into stock and all characters get +1 soul
+CLIMAXES	RedStockSoul	Choose a red card in waiting room, put into stock, all characters +1 soul until end of turn
+CLIMAXES	GreenStockSoul	Green stock+soul climax
+CLIMAXES	BlueStockSoul	Blue stock+soul climax
+CLIMAXES	YellowStockSoul	Yellow stock+soul climax
+CLIMAXES	2SoulClimax	All of your characters get +2 soul
+CLIMAXES	1K1Climax	A DoubleSoul climax that gives 1000 power and +1 soul
+CLIMAXES	BookClimax	Book (draw) trigger climax
+CLIMAXES	GateClimax	Gate (climax salvage) trigger climax
+CLIMAXES	BagClimax	Bag (stock) trigger climax
+CLIMAXES	BarClimax	Bar (stock boost) trigger climax
+CLIMAXES	ShotClimax	Shot (burn) trigger climax
+CLIMAXES	WindClimax	Wind (bounce) trigger climax
+CLIMAXES	DoorClimax	Door (character salvage) trigger climax
+CLIMAXES	StandbyClimax	Standby trigger climax
+CLIMAXES	ChoiceClimax	Choice trigger climax
+CLIMAXES	Draw3SoulClimax	Draw 1 card, choose a character to get +3 soul
+CLIMAXES	2K1Climax	+2000 power +1 soul climax
+CLIMAXES	2K2Climax	Choose 2 of your COLOR characters, each +2000 power and +2 soul until end of turn
+CLIMAXES	3K1Climax	+3000 power +1 soul climax (set color)
+CLIMAXES	Level1StockSoul	Choose up to 1 level 1 or lower character in waiting room to stock, all characters +1 soul for the turn
+ASSISTS	500Assist	Cont: ASSIST Your characters in front of this card get +500 power
+ASSISTS	1000Assist	Cont: ASSIST Your characters in front of this card get +1000 power
+ASSISTS	1500Assist	Cont: ASSIST Your characters in front of this card get +1500 power
+ASSISTS	2000Assist	Cont: ASSIST Your characters in front of this card get +2000 power
+ASSISTS	MyTurn1000Assist	Cont: ASSIST During your turn, your characters in front of this card get +1000 power
+ASSISTS	LevelAssist	Cont: ASSIST Your characters in front of this get +X power where X is 500 times that character's level
+ASSISTS	Level3Assist	Your level 3 or higher characters in front of this card get +2000 power
+ASSISTS	Level0Assist	Your level 0 characters in front of this get +1000 power
+ASSISTS	LevelAssistTrait	Cont: ASSIST Your TRAITLIST characters in front of this get +X power, X = 500 times that character's level
+BOMBS	RedLevel0Bomb	Auto: When this card is reversed, if the battle opponent is level 0 or lower you may reverse that character
+BOMBS	RedLevel1Bomb	Auto: When reversed, if battle opponent is level 1 or lower you may reverse it
+BOMBS	RedLevel2Bomb	Auto: When reversed, if battle opponent is level 2 or lower you may reverse it
+BOMBS	RedCost0Bomb	Auto: When reversed, if battle opponent is cost 0 or lower you may reverse it
+BOMBS	RedEarlyPlayBomb	Auto: When reversed, if battle opponent is an early-play (level higher than opponent's level) reverse it
+BOMBS	BlueLevel0Bomb	Auto: When reversed, if battle opponent level 0 or lower, send it to bottom of deck
+BOMBS	BlueLevel1Bomb	Auto: When reversed, if battle opponent level 1 or lower, to bottom of deck
+BOMBS	BlueLevel2Bomb	Auto: When reversed, if battle opponent level 2 or lower, to bottom of deck
+BOMBS	BlueCost0Bomb	Auto: When reversed, if battle opponent cost 0 or lower, to bottom of deck
+BOMBS	BlueEarlyPlayBomb	Auto: When reversed, if battle opponent is early-play, to bottom of deck
+BOMBS	YellowLevel0Bomb	Auto: When reversed, if battle opponent level 0 or lower, to stock and bottom of stock to waiting room
+BOMBS	YellowLevel1Bomb	Auto: When reversed, if battle opponent level 1 or lower, to stock
+BOMBS	YellowLevel2Bomb	Auto: When reversed, if battle opponent level 2 or lower, to stock
+BOMBS	YellowCost0Bomb	Auto: When reversed, if battle opponent cost 0 or lower, to stock
+BOMBS	YellowEarlyPlayBomb	Auto: When reversed, if battle opponent is early-play, to stock
+BOMBS	GreenLevel0Bomb	Auto: When reversed, if battle opponent level 0 or lower, top of clock to waiting room and send it to clock
+BOMBS	GreenLevel1Bomb	Auto: When reversed, if battle opponent level 1 or lower, to clock
+BOMBS	GreenLevel2Bomb	Auto: When reversed, if battle opponent level 2 or lower, to clock
+BOMBS	GreenCost0Bomb	Auto: When reversed, if battle opponent cost 0 or lower, to clock
+BOMBS	GreenEarlyPlayBomb	Auto: When reversed, if battle opponent is early-play, to clock
+BOMBS	EarlyPlayMemoryBomb	Auto: When reversed, if battle opponent's level is higher than opponent's level, you may put it into opponent's memory
+ENCORES	HandEncore	Auto: ENCORE [Discard a character]
+ENCORES	HandEncoreTrait	Auto: ENCORE [Discard a TRAITLIST character]
+ENCORES	ClockEncore	Auto: ENCORE [Put the top card of your deck into your clock]
+EARLY PLAY	EarlyPlayInClock	Cont: If "CARDNAME" is in your clock, this card gets -1 level in your hand
+EARLY PLAY	EarlyPlay4OrMore	Cont: If you have 4 or more TRAITLIST characters, this card gets -1 level in your hand
+EARLY PLAY	EarlyPlay2OrLessClimax	Cont: If the number of climax in your waiting room is 2 or less, this card gets -1 level in your hand
+EARLY PLAY	EarlyPlayInLevel	Cont: EXPERIENCE If "CARDNAME" is in your level, this card gets -1 level in your hand
+EARLY PLAY	EarlyPlayInMemory	Cont: RECOLLECTION If "CARDNAME" is in your memory, this card gets -1 level in your hand
+COMMON LEVEL 3 EFFECTS	Healer	Auto: HEAL — on play, you may put the top card of your clock into the waiting room
+COMMON LEVEL 3 EFFECTS	StockHealer	Auto: [Discard a card] When placed from hand, you may pay cost, put top of clock into stock
+COMMON LEVEL 3 EFFECTS	MusashiEffect	Once per turn the turn it was placed, when damage by this is canceled, mill 1, burn that card's level + 1
+COMMON LEVEL 3 EFFECTS	OnPlayRevealBurnIfTrait	Auto: When placed from hand, reveal top of deck, if TRAITLIST character deal 1 damage
+COMMON LEVEL 3 EFFECTS	DefensiveScryOnCenterStage	Auto: During opponent's turn, when damage not canceled, if on center stage, scry 1
+COMMON LEVEL 3 EFFECTS	DefensiveScryAnywhere	Auto: During opponent's turn, when damage not canceled, scry 1
+COMMON LEVEL 3 EFFECTS	OnPlayDraw2Discard1	Auto: When placed from hand, draw 2 discard 1
+COMMON LEVEL 3 EFFECTS	OnPlayCheckX	Auto: When placed from hand, look at up to X cards, choose up to 1 to hand, rest to waiting room (X = your TRAITLIST count)
+COMMON LEVEL 3 EFFECTS	OnPlayCheck3	Auto: When placed from hand, look at up to 3, choose up to 1 to hand, rest to waiting room
+COMMON LEVEL 3 EFFECTS	OnPlayStockSwap	On play, pay _ stock to put opponent's stock into waiting room, then refill their stock from top of deck
+COMMON LEVEL 3 EFFECTS	ScryWhenAttacked	Auto: When this card is frontal attacked, scry 1
+COMMON LEVEL 3 EFFECTS	Give4000PowerAtStartOfOpponentsTurn	Auto: At beginning of opponent's draw phase, if on center stage, choose 1 of your characters +4000 power
+COMMON LEVEL 3 EFFECTS	OnPlayDraw2Discard2BlindStock	Auto: When placed from hand, draw up to 2, discard 2, blind stock up to 1
+COMMON LEVEL 3 EFFECTS	OnPlayCheck6Send3	Auto: When placed from hand, look at up to 6, choose 3 to waiting room, rest to top in any order
+COMMON LEVEL 3 EFFECTS	OnReverseMayMemoryOpponent	Auto: When battle opponent becomes reversed, you may put that character into opponent's memory
+COMMON LEVEL 3 EFFECTS	OnPlayGainPowerAndNoBackups	Auto: When placed from hand, +POWER power and "no backups during this battle" until end of opponent's next turn
+COMMON LEVEL 3 EFFECTS	GiveAll1500OnCenterStage	Cont: If on center stage, all your TRAITLIST characters get +1500 power
+BRAINSTORMS	Act1RestSelfDrawBrainstorm	Act: BRAINSTORM [(1) Rest this card] Mill 4, draw up to 1 for each climax
+BRAINSTORMS	Act1RestSelfCheck3Add1Brainstorm	Act: BRAINSTORM [(1) Rest] For each climax look at up to 3, choose up to 1 to hand, discard rest
+BRAINSTORMS	Act1Rest2Check3Add1Brainstorm	Act: BRAINSTORM [(1) Rest 2] For each climax look at up to 3, add 1 discard rest
+BRAINSTORMS	Act1RestSelfDraw2Discard1Brainstorm	Act: BRAINSTORM [(1) Rest] For each climax draw 2 discard 1
+BRAINSTORMS	Act1Rest2Draw2Discard1Brainstorm	Act: BRAINSTORM [(1) Rest 2] For each climax draw 2 discard 1
+BRAINSTORMS	Act1RestSelfClockBrainstorm	Act: BRAINSTORM [(1) Rest] For each climax return a card from clock to hand and put top of deck into clock
+BRAINSTORMS	Act1RestSelfClockBrainstorm5	Act: BRAINSTORM [(1) Rest] Mill 5, for each climax return a card from clock to hand and put top into clock
+BRAINSTORMS	Act1Rest2SearchBrainstorm	Act: BRAINSTORM [(1) Rest 2] Search then discard the same number per climax (TRAITLIST)
+BRAINSTORMS	Act1RestSelfSearchBrainstorm	Act: BRAINSTORM [(1) Rest] Search TRAITLIST then discard the same number per climax
+BRAINSTORMS	Act1SearchBrainstorm	Act: BRAINSTORM [(1)] Search then discard the same number per climax (TRAITLIST)
+BRAINSTORMS	Act1SalvageBrainstorm	Act: BRAINSTORM [(1)] Salvage then discard a card X times (TRAITLIST)
+BRAINSTORMS	Act1Rest2SalvageBrainstorm	Act: BRAINSTORM [(1) Rest 2] Salvage TRAITLIST then discard per climax
+BRAINSTORMS	Act1RestSelfSalvageBrainstorm	Act: BRAINSTORM [(1) Rest] Salvage TRAITLIST then discard per climax
+BRAINSTORMS	Act1Rest2BurnBrainstorm	Act: BRAINSTORM [(1) Rest 2] Deal X damage, X = number of climax sent
+BRAINSTORMS	Act1RestSelfReviveBrainstorm	Act: BRAINSTORM [(1) Rest] Mill 4, for each climax put a cost 0 character from waiting room onto stage
+BRAINSTORMS	Act1RestSelfDrawBrainstorm5	Act: BRAINSTORM [(1) Rest] Mill 5, draw up to 1 per climax
+OTHER ACT EFFECTS	RestGivePower	Act: [Rest this card] Choose 1 of your TRAITLIST characters, +POWER power until end of turn
+ON PLAY EFFECTS	DropSalvage	Auto: [(1) Discard a card] When placed from hand, you may pay cost, return a character from waiting room to hand
+ON PLAY EFFECTS	ClimaxExchange	Auto: [(1) Discard a climax] When placed from hand, you may pay cost, return a climax from waiting room to hand
+ON PLAY EFFECTS	DropSearch	Auto: [(1) Put a card from hand into waiting room] When placed, you may pay cost, search deck for up to 1 TRAITLIST character to hand
+ON PLAY EFFECTS	Bond1	Auto: BOND/"CARDNAME" [(1)] When placed from hand, you may pay cost, return that named card from waiting room to hand
+ON PLAY EFFECTS	BondClock	Auto: BOND/"CARDNAME" [Put top of deck into clock]
+ON PLAY EFFECTS	BondDiscard	Auto: BOND/"CARDNAME" [Discard 1 card]
+ON PLAY EFFECTS	2OptionBond1	Auto: BOND with two name options [(1)]
+ON PLAY EFFECTS	2OptionBondClock	Auto: BOND with two name options [Clock]
+ON PLAY EFFECTS	2OptionBondDiscard	Auto: BOND with two name options [Discard]
+ON PLAY EFFECTS	OnPlayReorderTop2	Auto: When placed from hand, look at up to 2 from top and return in any order
+ON PLAY EFFECTS	OnPlayCheckTopAddDiscard	Auto: When placed, reveal top, if TRAITLIST character add to hand and discard 1
+ON PLAY EFFECTS	OnPlayCheckTopTraitOrEventAddDiscard	Auto: When placed, reveal top, if TRAITLIST character or event add to hand and discard 1
+ON PLAY EFFECTS	OnPlayFlicker	Auto: When placed, choose an opponent's character, opponent puts it into memory then back on stage
+ON PLAY EFFECTS	OnPlayMill2GainPowerForEachCharacter	Auto: When placed, mill 2, gain power for each TRAITLIST character
+ON PLAY EFFECTS	OnPlayChooseMarker	Auto: When placed, you may put a "NAME" card from waiting room face down under this as a marker
+ON PLAY EFFECTS	OnPlayChooseMarker_FaceUp	Auto: When placed, you may put a "NAME" card from waiting room face up under this as a marker
+ON PLAY EFFECTS	OnPlayGainPower	Auto: When placed from hand, this card gets +POWER power
+ON PLAY EFFECTS	OnPlayGainPowerForEach	Auto: When placed, this gets +POWER power for each TRAITLIST character
+ON PLAY EFFECTS	OnPlayTradeClimaxForCharacter	Auto: [Discard a climax] When placed, you may pay cost, return a TRAITLIST character from waiting room to hand
+ON PLAY EFFECTS	OnPlayScryToBottom	Auto: When placed, scry the bottom card of your deck
+ON PLAY EFFECTS	OnPlayCheckTopRestIfClimax	Auto: When placed, reveal top; if climax, rest this card
+ON PLAY EFFECTS	OnPlayMill2RestIfClimax	Auto: When placed, mill 2; if a climax is sent, rest this card
+ON PLAY EFFECTS	OnPlayGivePower	Auto: When placed, choose 1 of your TRAITLIST characters, +POWER power
+ON PLAY EFFECTS	OnPlayGiveOtherPower	Auto: When placed, choose 1 of your other TRAITLIST characters, +POWER power
+ON PLAY EFFECTS	OnPlayMax4Memory	Auto: When placed, all players trim memory to 4 if 5 or more
+ON PLAY EFFECTS	OnPlayDiscardRevealSalvageForLevel	Auto: When placed, discard/reveal salvage scaling by level
+ON ATTACK EFFECTS	OnAttackGivePower	Auto: When this card attacks, choose 1 of your TRAITLIST characters, +POWER power until end of turn
+ON ATTACK EFFECTS	OnAttackGiveOtherPower	Auto: When this card attacks, choose 1 of your other TRAITLIST characters, +POWER power until end of turn
+ON ATTACK EFFECTS	OnAttackPay1ToDoubleTrigger	Auto: When this card attacks, pay (1) to perform an additional trigger check
+ON ATTACK EFFECTS	OnAttackCheck2ChooseTrigger	Auto: When this card attacks, look at up to 2, choose 1 to top of deck, rest to waiting room
+ON ATTACK EFFECTS	OnAttackMill1PutLevel0OnField	Auto: When this card attacks, if 1 or fewer other characters, mill 1; if level 0 character place it on backstage
+ON ATTACK EFFECTS	GainPowerWhenAttackingLevel3	Auto: When this card attacks, if the facing character is level 3 or higher, +POWER power until end of turn
+ON ATTACK EFFECTS	GainPowerWhenAttackingLevel2	Auto: When this card attacks, if the facing character is level 2, +POWER power until end of turn
+ON ATTACK EFFECTS	OnAttackGivePowerTimesSoul	Auto: When this card attacks, choose 1 of your other characters, +X power (X = 1000 times its soul)
+ON ATTACK EFFECTS	OnAttackGainPowerForEachOther	Auto: When this card attacks, +X power (X = POWER times number of other TRAITLIST characters)
+ON ATTACK EFFECTS	OnAttackGivePowerForEachOther	Auto: When this card attacks, choose 1 other TRAITLIST character, +X power (X = POWER times other TRAITLIST count)
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	ClimaxPhaseCheckTopRestIfClimax	Auto: At beginning of your climax phase, reveal top; if climax, rest this card
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	ClimaxPhaseCheckTopTributeOtherIfClimax	Auto: At beginning of your climax phase, reveal top; if climax, put 1 of your other characters into waiting room
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	PayToExchange	Auto: [(1)] At beginning of opponent's attack phase, you may pay cost, swap a TRAITLIST character with this as standing
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	FreeRunner	Auto: At start of opponent's attack phase, you may move this card to an open center stage position
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	RunInFrontOfCharacter	Auto: At start of opponent's attack phase, you may move this card in front of a character
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	RunToCenter	Auto: At start of opponent's attack phase, you may move this card to the open middle center position
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	MillRunner	Auto: At beginning of opponent's attack phase, mill 1; if TRAITLIST character you may move this to open center
+START ATTACK PHASE / CLIMAX PHASE EFFECTS	OpponentMayPay2ToPreventFrontalAttack	Auto: At beginning of your climax phase, opponent may pay 2 stock so this cannot frontal attack this turn
+BACKUP RELATED	MemoryBackup	Auto: When you use this card's BACKUP, until end of turn your character in battle gains "reverse to opponent's memory"
+BACKUP RELATED	BackupBonus1000	Auto: When you use this card's BACKUP, if you have a TRAITLIST character, character in battle gets +1000 power
+BACKUP RELATED	ScryBackup	Auto: When you use this card's BACKUP, reveal top; if TRAITLIST character add to hand and discard
+OTHER AUTO EFFECTS	EncoreStepIfNoneRestedPayToRest	Auto: [(1)] At beginning of encore step, if no other rested characters on center, you may pay cost, rest this card
+OTHER AUTO EFFECTS	StockOnCancel	Auto: When damage by this card is canceled, you may put this card into your stock
+OTHER AUTO EFFECTS	ClockShift	Auto: SHIFT [level/color] effect
+OTHER AUTO EFFECTS	NoEncoreIfReversed	Auto: When this card becomes reversed, you cannot use encore until end of turn
+OTHER AUTO EFFECTS	OnClimaxPlayGivePower	Auto: When a climax is placed in your climax area, choose 1 of your characters, +POWER power
+OTHER AUTO EFFECTS	OnActGivePower	Auto: Up to TIMESPERTURN times per turn, when you use an Act ability, choose 1 of your characters, +POWER power
+OTHER AUTO EFFECTS	Revenge	Auto: When your other character becomes reversed, choose 1 of your characters, +POWER power until end of turn
+OTHER AUTO EFFECTS	RevengeTrait	Auto: When your other character becomes reversed, a TRAITLIST character gets +POWER power until end of turn
+OTHER AUTO EFFECTS	OnOtherAttackedSacrificeToGivePower	Auto: When your other TRAITLIST character is frontal attacked, you may put this into waiting room to give +POWER power
+OTHER AUTO EFFECTS	MoveOtherToBackstageOnReverse	Auto: When battle opponent becomes reversed, rest and move 1 of your other characters to open backstage
+OTHER AUTO EFFECTS	MoveOtherWithTraitToBackstageOnReverse	Auto: When battle opponent becomes reversed, rest and move a TRAITLIST other character to open backstage
+OTHER AUTO EFFECTS	OnSentDiscard1Check4	Auto: [Discard a card] When put into waiting room from stage, you may pay cost, look at up to 4, add up to 1 TRAITLIST to hand, rest to waiting room
+OTHER AUTO EFFECTS	GainPowerWhenOtherAttacks	Auto: When your other TRAITLIST character attacks, this card gets +POWER power until end of turn
+OTHER AUTO EFFECTS	FreeEncore	Auto: When this card is put into waiting room from stage, return it to its previous position rested
+OTHER AUTO EFFECTS	SacrificeToSave	Auto: When your other character meeting requirement is sent from stage to waiting room, if this is on backstage you may send this to return that character rested
+OTHER AUTO EFFECTS	OnReverseBlindStock	Auto: When battle opponent becomes reversed, you may put top of deck into stock
+OTHER AUTO EFFECTS	OnCancelBurn1	Auto: Once per turn, when damage by this card is canceled, you may deal 1 damage to opponent
+CONT EFFECTS	HexProof	Cont: This card cannot be chosen by your opponent's effects
+CONT EFFECTS	GainPowerForEachOther	Cont: This card gets +POWER power for each of your other TRAITLIST characters
+CONT EFFECTS	GlobalPower	Cont: All of your other TRAITLIST characters get +POWER power
+CONT EFFECTS	PowerInMiddle	Cont: If this card is in the middle position of your center stage, +POWER power
+CONT EFFECTS	PowerOnMyTurn	Cont: During your turn, this card gets +POWER power
+CONT EFFECTS	GiveOthersPowerOnMyTurn	Cont: During your turn, all of your other characters get +POWER power
+CONT EFFECTS	CannotSideAttack	Cont: This card cannot side attack [DRAWBACK]
+CONT EFFECTS	OthersCannotSideAttack	Cont: All of your other characters cannot side attack [DRAWBACK]
+CONT EFFECTS	CharacterFacingThisCannotMove	Cont: The character facing this card cannot move to another stage position
+CONT EFFECTS	CannotAttackHigherLevel	Cont: If the facing character's level is greater than this card's level, this card cannot frontal attack [DRAWBACK]
+CONT EFFECTS	GiveAllOpponentsEncore2	Cont: All of your opponent's characters get "Auto: ENCORE [(2)]" [DRAWBACK]
+CONT EFFECTS	GiveAllOpponentsClockEncore	Cont: All of your opponent's characters get "Auto: ENCORE [Clock]" [DRAWBACK]
+CONT EFFECTS	GreatPerformance	Cont: GREAT PERFORMANCE (Bodyguard) — opponent must attack this card if able
+CONT EFFECTS	GiveNamePower	Cont: All of your other "NAME" get +POWER power
+CONT EFFECTS	GiveMiddlePower	Cont: Your other TRAITLIST character in the middle center position gets +POWER power
+CONT EFFECTS	GainPowerWithEnoughCharacters	Cont: If the number of other TRAITLIST characters you have is NUMBER or more, +POWER power
+CONT EFFECTS	CannotBeReversedByCost0	Cont: If the facing character is cost 0 or lower, this card cannot become reversed
+ON PLAY EFFECTS	GainPowerOnPlay	Auto: When this card is placed on the stage from your hand, this card gets +POWER power
+ON PLAY EFFECTS	GivePowerOnPlay	Auto: When placed from hand, choose 1 of your TRAITLIST characters, +POWER power
+ON PLAY EFFECTS	GivePowerToOtherOnPlay	Auto: When placed from hand, choose 1 of your other TRAITLIST characters, +POWER power
+ON PLAY EFFECTS	OnPlayScry	Auto: When placed from hand, scry 1 (look at top of deck, keep on top or to waiting room)
+ON PLAY EFFECTS	ScryOnPlay	Auto: When placed from hand, scry 1 (look at top of deck, keep on top or to waiting room)
+ON PLAY EFFECTS	ScryToBottomOnPlay	Auto: When placed from hand, look at bottom card of deck, keep or move
+ON PLAY EFFECTS	OnPlayMillGainPowerForEach	Auto: When placed from hand, mill, gain power for each TRAITLIST character
+CONT EFFECTS	ContForEachOtherTrait	Cont: This card gets +POWER power for each of your other TRAITLIST characters
+ON ATTACK EFFECTS	GivePowerOnAttack	Auto: When this card attacks, choose 1 of your TRAITLIST characters, +POWER power until end of turn
+ON ATTACK EFFECTS	GiveOtherPowerOnAttack	Auto: When this card attacks, choose 1 of your other TRAITLIST characters, +POWER power until end of turn
+ON ATTACK EFFECTS	GiveTraitPowerOnAttack	Auto: When this card attacks, choose 1 of your TRAITLIST characters, +POWER power until end of turn
+ON ATTACK EFFECTS	OnAttackMill1PutLevel0OnStage	Auto: When this card attacks, if 1 or fewer other characters, mill 1; if level 0 character place it on stage
+OTHER AUTO EFFECTS	GivePowerOnClimaxPlay	Auto: When a climax is placed in your climax area, choose 1 of your characters, +POWER power
+OTHER AUTO EFFECTS	GivePowerOnAct	Auto: When you use an Act ability, choose 1 of your characters, +POWER power until end of turn
+OTHER AUTO EFFECTS	WhenOtherAttackedSacrificeToGivePower	Auto: When your other TRAITLIST character is frontal attacked, you may put this into waiting room to give +POWER power
+OTHER AUTO EFFECTS	CleanCut	Auto: When battle opponent becomes reversed, rest and move 1 of your other characters to open backstage
+COMMON LEVEL 3 EFFECTS	MaySendOpponentToMemoryOnReverse	Auto: When this card's battle opponent becomes reversed, you may put that character into opponent's memory
+BRAINSTORMS	ActDrawBrainstorm	Act: BRAINSTORM [(1) Rest this card] Mill 4, draw up to 1 for each climax

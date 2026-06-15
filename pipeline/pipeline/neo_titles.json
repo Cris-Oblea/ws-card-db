@@ -1,0 +1,1539 @@
+[
+ {
+  "name": "ダ・カーポ＆Dal Segno",
+  "name_kana": "だかーぽだるせーにょ",
+  "side": -1,
+  "codes": [
+   "DC",
+   "DC3",
+   "DC4",
+   "DS",
+   "DC5"
+  ]
+ },
+ {
+  "name": "リトルバスターズ！",
+  "name_kana": "りとるばすたーず",
+  "side": -1,
+  "codes": [
+   "LB",
+   "KW",
+   "Klb",
+   "Kkw"
+  ]
+ },
+ {
+  "name": "ゼロの使い魔",
+  "name_kana": "ぜろのつかいま",
+  "side": -1,
+  "codes": [
+   "ZM"
+  ]
+ },
+ {
+  "name": "魔法少女リリカルなのは",
+  "name_kana": "まほうしょうじょりりかるなのは",
+  "side": -1,
+  "codes": [
+   "NS",
+   "N1",
+   "NV",
+   "NA",
+   "N2",
+   "NR",
+   "ND",
+   "NTA"
+  ]
+ },
+ {
+  "name": "らき☆すた",
+  "name_kana": "らきすた",
+  "side": -1,
+  "codes": [
+   "LS"
+  ]
+ },
+ {
+  "name": "CLANNAD",
+  "name_kana": "くらなど",
+  "side": -1,
+  "codes": [
+   "CL",
+   "Kcl",
+   "Kta"
+  ]
+ },
+ {
+  "name": "宇宙をかける少女／舞-HiME＆舞-乙HiME",
+  "name_kana": "そらをかけるしょうじょまいひめまいおとめ",
+  "side": -1,
+  "codes": [
+   "SK",
+   "MH"
+  ]
+ },
+ {
+  "name": "Phantom -Requiem for the Phantom-",
+  "name_kana": "ふぁんとむれくいえむおぶざふぁんとむ",
+  "side": -1,
+  "codes": [
+   "PT"
+  ]
+ },
+ {
+  "name": "涼宮ハルヒの憂鬱",
+  "name_kana": "すずみやはるひのゆううつ",
+  "side": -1,
+  "codes": [
+   "SY",
+   "Ssy"
+  ]
+ },
+ {
+  "name": "とある魔術の禁書目録／とある科学の超電磁砲",
+  "name_kana": "とあるまじゅつのいんでっくすとあるかがくのれーるがん",
+  "side": -1,
+  "codes": [
+   "ID",
+   "RG",
+   "Gid"
+  ]
+ },
+ {
+  "name": "Angel Beats!／クドわふたー",
+  "name_kana": "えんじぇるびーつくどわふたー",
+  "side": -1,
+  "codes": [
+   "AB",
+   "KW",
+   "Kab",
+   "Hab",
+   "Kkw"
+  ]
+ },
+ {
+  "name": "灼眼のシャナ",
+  "name_kana": "しゃくがんのしゃな",
+  "side": -1,
+  "codes": [
+   "SS",
+   "Gss"
+  ]
+ },
+ {
+  "name": "Rewrite",
+  "name_kana": "りらいと",
+  "side": -1,
+  "codes": [
+   "RW",
+   "Krw"
+  ]
+ },
+ {
+  "name": "ロボティクス・ノーツ",
+  "name_kana": "ろぼてぃくすのーつ",
+  "side": -1,
+  "codes": [
+   "RN"
+  ]
+ },
+ {
+  "name": "日常",
+  "name_kana": "にちじょう",
+  "side": -1,
+  "codes": [
+   "NJ"
+  ]
+ },
+ {
+  "name": "DOG DAYS",
+  "name_kana": "どっぐでいず",
+  "side": -1,
+  "codes": [
+   "DD"
+  ]
+ },
+ {
+  "name": "魔法少女まどか☆マギカ",
+  "name_kana": "まほうしょうじょまどかまぎか",
+  "side": -1,
+  "codes": [
+   "MM",
+   "MR"
+  ]
+ },
+ {
+  "name": "戦姫絶唱シンフォギア",
+  "name_kana": "せんきぜっしょうしんふぉぎあ",
+  "side": -1,
+  "codes": [
+   "SG"
+  ]
+ },
+ {
+  "name": "ビジュアルアーツ",
+  "name_kana": "びじゅあるあーつ",
+  "side": -1,
+  "codes": [
+   "VA"
+  ]
+ },
+ {
+  "name": "ビビッドレッド・オペレーション",
+  "name_kana": "びびっとれっどおぺれーしょん",
+  "side": -1,
+  "codes": [
+   "VR"
+  ]
+ },
+ {
+  "name": "ラブライブ！",
+  "name_kana": "らぶらいぶ",
+  "side": -1,
+  "codes": [
+   "LL",
+   "LSF",
+   "SIL"
+  ]
+ },
+ {
+  "name": "幻影ヲ駆ケル太陽",
+  "name_kana": "げんえいをかけるたいよう",
+  "side": -1,
+  "codes": [
+   "GT"
+  ]
+ },
+ {
+  "name": "ニセコイ",
+  "name_kana": "にせこい",
+  "side": -1,
+  "codes": [
+   "NK"
+  ]
+ },
+ {
+  "name": "ガールフレンド(仮)",
+  "name_kana": "がーるふれんどかり",
+  "side": -1,
+  "codes": [
+   "GF"
+  ]
+ },
+ {
+  "name": "To LOVEる",
+  "name_kana": "とらぶる",
+  "side": -1,
+  "codes": [
+   "TL"
+  ]
+ },
+ {
+  "name": "Charlotte",
+  "name_kana": "しゃーろっと",
+  "side": -1,
+  "codes": [
+   "CHA",
+   "Kch"
+  ]
+ },
+ {
+  "name": "アイドルマスター シンデレラガールズ",
+  "name_kana": "あいどるますたーしんでれらがーるず",
+  "side": -1,
+  "codes": [
+   "IMC"
+  ]
+ },
+ {
+  "name": "ご注文はうさぎですか？？",
+  "name_kana": "ごちゅうもんはうさぎですか",
+  "side": -1,
+  "codes": [
+   "GU"
+  ]
+ },
+ {
+  "name": "ラブライブ！サンシャイン!!",
+  "name_kana": "らぶらいぶさんしゃいん",
+  "side": -1,
+  "codes": [
+   "LSS",
+   "LSF",
+   "SIS"
+  ]
+ },
+ {
+  "name": "カードゲームしよ子",
+  "name_kana": "かーどげーむしよこ",
+  "side": -3,
+  "codes": [
+   "CGS",
+   "SI"
+  ]
+ },
+ {
+  "name": "BanG Dream!",
+  "name_kana": "ばんどり",
+  "side": -1,
+  "codes": [
+   "BD",
+   "BDY"
+  ]
+ },
+ {
+  "name": "この素晴らしい世界に祝福を！",
+  "name_kana": "このすばらしいせかいにしゅくふくを",
+  "side": -1,
+  "codes": [
+   "KS",
+   "Sks"
+  ]
+ },
+ {
+  "name": "ViVid Strike!",
+  "name_kana": "びびっどすとらいく",
+  "side": -1,
+  "codes": [
+   "VS"
+  ]
+ },
+ {
+  "name": "ペルソナ",
+  "name_kana": "ぺるそな",
+  "side": -2,
+  "codes": [
+   "P3",
+   "P4",
+   "PQ",
+   "P5"
+  ]
+ },
+ {
+  "name": "魔界戦記ディスガイア",
+  "name_kana": "まかいせんきでぃすがいあ",
+  "side": -2,
+  "codes": [
+   "DG"
+  ]
+ },
+ {
+  "name": "Fate",
+  "name_kana": "ふぇいと",
+  "side": -2,
+  "codes": [
+   "FS",
+   "FU",
+   "FH",
+   "FZ"
+  ]
+ },
+ {
+  "name": "シャイニングシリーズ",
+  "name_kana": "しゃいにんぐしりーず",
+  "side": -2,
+  "codes": [
+   "SE",
+   "SF",
+   "SR"
+  ]
+ },
+ {
+  "name": "THE KING OF FIGHTERS",
+  "name_kana": "ざきんぐおぶふぁいたーず",
+  "side": -2,
+  "codes": [
+   "KF"
+  ]
+ },
+ {
+  "name": "戦国BASARA",
+  "name_kana": "せんごくばさら",
+  "side": -2,
+  "codes": [
+   "SB"
+  ]
+ },
+ {
+  "name": "アイドルマスター",
+  "name_kana": "あいどるますたー",
+  "side": -2,
+  "codes": [
+   "IM",
+   "IAS"
+  ]
+ },
+ {
+  "name": "CANAAN",
+  "name_kana": "かなん",
+  "side": -2,
+  "codes": [
+   "CN"
+  ]
+ },
+ {
+  "name": "FAIRY TAIL",
+  "name_kana": "ふぇありーている",
+  "side": -2,
+  "codes": [
+   "FT"
+  ]
+ },
+ {
+  "name": "MELTY BLOOD／空の境界",
+  "name_kana": "めるてぃぶらっどからのきょうかい",
+  "side": -2,
+  "codes": [
+   "MB",
+   "KK"
+  ]
+ },
+ {
+  "name": "探偵オペラ　ミルキィホームズ",
+  "name_kana": "たんていおぺらみるきーほーむず",
+  "side": -2,
+  "codes": [
+   "MK",
+   "MK2"
+  ]
+ },
+ {
+  "name": "ヱヴァンゲリヲン新劇場版",
+  "name_kana": "えヴぁんげりおんしんげきじょうばん",
+  "side": -2,
+  "codes": [
+   "EV"
+  ]
+ },
+ {
+  "name": "ブラック★ロックシューター",
+  "name_kana": "ぶらっくろっくしゅーたー",
+  "side": -2,
+  "codes": [
+   "BR"
+  ]
+ },
+ {
+  "name": "マクロスシリーズ",
+  "name_kana": "まくろすしりーず",
+  "side": -2,
+  "codes": [
+   "MF",
+   "MDE"
+  ]
+ },
+ {
+  "name": "刀語",
+  "name_kana": "かたながたり",
+  "side": -2,
+  "codes": [
+   "KG"
+  ]
+ },
+ {
+  "name": "〈物語〉シリーズ",
+  "name_kana": "ものがたりしりーず",
+  "side": -2,
+  "codes": [
+   "BM",
+   "NM",
+   "MG"
+  ]
+ },
+ {
+  "name": "ギルティクラウン",
+  "name_kana": "ぎるてぃくらうん",
+  "side": -2,
+  "codes": [
+   "GC"
+  ]
+ },
+ {
+  "name": "アクセル・ワールド",
+  "name_kana": "あくせるわーるど",
+  "side": -2,
+  "codes": [
+   "AW",
+   "Gaw"
+  ]
+ },
+ {
+  "name": "ソードアート・オンライン",
+  "name_kana": "そーどあーとおんらいん",
+  "side": -2,
+  "codes": [
+   "SAO",
+   "Gso"
+  ]
+ },
+ {
+  "name": "初音ミク -Project DIVA-",
+  "name_kana": "はつねみくぷろじぇくとでぃーヴぁ",
+  "side": -2,
+  "codes": [
+   "PD"
+  ]
+ },
+ {
+  "name": "PSYCHO-PASS サイコパス",
+  "name_kana": "さいこぱす",
+  "side": -2,
+  "codes": [
+   "PP"
+  ]
+ },
+ {
+  "name": "翠星のガルガンティア",
+  "name_kana": "すいせいのがるがんてぃあ",
+  "side": -2,
+  "codes": [
+   "GG"
+  ]
+ },
+ {
+  "name": "TVアニメ「デビルサバイバー2」",
+  "name_kana": "てれびあにめでびるさばいばーつー",
+  "side": -2,
+  "codes": [
+   "DS2"
+  ]
+ },
+ {
+  "name": "プリズマ☆イリヤ",
+  "name_kana": "ぷりずまいりや",
+  "side": -2,
+  "codes": [
+   "PI"
+  ]
+ },
+ {
+  "name": "うーさーのその日暮らし",
+  "name_kana": "うーさーのそのひぐらし",
+  "side": -2,
+  "codes": [
+   "Woo"
+  ]
+ },
+ {
+  "name": "キルラキル",
+  "name_kana": "きるらきる",
+  "side": -2,
+  "codes": [
+   "KLK"
+  ]
+ },
+ {
+  "name": "ログ・ホライズン",
+  "name_kana": "ろぐほらいずん",
+  "side": -2,
+  "codes": [
+   "LH"
+  ]
+ },
+ {
+  "name": "艦隊これくしょん -艦これ-",
+  "name_kana": "かんたいこれくしょんかんこれ",
+  "side": -2,
+  "codes": [
+   "KC"
+  ]
+ },
+ {
+  "name": "クレヨンしんちゃん",
+  "name_kana": "くれよんしんちゃん",
+  "side": -2,
+  "codes": [
+   "CS"
+  ]
+ },
+ {
+  "name": "超爆裂異次元メンコバトル ギガントシューター つかさ",
+  "name_kana": "ちょうばくれついじげんめんこばとるぎがんとしゅーたーつかさ",
+  "side": -2,
+  "codes": [
+   "GST"
+  ]
+ },
+ {
+  "name": "テラフォーマーズ",
+  "name_kana": "てらふぉーまーず",
+  "side": -2,
+  "codes": [
+   "TF"
+  ]
+ },
+ {
+  "name": "進撃の巨人",
+  "name_kana": "しんげきのきょじん",
+  "side": -2,
+  "codes": [
+   "AOT"
+  ]
+ },
+ {
+  "name": "スクールガールストライカーズ",
+  "name_kana": "すくーるがーるすとらいかーず",
+  "side": -2,
+  "codes": [
+   "SGS"
+  ]
+ },
+ {
+  "name": "ぷよぷよ",
+  "name_kana": "ぷよぷよ",
+  "side": -2,
+  "codes": [
+   "PY"
+  ]
+ },
+ {
+  "name": "おそ松さん",
+  "name_kana": "おそまつさん",
+  "side": -2,
+  "codes": [
+   "OMS"
+  ]
+ },
+ {
+  "name": "境界のRINNE",
+  "name_kana": "きょうかいのりんね",
+  "side": -2,
+  "codes": [
+   "KR"
+  ]
+ },
+ {
+  "name": "キズナイーバー",
+  "name_kana": "きずないーばー",
+  "side": -2,
+  "codes": [
+   "KI"
+  ]
+ },
+ {
+  "name": "Re:ゼロから始める異世界生活",
+  "name_kana": "りぜろからはじめるいせかいせいかつ",
+  "side": -2,
+  "codes": [
+   "RZ"
+  ]
+ },
+ {
+  "name": "チェインクロニクル ～ヘクセイタスの閃～",
+  "name_kana": "ちぇいんくろにくるへくせいたすのひかり",
+  "side": -2,
+  "codes": [
+   "CC"
+  ]
+ },
+ {
+  "name": "けものフレンズ",
+  "name_kana": "けものふれんず",
+  "side": -1,
+  "codes": [
+   "KMN"
+  ]
+ },
+ {
+  "name": "STAR WARS",
+  "name_kana": "すたーうぉーず",
+  "side": -2,
+  "codes": [
+   "SW",
+   "Dsw"
+  ]
+ },
+ {
+  "name": "ひなろじ ～from Luck ＆ Logic～",
+  "name_kana": "ひなろじふろむらくえんろじっく",
+  "side": -1,
+  "codes": [
+   "HLL"
+  ]
+ },
+ {
+  "name": "天元突破グレンラガン",
+  "name_kana": "てんげんとっぱぐれんらがん",
+  "side": -2,
+  "codes": [
+   "GL"
+  ]
+ },
+ {
+  "name": "冴えない彼女の育てかた",
+  "name_kana": "さえないひろいんのそだてかた",
+  "side": -1,
+  "codes": [
+   "SHS",
+   "Fsh"
+  ]
+ },
+ {
+  "name": "Fate/Apocrypha",
+  "name_kana": "ふぇいとあぽくりふぁ",
+  "side": -2,
+  "codes": [
+   "APO"
+  ]
+ },
+ {
+  "name": "ダーリン・イン・ザ・フランキス",
+  "name_kana": "だーりんいんざふらんきす",
+  "side": -2,
+  "codes": [
+   "FXX"
+  ]
+ },
+ {
+  "name": "アニメーション映画『GODZILLA』",
+  "name_kana": "あにめーしょんえいがごじら",
+  "side": -2,
+  "codes": [
+   "GZL"
+  ]
+ },
+ {
+  "name": "ノーゲーム・ノーライフ",
+  "name_kana": "のーげーむのーらいふ",
+  "side": -2,
+  "codes": [
+   "NGL"
+  ]
+ },
+ {
+  "name": "Summer Pockets",
+  "name_kana": "さまーぽけっつ",
+  "side": -1,
+  "codes": [
+   "SMP",
+   "Ksm"
+  ]
+ },
+ {
+  "name": "少女☆歌劇 レヴュースタァライト",
+  "name_kana": "しょうじょかげき れゔゅーすたぁらいと",
+  "side": -2,
+  "codes": [
+   "RSL"
+  ]
+ },
+ {
+  "name": "ソードアート・オンライン オルタナティブ ガンゲイル・オンライン",
+  "name_kana": "そーどあーとおんらいんおるたなてぃぶがんげいるおんらいん",
+  "side": -2,
+  "codes": [
+   "GGO",
+   "Ggg"
+  ]
+ },
+ {
+  "name": "STEINS;GATE",
+  "name_kana": "しゅたいんずげーと",
+  "side": -2,
+  "codes": [
+   "STG"
+  ]
+ },
+ {
+  "name": "ゆらぎ荘の幽奈さん",
+  "name_kana": "ゆらぎそうのゆうなさん",
+  "side": -1,
+  "codes": [
+   "YYS"
+  ]
+ },
+ {
+  "name": "アイドルマスター ミリオンライブ！",
+  "name_kana": "あいどるますたーみりおんらいぶ",
+  "side": -2,
+  "codes": [
+   "IMS",
+   "IAS"
+  ]
+ },
+ {
+  "name": "角川スニーカー文庫",
+  "name_kana": "かどかわすにーかーぶんこ",
+  "side": -1,
+  "codes": [
+   "Sak",
+   "Sbm",
+   "Scn",
+   "Sde",
+   "Sdy",
+   "Seo",
+   "Sfl",
+   "Shg",
+   "Shh",
+   "Shm",
+   "Sks",
+   "Sky",
+   "Sle",
+   "Sls",
+   "Smc",
+   "Sme",
+   "Smi",
+   "Smu",
+   "Snk",
+   "Snw",
+   "Soa",
+   "Soj",
+   "Srd",
+   "Srm",
+   "Ssc",
+   "Ssh",
+   "Ssk",
+   "Ssn",
+   "Sst",
+   "Ssw",
+   "Ssy",
+   "Stk",
+   "Stm"
+  ]
+ },
+ {
+  "name": "オーバーロード",
+  "name_kana": "おーばーろーど",
+  "side": -2,
+  "codes": [
+   "OVL"
+  ]
+ },
+ {
+  "name": "「青春ブタ野郎」シリーズ",
+  "name_kana": "せいしゅんぶたやろうしりーず",
+  "side": -1,
+  "codes": [
+   "SBY",
+   "Gby"
+  ]
+ },
+ {
+  "name": "ゴブリンスレイヤー",
+  "name_kana": "ごぶりんすれいやー",
+  "side": -2,
+  "codes": [
+   "GBS",
+   "GA04"
+  ]
+ },
+ {
+  "name": "富士見ファンタジア文庫",
+  "name_kana": "ふじみふぁんたじあぶんこ",
+  "side": -1,
+  "codes": [
+   "F35",
+   "Fab",
+   "Fcr",
+   "Fdd",
+   "Fdl",
+   "Fdy",
+   "Ffp",
+   "Fgc",
+   "Fgi",
+   "Fgm",
+   "Fhc",
+   "Fii",
+   "Fil",
+   "Fjk",
+   "Fkd",
+   "Fkk",
+   "Fkm",
+   "Fkn",
+   "Fks",
+   "Fkz",
+   "Fma",
+   "Fmr",
+   "Foo",
+   "Fos",
+   "Foy",
+   "Fra",
+   "Fsa",
+   "Fsh",
+   "Fsi",
+   "Fsl",
+   "Fsp",
+   "Fsr",
+   "Ftr",
+   "Ftt",
+   "Fvd"
+  ]
+ },
+ {
+  "name": "ジョジョの奇妙な冒険",
+  "name_kana": "じょじょのきみょうなぼうけん",
+  "side": -2,
+  "codes": [
+   "JJ"
+  ]
+ },
+ {
+  "name": "カードキャプターさくら",
+  "name_kana": "かーどきゃぷたーさくら",
+  "side": -1,
+  "codes": [
+   "CCS"
+  ]
+ },
+ {
+  "name": "転生したらスライムだった件",
+  "name_kana": "てんせいしたらすらいむだったけん",
+  "side": -2,
+  "codes": [
+   "TSK"
+  ]
+ },
+ {
+  "name": "グリザイアシリーズ",
+  "name_kana": "ぐりざいあしりーず",
+  "side": -2,
+  "codes": [
+   "GRI"
+  ]
+ },
+ {
+  "name": "Fate/Grand Order（アニメ）",
+  "name_kana": "ふぇいとぐらんどおーだーあにめ",
+  "side": -2,
+  "codes": [
+   "FGO"
+  ]
+ },
+ {
+  "name": "アサルトリリィ",
+  "name_kana": "あさるとりりぃ",
+  "side": -2,
+  "codes": [
+   "ALL"
+  ]
+ },
+ {
+  "name": "ロストディケイド",
+  "name_kana": "ろすとでぃけいど",
+  "side": -2,
+  "codes": [
+   "LOD"
+  ]
+ },
+ {
+  "name": "新サクラ大戦",
+  "name_kana": "しんさくらたいせん",
+  "side": -2,
+  "codes": [
+   "SKR"
+  ]
+ },
+ {
+  "name": "Key",
+  "name_kana": "きー",
+  "side": -1,
+  "codes": [
+   "Kab",
+   "Kai",
+   "Kch",
+   "Kcl",
+   "Kdb",
+   "Key",
+   "Khb",
+   "Kka",
+   "Kta",
+   "Klb",
+   "Krw",
+   "Ksm",
+   "Kkw"
+  ]
+ },
+ {
+  "name": "デート・ア・ライブ",
+  "name_kana": "でーと・あ・らいぶ",
+  "side": -1,
+  "codes": [
+   "DAL",
+   "Fdl"
+  ]
+ },
+ {
+  "name": "五等分の花嫁",
+  "name_kana": "ごとうぶんのはなよめ",
+  "side": -1,
+  "codes": [
+   "5HY"
+  ]
+ },
+ {
+  "name": "痛いのは嫌なので防御力に極振りしたいと思います。",
+  "name_kana": "いたいのはいやなのでぼうぎょりょくにきょくふりしたいとおもいます",
+  "side": -2,
+  "codes": [
+   "BFR"
+  ]
+ },
+ {
+  "name": "かぐや様は告らせたい～天才たちの恋愛頭脳戦～",
+  "name_kana": "かぐやさまはこくらせたいてんさいたちのれんあいずのうせん",
+  "side": -2,
+  "codes": [
+   "KGL"
+  ]
+ },
+ {
+  "name": "ラブライブ！虹ヶ咲学園スクールアイドル同好会",
+  "name_kana": "らぶらいぶ！にじがさきがくえんすくーるあいどるどうこうかい",
+  "side": -1,
+  "codes": [
+   "LNJ",
+   "LSF",
+   "SIN"
+  ]
+ },
+ {
+  "name": "アニメ プリンセスコネクト！Re:Dive",
+  "name_kana": "あにめ ぷりんせすこねくと！り：だいぶ",
+  "side": -1,
+  "codes": [
+   "PRD"
+  ]
+ },
+ {
+  "name": "彼女、お借りします",
+  "name_kana": "かのじょ、おかりします",
+  "side": -1,
+  "codes": [
+   "KNK"
+  ]
+ },
+ {
+  "name": "アイドルマスター シャイニーカラーズ",
+  "name_kana": "あいどるますたー しゃいにーからーず",
+  "side": -2,
+  "codes": [
+   "ISC"
+  ]
+ },
+ {
+  "name": "神様になった日",
+  "name_kana": "かみさまになったひ",
+  "side": -1,
+  "codes": [
+   "DBG",
+   "Kdb"
+  ]
+ },
+ {
+  "name": "無職転生 ～異世界行ったら本気だす～",
+  "name_kana": "むしょくてんせい ～いせかいいったらほんきだす～",
+  "side": -2,
+  "codes": [
+   "MTI"
+  ]
+ },
+ {
+  "name": "ラブライブ！スーパースター!!",
+  "name_kana": "らぶらいぶ！すーぱーすたー!!",
+  "side": -1,
+  "codes": [
+   "LSP",
+   "LSF",
+   "SIP"
+  ]
+ },
+ {
+  "name": "ホロライブプロダクション",
+  "name_kana": "ほろらいぶぷろだくしょん",
+  "side": -1,
+  "codes": [
+   "HOL"
+  ]
+ },
+ {
+  "name": "ワールドトリガー",
+  "name_kana": "わーるどとりがー",
+  "side": -2,
+  "codes": [
+   "WTR"
+  ]
+ },
+ {
+  "name": "D_CIDE TRAUMEREI",
+  "name_kana": "でぃーさいどとろいめらい",
+  "side": -2,
+  "codes": [
+   "DCT"
+  ]
+ },
+ {
+  "name": "ダンジョンに出会いを求めるのは間違っているだろうか",
+  "name_kana": "だんじょんにであいをもとめるのはまちがっているだろうか",
+  "side": -2,
+  "codes": [
+   "DDM",
+   "GA10"
+  ]
+ },
+ {
+  "name": "ゾンビランドサガ リベンジ",
+  "name_kana": "ぞんびらんどさが りべんじ",
+  "side": -1,
+  "codes": [
+   "ZLS"
+  ]
+ },
+ {
+  "name": "MARVEL",
+  "name_kana": "まーべる",
+  "side": -2,
+  "codes": [
+   "MAR",
+   "Dmv"
+  ]
+ },
+ {
+  "name": "プロジェクトセカイ カラフルステージ！ feat. 初音ミク",
+  "name_kana": "ぷろじぇくとせかい からふるすてーじ！ feat. 初音ミク",
+  "side": -2,
+  "codes": [
+   "PJS"
+  ]
+ },
+ {
+  "name": "小林さんちのメイドラゴン",
+  "name_kana": "こばやしさんちのめいどらごん",
+  "side": -1,
+  "codes": [
+   "KMD"
+  ]
+ },
+ {
+  "name": "東京リベンジャーズ",
+  "name_kana": "とうきょうりべんじゃーず",
+  "side": -2,
+  "codes": [
+   "TRV"
+  ]
+ },
+ {
+  "name": "D4DJ",
+  "name_kana": "でぃーふぉーでぃーじぇー",
+  "side": -2,
+  "codes": [
+   "DJ"
+  ]
+ },
+ {
+  "name": "PIXAR",
+  "name_kana": "ぴくさー",
+  "side": -2,
+  "codes": [
+   "PXR",
+   "Dpx",
+   "MRp"
+  ]
+ },
+ {
+  "name": "ヘブンバーンズレッド",
+  "name_kana": "へぶんばーんずれっど",
+  "side": -1,
+  "codes": [
+   "HBR",
+   "Khb",
+   "Hab"
+  ]
+ },
+ {
+  "name": "アズールレーン",
+  "name_kana": "あずーるれーん",
+  "side": -2,
+  "codes": [
+   "AZL"
+  ]
+ },
+ {
+  "name": "チェンソーマン",
+  "name_kana": "ちぇんそーまん",
+  "side": -2,
+  "codes": [
+   "CSM"
+  ]
+ },
+ {
+  "name": "SPY×FAMILY",
+  "name_kana": "すぱいふぁみりー",
+  "side": -2,
+  "codes": [
+   "SPY"
+  ]
+ },
+ {
+  "name": "ありふれた職業で世界最強",
+  "name_kana": "ありふれたしょくぎょうでせかいさいきょう",
+  "side": -2,
+  "codes": [
+   "ARI"
+  ]
+ },
+ {
+  "name": "リコリス・リコイル",
+  "name_kana": "りこりすりこいる",
+  "side": -1,
+  "codes": [
+   "LRC"
+  ]
+ },
+ {
+  "name": "Disney100",
+  "name_kana": "でぃずにーわんはんどれっど",
+  "side": -2,
+  "codes": [
+   "Dds",
+   "Dpx",
+   "Dmv",
+   "Dsw"
+  ]
+ },
+ {
+  "name": "パズル＆ドラゴンズ",
+  "name_kana": "ぱずるあんどどらごんず",
+  "side": -2,
+  "codes": [
+   "PAD"
+  ]
+ },
+ {
+  "name": "ウマ娘 プリティーダービー",
+  "name_kana": "うまむすめ ぷりてぃーだーびー",
+  "side": -1,
+  "codes": [
+   "UMA"
+  ]
+ },
+ {
+  "name": "電撃文庫",
+  "name_kana": "でんげきぶんこ",
+  "side": -3,
+  "codes": [
+   "G86",
+   "Gas",
+   "Gaw",
+   "Gbb",
+   "Gbc",
+   "Gbd",
+   "Gbl",
+   "Gby",
+   "Gc3",
+   "Gdc",
+   "Gdr",
+   "Gds",
+   "Gdy",
+   "Gem",
+   "Gfq",
+   "Gga",
+   "Ggh",
+   "Ggg",
+   "Ggu",
+   "Ghh",
+   "Ghm",
+   "Gid",
+   "Giy",
+   "Gkb",
+   "Gkl",
+   "Gkm",
+   "Glt",
+   "Gmf",
+   "Gmm",
+   "Gmr",
+   "Gms",
+   "Gnh",
+   "Gnm",
+   "Gns",
+   "Gny",
+   "Goi",
+   "Gok",
+   "Gom",
+   "Gos",
+   "Grk",
+   "Gsb",
+   "Gsc",
+   "Gsd",
+   "Gsk",
+   "Gso",
+   "Gsp",
+   "Gsr",
+   "Gss",
+   "Gtd",
+   "Gyf"
+  ]
+ },
+ {
+  "name": "アリス・ギア・アイギス",
+  "name_kana": "ありすぎああいぎす",
+  "side": -1,
+  "codes": [
+   "AGS"
+  ]
+ },
+ {
+  "name": "ぼっち・ざ・ろっく！",
+  "name_kana": "ぼっち・ざ・ろっく！",
+  "side": -1,
+  "codes": [
+   "BTR"
+  ]
+ },
+ {
+  "name": "幻日のヨハネ -SUNSHINE in the MIRROR-",
+  "name_kana": "げんじつのよはね さんしゃいん いん ざ みらー",
+  "side": -1,
+  "codes": [
+   "YHN"
+  ]
+ },
+ {
+  "name": "リアセカイ",
+  "name_kana": "りあせかい",
+  "side": -2,
+  "codes": [
+   "RSK"
+  ]
+ },
+ {
+  "name": "ラブライブ！スクールアイドルフェスティバル2",
+  "name_kana": "らぶらいぶ！すくーるあいどるふぇすてぃばるつー",
+  "side": -1,
+  "codes": [
+   "SIL",
+   "SIS",
+   "SIN",
+   "SIP",
+   "LSF"
+  ]
+ },
+ {
+  "name": "あやかしトライアングル",
+  "name_kana": "あやかしとらいあんぐる",
+  "side": -1,
+  "codes": [
+   "AYT"
+  ]
+ },
+ {
+  "name": "【推しの子】",
+  "name_kana": "おしのこ",
+  "side": -2,
+  "codes": [
+   "OSK"
+  ]
+ },
+ {
+  "name": "葬送のフリーレン",
+  "name_kana": "そうそうのふりーれん",
+  "side": -2,
+  "codes": [
+   "SFN"
+  ]
+ },
+ {
+  "name": "ブルーアーカイブ",
+  "name_kana": "ぶるーあーかいぶ",
+  "side": -1,
+  "codes": [
+   "BAV"
+  ]
+ },
+ {
+  "name": "ミラー・ウォリアーズ",
+  "name_kana": "みらーうぉりあーず",
+  "side": -2,
+  "codes": [
+   "MRd",
+   "MRp"
+  ]
+ },
+ {
+  "name": "Disney",
+  "name_kana": "でぃずにー",
+  "side": -2,
+  "codes": [
+   "Dds",
+   "MRd"
+  ]
+ },
+ {
+  "name": "ゆるキャン△",
+  "name_kana": "ゆるきゃん",
+  "side": -1,
+  "codes": [
+   "YRC"
+  ]
+ },
+ {
+  "name": "るろうに剣心 －明治剣客浪漫譚－",
+  "name_kana": "るろうにけんしん －めいじけんかくろまんたん－",
+  "side": -2,
+  "codes": [
+   "RKN"
+  ]
+ },
+ {
+  "name": "『キャプテン翼』",
+  "name_kana": "きゃぷてんつばさ",
+  "side": -1,
+  "codes": [
+   "CTB"
+  ]
+ },
+ {
+  "name": "勝利の女神：NIKKE",
+  "name_kana": "しょうりのめがみにけ",
+  "side": -2,
+  "codes": [
+   "NIK"
+  ]
+ },
+ {
+  "name": "ダンダダン",
+  "name_kana": "だんだだん",
+  "side": -2,
+  "codes": [
+   "DDD"
+  ]
+ },
+ {
+  "name": "学園アイドルマスター",
+  "name_kana": "がくえんあいどるますたー",
+  "side": -1,
+  "codes": [
+   "GIM"
+  ]
+ },
+ {
+  "name": "ガールズバンドクライ",
+  "name_kana": "がーるずばんどくらい",
+  "side": -2,
+  "codes": [
+   "GCR"
+  ]
+ },
+ {
+  "name": "甘神さんちの縁結び",
+  "name_kana": "あまがみさんちのえんむすび",
+  "side": -1,
+  "codes": [
+   "AMG"
+  ]
+ },
+ {
+  "name": "ラブライブ！蓮ノ空女学院スクールアイドルクラブ",
+  "name_kana": "らぶらいぶはすのそらじょがくいんすくーるあいどるくらぶ",
+  "side": -1,
+  "codes": [
+   "LHS"
+  ]
+ },
+ {
+  "name": "負けヒロインが多すぎる！",
+  "name_kana": "まけひろいんがおおすぎる！",
+  "side": -1,
+  "codes": [
+   "MKI"
+  ]
+ },
+ {
+  "name": "あおぎり高校",
+  "name_kana": "あおぎりこうこう",
+  "side": -1,
+  "codes": [
+   "AOH"
+  ]
+ },
+ {
+  "name": "怪獣８号",
+  "name_kana": "かいじゅう8ごう",
+  "side": -2,
+  "codes": [
+   "KJ8"
+  ]
+ },
+ {
+  "name": "きんいろモザイク",
+  "name_kana": "きんいろもざいく",
+  "side": -1,
+  "codes": [
+   "KMS"
+  ]
+ },
+ {
+  "name": "『テイルズ オブ』シリーズ",
+  "name_kana": "ているずおぶしりーず",
+  "side": -2,
+  "codes": [
+   "TAL"
+  ]
+ },
+ {
+  "name": "VIRTUAL GIRL @ WORLD’S END",
+  "name_kana": "ばーちゃるがーるあっとわーるどえんど",
+  "side": -1,
+  "codes": [
+   "VRG",
+   "BDY"
+  ]
+ },
+ {
+  "name": "anemoi",
+  "name_kana": "あねもい",
+  "side": -1,
+  "codes": [
+   "ANM"
+  ]
+ },
+ {
+  "name": "東方Project",
+  "name_kana": "とうほうぷろじぇくと",
+  "side": -2,
+  "codes": [
+   "THP"
+  ]
+ },
+ {
+  "name": "グランブルーファンタジー",
+  "name_kana": "ぐらんぶるーふぁんたじー",
+  "side": -2,
+  "codes": [
+   "GBF"
+  ]
+ },
+ {
+  "name": "ブラウンダスト2",
+  "name_kana": "ぶらうんだすとつー",
+  "side": -1,
+  "codes": [
+   "BRD"
+  ]
+ },
+ {
+  "name": "GA文庫",
+  "name_kana": "じーえーぶんこ",
+  "side": -2,
+  "codes": [
+   "GA01",
+   "GA02",
+   "GA03",
+   "GA04",
+   "GA05",
+   "GA06",
+   "GA07",
+   "GA08",
+   "GA09",
+   "GA10",
+   "GA11",
+   "GA12",
+   "GA13",
+   "GA14",
+   "GA15",
+   "GA16",
+   "GA17",
+   "GA18",
+   "GA19"
+  ]
+ }
+]
