@@ -18,10 +18,11 @@ for fn in ("translation_cache.json", "variant_tr_full.json", "abilities_tr.json"
 NAME_TR = load("name_tr.json"); TRAIT_TR = load("trait_tr.json")
 
 # official EN names already known (strict set+number match) -> reuse, don't re-translate
-import re as _re
-def skey(code):
-    m = _re.match(r"([^/]+)/([A-Za-z]+\d+)-E?(\d+)", code or "")
-    return (m.group(1).upper(), m.group(2).upper(), int(m.group(3))) if m else None
+def skey(code):   # publisher+set+normalized id; tolerant of EN 'E' (E001/TE08/PE01) + trial/promo/parallel
+    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-(.+)$", code or "")
+    if not m: return None
+    suf = re.sub(r"(\d)[A-Za-z]+$", r"\1", re.sub(r"^([A-Za-z]*)E(\d)", r"\1\2", m.group(3).upper(), count=1))
+    return (m.group(1).upper(), m.group(2).upper(), suf)
 EN_BY = {}
 for e in en:
     k = skey(e.get("code", ""))
