@@ -9,7 +9,6 @@
 # NOTE: the cost logic is intentionally kept identical to build_official_list.py. The model is
 # WIP; when it improves, re-run this to regenerate the DB. (TODO: unify both into cost_model.py.)
 import json, os, re, sqlite3, collections, statistics as st, unicodedata
-import official_en
 
 D = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(D, "..", "docs", "ws.sqlite")
@@ -78,14 +77,19 @@ except FileNotFoundError:
 CACHE = {_nk(k): v for k, v in _rawcache.items()}
 print("cards:", len(clean), "| en:", len(en_cards), "| translation cache:", len(_rawcache))
 
-# EN ability text (official, reliable) + EN card name map (by normalized title/number)
-EN_AB = official_en.build(clean, en_cards)
-EN_NAME = {}; EN_IMG = {}
+# --- STRICT EN matching: same publisher + SET + number (e.g. ("DAL","W131",2)).
+# The old official_en._key dropped the SET, so DAL/W131-002, DAL/W79-002, DAL/WE33-002 all
+# collapsed to ("DAL",2) and cross-contaminated names/effects. We only assign EN data when the
+# EXACT same card exists in the EN list; otherwise we leave it blank (better no EN than wrong EN).
+def strict_key(code):
+    m = re.match(r"([^/]+)/([A-Za-z]+\d+)-E?(\d+)", code or "")
+    return (m.group(1).upper(), m.group(2).upper(), int(m.group(3))) if m else None
+def _ra_en(e):
+    return [a for a in (e.get("ability") or []) if a and a.strip()]
+EN_BY = {}
 for e in en_cards:
-    k = official_en._key(e.get("code", ""))
-    if k:
-        EN_NAME.setdefault(k, e.get("name"))
-        if e.get("image"): EN_IMG.setdefault(k, e["image"])
+    kk = strict_key(e.get("code", ""))
+    if kk: EN_BY.setdefault(kk, e)
 
 # ---------------- cost model: measured -> residual -> estimated (Characters only) ----------
 variant_occ = collections.defaultdict(list)
@@ -179,27 +183,29 @@ def join(v):
 crows, arows = [], []
 for c in clean:
     if c.get("excluded"): continue            # keep only valid printings in the queryable DB
-    cn = c["card_number"]; k = official_en._key(cn)
+    cn = c["card_number"]; ec = EN_BY.get(strict_key(cn))   # exact EN card (same set+number) or None
+    en_abs = _ra_en(ec) if ec else []
     is_char = c["type"] == "Character" and None not in (c.get("level"), c.get("cost"), c.get("soul"), c.get("power"))
     power_base = pb(c) if is_char else None
     budget = (power_base - 500) if power_base is not None else None
     abs_ = ra(c)
     model_total = 0; have_cost = False
     ab_buf = []
+    align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, a.get("markers"), a.get("text"))
-        en = EN_AB.get((cn, i)) or CACHE.get(_nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip()), "")
+        en = en_abs[i] if align else CACHE.get(_nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip()), "")
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
-    name_en = EN_NAME.get(k)
+    name_en = ec.get("name") if ec else None
     crows.append((
         cn, base_num(cn), c.get("series"), c.get("name"), name_en, c.get("name_kana"),
         join(c.get("neo_titles")), c.get("type"), c.get("color"), c.get("level"), c.get("cost"),
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
         c.get("rare"), c.get("side"), c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
-        c.get("picture"), EN_IMG.get(k),
+        c.get("picture"), (ec.get("image") if ec else None),
     ))
     arows.extend(ab_buf)
 
