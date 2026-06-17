@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db) · Portfolio project **1 of 3**.
 
-**Last updated:** 2026-06-15
+**Last updated:** 2026-06-17
 
 ## Current state
 
@@ -46,6 +46,13 @@ Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflo
 **Phase 2 (later):** flavor text (~37k JP), neo-standard title names (74 JP-only franchises).
 
 ## Next up (not blocked)
+
+### English migration (deferred — code & folders)
+
+Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still pending — do it as a careful, dedicated pass (some of it changes behavior), verifying the pipeline still runs after each step. The native **Japanese card data stays as-is** (it's the source).
+
+- Translate the remaining Spanish in **code comments and user-facing strings** — e.g. the Excel labels written by `pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `build_db.py`, and the web UI in `docs/app.js` / `docs/index.html`.
+- Rename the folder **`pipeline/fuentes/` → `pipeline/sources/`** and update every code reference to it.
 
 ### Cost accuracy improvement (planned saturday sessions)
 
