@@ -1,38 +1,38 @@
-# Conclusiones — Costo de habilidades en Weiss Schwarz (2026-06-14)
+# Conclusions — Ability cost in Weiss Schwarz (2026-06-14)
 
-## 1. Lo que se entregó
-**`Lista_Habilidades_COMPLETA.xlsx`** — las **15.889 habilidades distintas** que existen en el juego (todo el universo de Characters medibles), cada una con un **costo en power** (múltiplo de 500), su familia, el texto JP real, el EN oficial cuando se pudo verificar, y dos columnas críticas de honestidad: **Método** y **Confianza**. Más la **`GUIA_COSTO_HABILIDADES`** para costear efectos que NO existen en ninguna carta.
+## 1. What was delivered
+**`Lista_Habilidades_COMPLETA.xlsx`** — the **15,889 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`GUIA_COSTO_HABILIDADES`** for costing effects that do NOT exist on any card.
 
-Sirve para lo que querías: **consultar "este efecto → cuesta X"** y **inspirarte para cartas nuevas**.
+It serves what you wanted: **look up "this effect → costs X"** and **draw inspiration for new cards**.
 
-## 2. El modelo de costo (lo que de verdad entendí del juego)
-El power que se le RESTA a una carta por tener una habilidad **≈ la ventaja neta de recursos/tempo que esa habilidad da.**
-- **Economía de recursos** (el porqué profundo): llevar una carta a **mano o stock = +1 recurso ≈ +1000**; mandarla al waiting = perder recurso. Por eso un heal a la mano *siempre* trae coste: el coste **paga** por el recurso, no lo descuenta.
-- **Facilidad de ejecución**: un efecto on-play sin coste ni condición es CARO; gateado (coste, condición, trigger poco fiable) es más barato. Como la mayoría vienen gateados, **la moda de costos cae en 500–1000**.
-- **Era**: las cartas legacy (<2017) cuestan ~2× lo que costaría hoy el mismo efecto (powercreep). Hay que diseñar con valores **modernos**.
-- **Composición**: bundle (haz todo) = **SUMA**; modal (elige 1 de N) = la **mejor opción**, no la suma; multi-trigger = valor × nº de disparos.
-- **CX-combo / gate-duro**: piso de ~500 sin importar la potencia (el costo se paga en ensamblar el combo, no en power).
-- **Familias distintas, regímenes distintos**: el burn se cuesta por *facilidad*, el heal por *destino*, el board-buff por *cantidad×2*. No se unifican.
+## 2. The cost model (what I really understood about the game)
+The power that is SUBTRACTED from a card for having an ability **≈ the net resource/tempo advantage that ability provides.**
+- **Resource economy** (the deep reason): bringing a card to **hand or stock = +1 resource ≈ +1000**; sending it to waiting = losing a resource. That's why a heal to the hand *always* carries a cost: the cost **pays** for the resource, it does not discount it.
+- **Ease of execution**: an on-play effect with no cost or condition is EXPENSIVE; gated (cost, condition, unreliable trigger) is cheaper. Since most come gated, **the mode of the costs falls in 500–1000**.
+- **Era**: legacy cards (<2017) cost ~2× what the same effect would cost today (powercreep). You should design with **modern** values.
+- **Composition**: bundle (do everything) = **SUM**; modal (choose 1 of N) = the **best option**, not the sum; multi-trigger = value × number of triggers.
+- **CX-combo / hard-gate**: floor of ~500 regardless of power (the cost is paid in assembling the combo, not in power).
+- **Different families, different regimes**: burn is costed by *ease*, heal by *destination*, board-buff by *quantity×2*. They are not unified.
 
-## 3. Qué funcionó y qué no (la lección metodológica)
-- ❌ **La regresión NO sirvió** (lineal, log-lineal, symbolic/gplearn, random-forest). Probado a fondo y descartado: los modificadores son **efecto-dependientes** (un coste baja un burn pero *paga* un heal), así que no existe un coeficiente universal. Esto era contraintuitivo —tú mismo esperabas que la regresión armara la tabla— pero los datos lo refutaron.
-- ❌ **El descompositor v3 (ridge/iterativo) tampoco** — descomponer TODA carta a la vez propaga errores y da costos absurdos (0, −6500). Esa fue la lista vieja "pésima y llena de errores".
-- ✅ **Lo que sí funciona: MEDIR, no inferir.** Las cartas de **una sola habilidad** dan el costo exacto (delta directo, sin descomposición). Desde esa base limpia se **propaga por residual** (en cartas multi, restar lo ya conocido) y lo irreducible se **estima** por familia.
-- ✅ **La prueba de que el método es correcto:** reconstruí 34.767 cartas multi-habilidad sumando los costos de sus partes y el resultado **acierta al ≤500 en el 98%** (error medio 68 power). El modelo aditivo + residual es sólido.
+## 3. What worked and what didn't (the methodological lesson)
+- ❌ **Regression did NOT work** (linear, log-linear, symbolic/gplearn, random-forest). Tested thoroughly and discarded: the modifiers are **effect-dependent** (a cost lowers a burn but *pays* a heal), so no universal coefficient exists. This was counterintuitive —you yourself expected regression to assemble the table— but the data refuted it.
+- ❌ **The v3 decomposer (ridge/iterative) didn't either** — decomposing EVERY card at once propagates errors and yields absurd costs (0, −6500). That was the old "terrible and error-ridden" list.
+- ✅ **What does work: MEASURE, don't infer.** Cards with **a single ability** give the exact cost (direct delta, no decomposition). From that clean base it **propagates by residual** (on multi cards, subtract what's already known) and the irreducible part is **estimated** by family.
+- ✅ **The proof that the method is correct:** I reconstructed 34,767 multi-ability cards by summing the costs of their parts, and the result is **accurate to ≤500 in 98%** of cases (mean error 68 power). The additive + residual model is solid.
 
-## 4. Confianza y límites (honesto)
-- **Medido (3.835)** = lo más fiable, costo directo. **Residual (8.580)** = derivado restando seeds limpios. **Estimado (3.474)** = mediana de familia, orientativo.
-- **ALTA+MEDIA confianza = 4.279 filas**; el resto es BAJA (muchos residuales de 1 muestra). Pero ojo: la validación global del 98% dice que incluso los BAJA aciertan en agregado — la marca BAJA es prudencia, no "está mal".
-- **EN oficial en 5.087 filas** (32%), todas **verificadas** (markers+números+keywords calzan con el JP); donde no se pudo verificar quedó en blanco, nunca un EN equivocado. El japonés es la verdad; el EN es comodidad.
-- Lo que queda fino: bundles raros (modal/cost-branch que no son SUMA), per-marker pumps (valor variable), y la cola larga de efectos únicos.
+## 4. Confidence and limits (honest)
+- **Measured (3,835)** = the most reliable, direct cost. **Residual (8,580)** = derived by subtracting clean seeds. **Estimated (3,474)** = family median, indicative.
+- **HIGH+MEDIUM confidence = 4,279 rows**; the rest is LOW (many single-sample residuals). But note: the global 98% validation says that even the LOW ones are accurate in aggregate — the LOW mark is prudence, not "it's wrong".
+- **Official EN on 5,087 rows** (32%), all **verified** (markers+numbers+keywords match the JP); where it could not be verified it was left blank, never a wrong EN. Japanese is the truth; EN is convenience.
+- What remains rough: rare bundles (modal/cost-branch that are not SUM), per-marker pumps (variable value), and the long tail of unique effects.
 
-## 5. Cómo usarlo para cartas custom
-1. **Efecto que ya existe** → búscalo en la lista (filtra por Familia), mira el Costo y el Método/Confianza.
-2. **Efecto nuevo** → usa la GUÍA: descompón en primitivas, aplica modificadores (coste, condición×fiabilidad, era, amplitud), compón (suma/modal/multi-trigger), redondea a 500.
-3. **Regla de oro**: piensa en recursos. ¿La habilidad te da una carta (mano/stock)? ≈ +1000. ¿Es fácil de disparar? más cara. ¿Depende de un climax? piso 500.
+## 5. How to use it for custom cards
+1. **Effect that already exists** → look it up in the list (filter by Family), check the Cost and the Method/Confidence.
+2. **New effect** → use the GUIDE: decompose into primitives, apply modifiers (cost, condition×reliability, era, breadth), compose (sum/modal/multi-trigger), round to 500.
+3. **Rule of thumb**: think in resources. Does the ability give you a card (hand/stock)? ≈ +1000. Is it easy to trigger? more expensive. Does it depend on a climax? floor 500.
 
-## 6. Si se quiere seguir (opcional)
-- Subir confianza de los residuales ponderando por la calidad de sus seeds (un residual de seeds ALTA es casi ALTA).
-- Más cobertura de EN (alinear EN en cartas multi con más reglas).
-- Validar a mano una muestra de "estimado" para calibrar las medianas de familia.
-- Detectar y costear aparte los operadores no-aditivos (modal/replacement) que hoy el residual asume como suma.
+## 6. If you want to continue (optional)
+- Raise the confidence of the residuals by weighting them by the quality of their seeds (a residual built from HIGH seeds is almost HIGH).
+- More EN coverage (align EN on multi cards with more rules).
+- Manually validate a sample of "estimated" to calibrate the family medians.
+- Detect and separately cost the non-additive operators (modal/replacement) that the residual currently assumes as a sum.

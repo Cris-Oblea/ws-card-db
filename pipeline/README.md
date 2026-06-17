@@ -1,75 +1,75 @@
-# Weiss Schwarz — Costo de habilidades (workspace)
+# Weiss Schwarz — Ability cost (workspace)
 
-Proyecto: **referencia de balance para cartas CUSTOM**. "Quiero este efecto → cuesta X power".
-Costo = power que se le RESTA a una carta respecto a su base (`power_real = power_base − costo`), **siempre en múltiplos de 500**.
+Project: **balance reference for CUSTOM cards**. "I want this effect → it costs X power".
+Cost = power that is SUBTRACTED from a card relative to its base (`power_real = power_base − cost`), **always in multiples of 500**.
 
 ---
 
-## ★ ENTREGABLES (lo que vas a usar)
+## ★ DELIVERABLES (what you'll use)
 
-| Archivo | Qué es |
+| File | What it is |
 |---|---|
-| **`Lista_Habilidades_COMPLETA.xlsx`** | **EL producto.** Las **15.889** habilidades distintas del juego, cada una con su costo medido. Hojas: *Todas las habilidades* (la tabla), *Resumen*, *Cómo usar*. |
-| `GUIA_COSTO_HABILIDADES.xlsx` / `.md` | El **modelo** para costear efectos NUEVOS que no existen en ninguna carta (primitivas + modificadores + composición + ejemplos). Complementa la lista. |
-| `phases_reference.md` | Referencia de fases/timing del juego (del ruling oficial JP). |
+| **`Lista_Habilidades_COMPLETA.xlsx`** | **THE product.** The **15,889** distinct abilities in the game, each with its measured cost. Sheets: *Todas las habilidades* (the table), *Resumen*, *Cómo usar*. |
+| `GUIA_COSTO_HABILIDADES.xlsx` / `.md` | The **model** for costing NEW effects that don't exist on any card (primitives + modifiers + composition + examples). Complements the list. |
+| `phases_reference.md` | Reference of game phases/timing (from the official JP ruling). |
 
-### Cómo leer la lista
-- **Costo (500s)**: el power a restar. **Método**: `medido` (delta directo en cartas de 1 habilidad, lo más fiable) ·
-  `residual` (la habilidad solo sale acompañada; se restan las ya conocidas y queda su costo) ·
-  `estimado` (mediana de su familia; orientativo).
-- **Confianza** ALTA/MEDIA/BAJA según nº de muestras y dispersión. **n** = muestras. **Rango** = min..max medido.
-- **EN oficial**: traída del harvest inglés y **verificada** (markers + números + keywords calzan con el JP); si no calza, queda en blanco (nunca se muestra un EN equivocado).
+### How to read the list
+- **Cost (500s)**: the power to subtract. **Method**: `medido` (direct delta on single-ability cards, the most reliable) ·
+  `residual` (the ability only appears alongside others; the known ones are subtracted and its cost remains) ·
+  `estimado` (median of its family; indicative).
+- **Confidence** ALTA/MEDIA/BAJA according to number of samples and dispersion. **n** = samples. **Rango** = measured min..max.
+- **EN oficial**: pulled from the English harvest and **verified** (markers + numbers + keywords match the JP); if it doesn't match, it's left blank (a wrong EN is never shown).
 
 ---
 
-## Cómo regenerar el entregable
+## How to regenerate the deliverable
 ```
 python build_master_list.py      # -> Lista_Habilidades_COMPLETA.xlsx
 python build_cost_sheet.py       # -> GUIA_COSTO_HABILIDADES.xlsx
 ```
 
-### Scripts activos (raíz)
-| Script | Función | Lee |
+### Active scripts (root)
+| Script | Function | Reads |
 |---|---|---|
-| `build_master_list.py` | Construye la lista completa (medido→residual→estimado) | `cardlist_clean.json`, `cardlist_en.json`, `card_era.json`, `official_en.py` |
-| `official_en.py` | Match CONFIABLE habilidad JP → EN oficial (filtro de consistencia) | `cardlist_clean.json`, `cardlist_en.json` |
-| `build_cost_sheet.py` | Genera la guía/modelo para efectos novedosos | (autónomo) |
+| `build_master_list.py` | Builds the complete list (medido→residual→estimado) | `cardlist_clean.json`, `cardlist_en.json`, `card_era.json`, `official_en.py` |
+| `official_en.py` | RELIABLE match of JP ability → official EN (consistency filter) | `cardlist_clean.json`, `cardlist_en.json` |
+| `build_cost_sheet.py` | Generates the guide/model for novel effects | (standalone) |
 
-### Datos canónicos (raíz)
-| Archivo | Qué es |
+### Canonical data (root)
+| File | What it is |
 |---|---|
-| `cardlist_clean.json` | **Fuente de verdad JP**: 63.350 cartas normalizadas (stats + habilidades + markers). |
-| `cardlist_en.json` | **Harvest del sitio oficial inglés**: 18.532 cartas con texto EN oficial. |
-| `card_era.json` | `card_number → legacy(<2017)/modern(≥2017)` (extraído; reemplaza al CSV de 76 MB). |
+| `cardlist_clean.json` | **JP source of truth**: 63,350 normalized cards (stats + abilities + markers). |
+| `cardlist_en.json` | **Harvest from the official English site**: 18,532 cards with official EN text. |
+| `card_era.json` | `card_number → legacy(<2017)/modern(≥2017)` (extracted; replaces the 76 MB CSV). |
 
 ---
 
-## Log de duelos del simulador (extra)
-El simulador (Blake Thoennes, Unity) **sí** deja un log de partida jugable en `Player.log`
-(en `%USERPROFILE%/AppData/LocalLow/Blake Thoennes/Weiss Schwarz/`), entremezclado con
-ruido de Unity. `parse_duel_log.py` lo limpia y estructura:
+## Simulator duel log (extra)
+The simulator (Blake Thoennes, Unity) **does** leave a playable match log in `Player.log`
+(under `%USERPROFILE%/AppData/LocalLow/Blake Thoennes/Weiss Schwarz/`), interleaved with
+Unity noise. `parse_duel_log.py` cleans and structures it:
 ```
-python parse_duel_log.py                 # usa el Player.log por defecto
-python parse_duel_log.py <ruta.log>      # un log específico (p.ej. Player-prev.log)
+python parse_duel_log.py                 # uses the default Player.log
+python parse_duel_log.py <path.log>      # a specific log (e.g. Player-prev.log)
 ```
-Salidas en `duel_logs/`: `duel_<log>.txt` (transcript legible: pre-partida / partida por
-fases / post-partida) + `duel_<log>.json` (eventos estructurados + resumen). Captura mulligan,
-jugadas, efectos resueltos (con texto EN), costos, ataques, encore, brainstorm y las decisiones
-de la IA (SearchValue). Reporta toda línea sin clasificar (nada se descarta en silencio).
-Uso para el proyecto: registro empírico de **cómo se pilotea** un mazo (timing y valoración real),
-complementa los AI scripts de `StreamingAssets/AIData/`.
+Outputs in `duel_logs/`: `duel_<log>.txt` (readable transcript: pre-game / game by
+phases / post-game) + `duel_<log>.json` (structured events + summary). It captures mulligan,
+plays, resolved effects (with EN text), costs, attacks, encore, brainstorm, and the AI's
+decisions (SearchValue). It reports every unclassified line (nothing is dropped silently).
+Use for the project: an empirical record of **how a deck is piloted** (timing and real valuation),
+complementing the AI scripts in `StreamingAssets/AIData/`.
 
-## Carpetas
-- **`pipeline/`** — scripts y datos crudos para *regenerar* lo canónico (harvest JP/EN, limpieza, datación de sets, features). Para correrlos hay que co-locar los datos; normalmente no hace falta tocarlos.
-- **`fuentes/`** — material de aprendizaje crudo: reglas oficiales (`ws_rule*.txt`), scans del manual (`manual_*`), transcripción de video, macros, screenshots.
-- **`_archive/`** — TODO lo obsoleto/experimental (reversible, nada borrado): el viejo sistema de costos v3 (`costs_*`, `ws_decompose*`), el EN lossy (`en_match`, `variant_tr*`), los experimentos de regresión (`v4_*`, `log_linear`) que **fallaron**, mediciones de primitivas superadas, intermedios de firmas/traducción, y la lista vieja `Power_by_ability_OFICIAL.xlsx` (superada).
+## Folders
+- **`pipeline/`** — scripts and raw data to *regenerate* the canonical data (JP/EN harvest, cleanup, set dating, features). To run them you must co-locate the data; normally you don't need to touch them.
+- **`fuentes/`** — raw learning material: official rules (`ws_rule*.txt`), manual scans (`manual_*`), video transcript, macros, screenshots.
+- **`_archive/`** — EVERYTHING obsolete/experimental (reversible, nothing deleted): the old v3 cost system (`costs_*`, `ws_decompose*`), the lossy EN (`en_match`, `variant_tr*`), the regression experiments (`v4_*`, `log_linear`) that **failed**, superseded primitive measurements, signature/translation intermediates, and the old list `Power_by_ability_OFICIAL.xlsx` (superseded).
 
 ---
 
-## Modelo de costo (resumen)
-`power_base = 3000 + 2500·nivel + 1500·costo − 1000·(trigger soul) − 1000·(soul−1)`
-- **Economía de recursos**: carta a mano/stock ≈ +1 recurso ≈ +1000; al waiting = pierdes recurso.
-- **Era**: legacy ≈ 2× el costo moderno (powercreep) → diseña con valores MODERNOS.
-- **Composición**: bundle = SUMA · modal "elige 1 de N" = la opción más fuerte · multi-trigger = valor × nº disparos.
-- **CX-combo / gate-duro**: piso ~500 sin importar la potencia (paga en ensamblar el combo).
-- **Validación del método**: en 34.767 cartas multi totalmente reconstruidas, el costo aditivo acierta a ≤500 en el **98%** (error medio 68 power).
+## Cost model (summary)
+`power_base = 3000 + 2500·level + 1500·cost − 1000·(trigger soul) − 1000·(soul−1)`
+- **Resource economy**: card to hand/stock ≈ +1 resource ≈ +1000; to waiting = you lose a resource.
+- **Era**: legacy ≈ 2× the modern cost (powercreep) → design with MODERN values.
+- **Composition**: bundle = SUM · modal "choose 1 of N" = the strongest option · multi-trigger = value × number of triggers.
+- **CX-combo / hard-gate**: floor ~500 regardless of power (paid in assembling the combo).
+- **Method validation**: across 34,767 fully reconstructed multi cards, the additive cost is accurate to ≤500 in **98%** of cases (mean error 68 power).
