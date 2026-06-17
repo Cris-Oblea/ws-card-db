@@ -1,40 +1,40 @@
-# ws-card-db — Cómo funciona (overview)
+# ws-card-db — How it works (overview)
 
-> Documento de arranque de `documentation/`. Resume QUÉ hace, CÓMO funciona, CÓMO se construyó y QUÉ tecnologías usa. Ampliar a medida que el proyecto crece (ver la regla en el `CLAUDE.md`).
+> Starting document of `documentation/`. Summarizes WHAT it does, HOW it works, HOW it was built and WHAT technologies it uses. Expand as the project grows (see the rule in the `CLAUDE.md`).
 
-## Qué hace
-Mide el **costo de poder por habilidad** de las cartas Weiss Schwarz, para servir de **referencia de balance al diseñar cartas custom** ("quiero este efecto → cuesta X power"). Costo = power que se le RESTA a la base (`power_real = power_base − costo`), siempre en **múltiplos de 500**.
+## What it does
+Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **balance reference when designing custom cards** ("I want this effect → it costs X power"). Cost = power SUBTRACTED from the base (`power_real = power_base − cost`), always in **multiples of 500**.
 
-## Cómo funciona (el flujo)
-1. **Harvest** (`pipeline/pipeline/harvest_cardlist.py`): scrapea la lista oficial JP (ws-tcg.com) con throttle educado y estado reanudable.
-2. **Clean** (`clean_cardlist.py`): normaliza el raw → `cardlist_clean.json` (63.350 cartas JP, UTF-8 NFKC).
-3. **Date** (`date_sets.py`): asigna `release_year` y `era` (legacy <2017 / modern ≥2017) — el power-creep importa.
-4. **Modelo de costo** (en los `build_*.py`), tres niveles de confianza:
-   - **HIGH (medido):** se despeja del power real de la carta vs su base.
-   - **MEDIUM (residual):** se infiere en cartas con varias habilidades, restando las ya medidas.
-   - **LOW (estimado):** modelo cuando no hay medición.
-   - Power base ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
-5. **Salidas:**
-   - `build_official_list.py` → `deliverables/Lista_Habilidades_COMPLETA.xlsx` (15.889 habilidades — EL producto).
-   - `build_db.py` → `docs/ws.sqlite(.gz)` para la web.
-   - `build_cost_sheet.py` → `GUIA_COSTO_HABILIDADES.xlsx` (modelo para costear efectos nuevos).
-6. **Web** (`docs/`): app estática — descarga `ws.sqlite.gz`, gunzip con pako, sql.js en memoria, queries en el navegador. **Sin backend.**
+## How it works (the flow)
+1. **Harvest** (`pipeline/pipeline/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
+2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (63,350 JP cards, UTF-8 NFKC).
+3. **Date** (`date_sets.py`): assigns `release_year` and `era` (legacy <2017 / modern ≥2017) — power-creep matters.
+4. **Cost model** (in the `build_*.py`), three confidence levels:
+   - **HIGH (measured):** derived from the card's real power vs its base.
+   - **MEDIUM (residual):** inferred on cards with several abilities, subtracting the already-measured ones.
+   - **LOW (estimated):** model when there's no measurement.
+   - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
+5. **Outputs:**
+   - `build_official_list.py` → `deliverables/Lista_Habilidades_COMPLETA.xlsx` (15,889 abilities — THE product).
+   - `build_db.py` → `docs/ws.sqlite(.gz)` for the web.
+   - `build_cost_sheet.py` → `GUIA_COSTO_HABILIDADES.xlsx` (model for costing new effects).
+6. **Web** (`docs/`): static app — downloads `ws.sqlite.gz`, gunzips with pako, sql.js in memory, queries in the browser. **No backend.**
 
-## Cómo se construyó / validación
-- Fuentes: lista oficial JP (scrape) + EN oficial (harvest) + reglas/manuales Bushiroad (`reference/`, `pipeline/fuentes/`).
-- **Validación empírica:** ~98% de acierto contra la lista oficial. NO hay unit tests — el oráculo es la lista oficial + audits (`cardlist_audit.json`, conteos, suspects).
-- De-dup: se queda la rareza base, descarta alt-art/parallels.
+## How it was built / validation
+- Sources: official JP list (scrape) + official EN (harvest) + Bushiroad rules/manuals (`reference/`, `pipeline/fuentes/`).
+- **Empirical validation:** ~98% accuracy against the official list. There are NO unit tests — the oracle is the official list + audits (`cardlist_audit.json`, counts, suspects).
+- De-dup: keeps the base rarity, discards alt-art/parallels.
 
-## Tecnologías
-- **Python 3.14** (stdlib: json/sqlite3/re/urllib/csv/statistics/unicodedata) + **`openpyxl`** (Excel) + **`mcp>=1.0`** (el MCP server de `tools/ws-mcp/`).
-- **Web:** HTML5 + JS vanilla + **`sql.js`** + **`pako`** + **SQLite**.
+## Technologies
+- **Python 3.14** (stdlib: json/sqlite3/re/urllib/csv/statistics/unicodedata) + **`openpyxl`** (Excel) + **`mcp>=1.0`** (the MCP server in `tools/ws-mcp/`).
+- **Web:** HTML5 + vanilla JS + **`sql.js`** + **`pako`** + **SQLite**.
 
-## Datos clave
-- 63.350 cartas JP + 18.532 EN · 15.889 habilidades distintas · 74 franquicias Neo-Standard · eras legacy/modern.
-- `pipeline/translation_cache.json` = caché PERMANENTE de traducción (**no borrar**).
+## Key data
+- 63,350 JP cards + 18,532 EN · 15,889 distinct abilities · 74 Neo-Standard franchises · legacy/modern eras.
+- `pipeline/translation_cache.json` = PERMANENT translation cache (**do not delete**).
 
-## Estado
-Pipeline validado 98%; web en producción (~40k cartas). En curso: traducción bilingüe JP→EN (10/16 batches) + mejora de precisión (detección de "suspects" + golden costs).
+## Status
+Pipeline validated at 98%; web in production (~40k cards). In progress: bilingual JP→EN translation (10/16 batches) + accuracy improvement ("suspects" detection + golden costs).
 
-## Para profundizar
-`pipeline/README.md` · `pipeline/GUIA_COSTO_HABILIDADES.md` · `pipeline/CONCLUSIONES.md` (el modelo en detalle) · `STATUS.md` (estado vivo).
+## To go deeper
+`pipeline/README.md` · `pipeline/GUIA_COSTO_HABILIDADES.md` · `pipeline/CONCLUSIONES.md` (the model in detail) · `STATUS.md` (live status).
