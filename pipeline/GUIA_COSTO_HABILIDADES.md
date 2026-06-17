@@ -1,75 +1,75 @@
-# Guía de Costo de Habilidades — Weiss Schwarz (para cartas CUSTOM)
-*Referencia de balance: "quiero este efecto → cuesta X power". Costo = cuánto power se le RESTA a la carta (power_real = power_base − costo). **Todo en múltiplos de 500.** Construido por medición (moda) + modelo de juego. v1 — 2026-06-14.*
+# Ability Cost Guide — Weiss Schwarz (for CUSTOM cards)
+*Balance reference: "I want this effect → it costs X power". Cost = how much power is SUBTRACTED from the card (power_real = power_base − cost). **Everything in multiples of 500.** Built by measurement (mode) + game model. v1 — 2026-06-14.*
 
 ---
-## 0. CÓMO PENSAR EL COSTO (el modelo)
-**El power-cost ≈ VENTAJA NETA de recursos/tempo que da el efecto.** Fórmula mental:
+## 0. HOW TO THINK ABOUT COST (the model)
+**The power-cost ≈ the NET ADVANTAGE in resources/tempo that the effect provides.** Mental formula:
 
-> **costo ≈ (valor base del efecto) × (facilidad de ejecución) × (factor era) → redondear a 500**
+> **cost ≈ (base value of the effect) × (ease of execution) × (era factor) → round to 500**
 
-- **Economía de recursos:** carta a **mano o stock = +1 recurso ≈ +1000**; carta al **waiting = pierdes recurso**. Un efecto que te DA recurso debe llevar coste que lo balancee.
-- **Facilidad:** fácil (on-play, sin coste, sin condición) = caro; con coste / condición / trigger poco fiable = más barato. La MAYORÍA de efectos vienen "gateados" → por eso la mayoría caen bajo (500-1000).
-- **Era:** legacy (<2017) ≈ **2×** el costo moderno (powercreep). Diseña con valores MODERNOS.
-- **Redondeo:** siempre a 500 (las cartas se mueven así). Usa la **MODA**, no la media.
+- **Resource economy:** card to **hand or stock = +1 resource ≈ +1000**; card to **waiting = you lose a resource**. An effect that GIVES you a resource must carry a cost that balances it.
+- **Ease:** easy (on-play, no cost, no condition) = expensive; with cost / condition / unreliable trigger = cheaper. MOST effects come "gated" → that's why most fall low (500-1000).
+- **Era:** legacy (<2017) ≈ **2×** the modern cost (powercreep). Design with MODERN values.
+- **Rounding:** always to 500 (cards move in those increments). Use the **MODE**, not the mean.
 
 ---
-## 1. PRIMITIVAS — valor BASE de cada efecto (limpio, moda, 500s, MODERN)
-*Estos son efectos atómicos "fáciles" (on-play, sin coste). Las trabas (sección 2) los bajan.*
+## 1. PRIMITIVES — BASE value of each effect (clean, mode, 500s, MODERN)
+*These are "easy" atomic effects (on-play, no cost). The gates (section 2) lower them.*
 
-| Efecto | Costo base | Notas / sub-tipos |
+| Effect | Base cost | Notes / sub-types |
 |---|---|---|
-| **Burn 1** (1 daño al rival) | **1500** | cancelable por climax. Con coste → 500. Multi-burn ≈ ×nº instancias. |
-| **Heal** (clock → waiting/stock/mano/memoria) | **1000** | coste-independiente; → **fondo del mazo = 500** (peor). |
-| **Draw 1** | **1000** | = +1 recurso. |
-| **Salvage** char (waiting→mano) | **1000** | **CX o carta cualquiera = 500**. |
-| **Search/Tutor** (mira top-N, agrega 1) | **1000** | **universal + descarta-1 (ciclar) = 2000** (agarrar cualquier carta, incl. climax). |
-| **Return-3** (devolver ≤3 del waiting rival a su mazo) | **1500** | anti-salvage / ensuciar mazo rival. |
-| **Stock-gen** (deck → stock) | **500** | recurso casi-neutro (cambias draw por stock). |
-| **Bounce** (personaje rival → su mano) | **500–1000** | (n chico). |
-| **Self power-pump** | **CIP one-shot (ese turno) = X/3** · **CONT mi-turno = X/2** · **CONT siempre ≈ 2X** | el "siempre" defiende también, por eso más caro. |
-| **Board-buff** "+X a TODOS tus otros 《T》" | **2×X** | level-tiered (L0/1→+500, L2→+1000, L3→+1500); **en L3 el +1500 colapsa a ~500**. |
-| **Clock-kick** (reversar char rival → su clock) | **≈ burn (~500-1000)** | incancelable (premium) PERO trigger "reversar" poco fiable → se compensa. |
+| **Burn 1** (1 damage to opponent) | **1500** | cancelable by climax. With cost → 500. Multi-burn ≈ ×number of instances. |
+| **Heal** (clock → waiting/stock/hand/memory) | **1000** | cost-independent; → **bottom of deck = 500** (worse). |
+| **Draw 1** | **1000** | = +1 resource. |
+| **Salvage** char (waiting→hand) | **1000** | **CX or any card = 500**. |
+| **Search/Tutor** (look at top-N, add 1) | **1000** | **universal + discard-1 (cycling) = 2000** (grab any card, incl. climax). |
+| **Return-3** (return ≤3 from opponent's waiting to their deck) | **1500** | anti-salvage / dirty up opponent's deck. |
+| **Stock-gen** (deck → stock) | **500** | near-neutral resource (you swap draw for stock). |
+| **Bounce** (opponent character → their hand) | **500–1000** | (small n). |
+| **Self power-pump** | **CIP one-shot (that turn) = X/3** · **CONT my-turn = X/2** · **CONT always ≈ 2X** | the "always" also defends, hence more expensive. |
+| **Board-buff** "+X to ALL your other 《T》" | **2×X** | level-tiered (L0/1→+500, L2→+1000, L3→+1500); **at L3 the +1500 collapses to ~500**. |
+| **Clock-kick** (reverse opponent char → their clock) | **≈ burn (~500-1000)** | uncancelable (premium) BUT the "reverse" trigger is unreliable → it compensates. |
 | **Backup (助太刀) X** (keyword) | **2×X** | +1500 legacy = 4000 (grandfather). |
-| **Assist (応援) +X** (a los de adelante) | genérico **3×X** / con trait **X** | |
+| **Assist (応援) +X** (to those in front) | generic **3×X** / with trait **X** | |
 | **Brainstorm** (集中) mill N | mill4=**1000**, mill5=**2000** | |
-| **CIP +X power** ya cubierto arriba (self-pump CIP = X/3) | | |
+| **CIP +X power** already covered above (self-pump CIP = X/3) | | |
 
 ---
-## 2. MODIFICADORES (ajustan la primitiva — redondear a 500 al final)
-- **× COSTE pagado:** **EFECTO-DEPENDIENTE** (no universal). Si el efecto DA recurso (heal→mano/stock, salvage), el coste lo *balancea* (no descuenta, ya está incluido). Si el efecto NO da recurso (burn), pagar coste lo **baja** (burn 1500→1000 con coste, →500 con coste+condición).
-- **× CONDICIÓN (multiplicativo, graduado por estrictez Y fiabilidad):**
-  - suave (mi-turno, 2+《T》, "carta con 'X' en el nombre") = **×½**
-  - estricta (nombre COMPLETO específico) = **×¼**
-  - **poco fiable** (depende del board rival: "reversar", "el rival tiene X") = descuenta **más** (puede no poder usarse).
-  - OR de condiciones descuenta menos que AND. Stackean multiplicativo.
+## 2. MODIFIERS (adjust the primitive — round to 500 at the end)
+- **× COST paid:** **EFFECT-DEPENDENT** (not universal). If the effect GIVES a resource (heal→hand/stock, salvage), the cost *balances* it (it doesn't discount, it's already included). If the effect does NOT give a resource (burn), paying a cost **lowers** it (burn 1500→1000 with cost, →500 with cost+condition).
+- **× CONDITION (multiplicative, graded by strictness AND reliability):**
+  - soft (my-turn, 2+《T》, "card with 'X' in the name") = **×½**
+  - strict (specific FULL name) = **×¼**
+  - **unreliable** (depends on opponent's board: "reverse", "the opponent has X") = discounts **more** (it may not be usable).
+  - OR of conditions discounts less than AND. They stack multiplicatively.
 - **× ERA:** legacy ≈ **2×** modern.
-- **AMPLITUD de selección:** universal (cualquier carta) >> restringido a trait (≈ ½).
-- **CANCELABLE vs INCANCELABLE:** el daño que pasa por trigger-check se cancela con climax; el que mueve cartas (clock-kick, refresh) NO → premium, pero pésalo contra la fiabilidad del trigger.
+- **SELECTION BREADTH:** universal (any card) >> restricted to a trait (≈ ½).
+- **CANCELABLE vs UNCANCELABLE:** damage that passes through the trigger-check is canceled by a climax; that which moves cards (clock-kick, refresh) is NOT → premium, but weigh it against the trigger's reliability.
 
 ---
-## 3. OPERADORES DE COMPOSICIÓN (cartas multi-efecto)
-- **Bundle (haz todos):** **SUMA** de los componentes.
-- **Modal "elige K de N":** valor de la(s) **opción(es) elegible(s)** (≈ la más fuerte), NO la suma, NO ×nº de opciones.
-- **Cost-branch "paga→todos / no-paga→elige 1":** **suma (el techo "ambos")**.
-- **Multi-trigger OR:** si los disparos son INDEPENDIENTES (ambos pueden ocurrir) = valor-por-disparo **× nº de disparos**; si son excluyentes (solo uno jamás) = ×1.
+## 3. COMPOSITION OPERATORS (multi-effect cards)
+- **Bundle (do all):** **SUM** of the components.
+- **Modal "choose K of N":** value of the **eligible option(s)** (≈ the strongest), NOT the sum, NOT ×number of options.
+- **Cost-branch "pay→all / don't-pay→choose 1":** **sum (the "both" ceiling)**.
+- **Multi-trigger OR:** if the triggers are INDEPENDENT (both can occur) = value-per-trigger **× number of triggers**; if they are exclusive (only one ever) = ×1.
 
 ---
-## 4. RÉGIMEN ESPECIAL: CX-COMBO / gate-duro
-Una habilidad que **depende OBLIGATORIAMENTE de un climax específico** (en CX zone, o nombre propio en level/memoria) tiene un **PISO de ~500 casi sin importar cuán potente sea** (el costo se paga en ensamblar el combo, no en power). Detéctalo por la CONDICIÓN de texto, no por el marcador 【CXコンボ】 (legacy no lo tenía). NO sumes sus efectos.
+## 4. SPECIAL REGIME: CX-COMBO / hard-gate
+An ability that **MANDATORILY depends on a specific climax** (in CX zone, or a proper name in level/memory) has a **FLOOR of ~500 almost regardless of how powerful it is** (the cost is paid in assembling the combo, not in power). Detect it by the text CONDITION, not by the 【CXコンボ】 marker (legacy didn't have it). Do NOT sum its effects.
 
 ---
-## 5. CÓMO COSTEAR UN EFECTO NOVEDOSO (paso a paso)
-1. **Descomponer** en efectos atómicos (sección 1) + identificar el operador de composición (sección 3).
-2. **¿Gate-duro / CX-combo?** → piso ~500, listo.
-3. Para cada efecto: **valor base** (sección 1) × **modificadores** (sección 2: coste, condición×fiabilidad, era, amplitud).
-4. **Componer** (suma / modal=mejor-opción / multi-trigger×n).
-5. **¿Da recurso (carta a mano/stock)?** súmale ~1000 si NO lleva coste que lo balancee.
-6. **Redondear a 500.**
+## 5. HOW TO COST A NOVEL EFFECT (step by step)
+1. **Decompose** into atomic effects (section 1) + identify the composition operator (section 3).
+2. **Hard-gate / CX-combo?** → floor ~500, done.
+3. For each effect: **base value** (section 1) × **modifiers** (section 2: cost, condition×reliability, era, breadth).
+4. **Compose** (sum / modal=best-option / multi-trigger×n).
+5. **Does it give a resource (card to hand/stock)?** add ~1000 if it does NOT carry a cost that balances it.
+6. **Round to 500.**
 
-**Ejemplo (validado): CGS/WS01-P17** (Backup 2500 + AUTO "al usar el backup, descarta 2 → manda al waiting un char rival de nivel alto"):
+**Example (validated): CGS/WS01-P17** (Backup 2500 + AUTO "when you use the backup, discard 2 → send a high-level opponent char to the waiting"):
 - Backup 2500 = 2×2500 = **5000**.
-- AUTO = removal (sacar char rival = ventaja de board), pero gateado (solo al usar backup + descarte-2 + target nivel-alto) → **~1000**.
-- Total **6000** = el delta real de la carta. ✓
+- AUTO = removal (removing an opponent char = board advantage), but gated (only when using backup + discard-2 + high-level target) → **~1000**.
+- Total **6000** = the card's real delta. ✓
 
 ---
-*Confianza: primitivas SÓLIDAS medidas (moda, n≥varias). Aún aproximados/por-refinar: bounce, pump-both-turns (montos grandes), heal-fondo-mazo, y soul (casi nunca aparece aislado). El modelo costea lo conocido Y lo novedoso por razonamiento.*
+*Confidence: SOLID measured primitives (mode, n≥several). Still approximate/to-be-refined: bounce, pump-both-turns (large amounts), heal-bottom-of-deck, and soul (it almost never appears in isolation). The model costs both the known AND the novel by reasoning.*

@@ -16,7 +16,7 @@
 
 | Task | Say |
 |---|---|
-| Bilingual translation | *"sigamos con la traducción"* |
+| Bilingual translation | *"continue with the translation"* |
 | Cost accuracy (saturday session) | *"golden costs session"* or *"suspects report"* |
 
 ## Blocked / paused
