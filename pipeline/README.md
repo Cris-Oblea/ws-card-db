@@ -9,16 +9,16 @@ Cost = power that is SUBTRACTED from a card relative to its base (`power_real = 
 
 | File | What it is |
 |---|---|
-| **`Lista_Habilidades_COMPLETA.xlsx`** | **THE product.** The **15,889** distinct abilities in the game, each with its measured cost. Sheets: *Todas las habilidades* (the table), *Resumen*, *Cómo usar*. |
+| **`Lista_Habilidades_COMPLETA.xlsx`** | **THE product.** The **15,889** distinct abilities in the game, each with its measured cost. Sheets: *All abilities* (the table), *Summary*, *How to use*. |
 | `GUIA_COSTO_HABILIDADES.xlsx` / `.md` | The **model** for costing NEW effects that don't exist on any card (primitives + modifiers + composition + examples). Complements the list. |
 | `phases_reference.md` | Reference of game phases/timing (from the official JP ruling). |
 
 ### How to read the list
-- **Cost (500s)**: the power to subtract. **Method**: `medido` (direct delta on single-ability cards, the most reliable) ·
+- **Cost (500s)**: the power to subtract. **Method**: `measured` (direct delta on single-ability cards, the most reliable) ·
   `residual` (the ability only appears alongside others; the known ones are subtracted and its cost remains) ·
-  `estimado` (median of its family; indicative).
-- **Confidence** ALTA/MEDIA/BAJA according to number of samples and dispersion. **n** = samples. **Rango** = measured min..max.
-- **EN oficial**: pulled from the English harvest and **verified** (markers + numbers + keywords match the JP); if it doesn't match, it's left blank (a wrong EN is never shown).
+  `estimated` (median of its family; indicative).
+- **Confidence** HIGH/MEDIUM/LOW according to number of samples and dispersion. **n** = samples. **Range** = measured min..max.
+- **Official EN**: pulled from the English harvest and **verified** (markers + numbers + keywords match the JP); if it doesn't match, it's left blank (a wrong EN is never shown).
 
 ---
 
@@ -31,7 +31,7 @@ python build_cost_sheet.py       # -> GUIA_COSTO_HABILIDADES.xlsx
 ### Active scripts (root)
 | Script | Function | Reads |
 |---|---|---|
-| `build_master_list.py` | Builds the complete list (medido→residual→estimado) | `cardlist_clean.json`, `cardlist_en.json`, `card_era.json`, `official_en.py` |
+| `build_master_list.py` | Builds the complete list (measured→residual→estimated) | `cardlist_clean.json`, `cardlist_en.json`, `card_era.json`, `official_en.py` |
 | `official_en.py` | RELIABLE match of JP ability → official EN (consistency filter) | `cardlist_clean.json`, `cardlist_en.json` |
 | `build_cost_sheet.py` | Generates the guide/model for novel effects | (standalone) |
 
