@@ -27,7 +27,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 
 ## Structure
 - `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py` + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`).
-- `pipeline/pipeline/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
+- `pipeline/ingest/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
 - `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
 - `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
 - `tools/ws-mcp/` — the MCP server.

@@ -6,7 +6,7 @@
 Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **balance reference when designing custom cards** ("I want this effect → it costs X power"). Cost = power SUBTRACTED from the base (`power_real = power_base − cost`), always in **multiples of 500**.
 
 ## How it works (the flow)
-1. **Harvest** (`pipeline/pipeline/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
+1. **Harvest** (`pipeline/ingest/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
 2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (63,350 JP cards, UTF-8 NFKC).
 3. **Date** (`date_sets.py`): assigns `release_year` and `era` (legacy <2017 / modern ≥2017) — power-creep matters.
 4. **Cost model** (in the `build_*.py`), three confidence levels:

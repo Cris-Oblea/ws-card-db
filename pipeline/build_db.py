@@ -154,7 +154,7 @@ TRAIT_EN = {k: v.most_common(1)[0][0] for k, v in _tp.items()}
 # --- neo-standard: neo_titles.json maps a neo-standard NAME (JP) to its series codes.
 #     The franchise's ENGLISH name lives in the EN 'expansion' field -> gather them per neo so
 #     the Title filter matches both JP ("デート・ア・ライブ") and EN ("Date A Live"). ---
-neo_data = json.load(open(os.path.join(D, "pipeline", "neo_titles.json"), encoding="utf-8"))
+neo_data = json.load(open(os.path.join(D, "ingest", "neo_titles.json"), encoding="utf-8"))
 NAME2NEO = {nt["name"]: nt for nt in neo_data}
 CODE2NEO = {code: nt for nt in neo_data for code in nt.get("codes", [])}
 NEO_EXP = collections.defaultdict(collections.Counter)   # neo JP name -> Counter(expansion -> #cards)
