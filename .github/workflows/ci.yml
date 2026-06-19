@@ -11,10 +11,10 @@ jobs:
     name: Python — compile smoke (pipeline + tools)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           # Match CLAUDE.md (Python 3.14). Bump here if the stack moves.
           python-version: "3.14"
@@ -28,8 +28,15 @@ jobs:
   secret-scan:
     name: gitleaks — secret scan
     runs-on: ubuntu-latest
+    # gitleaks-action scans PR commits via the GitHub API on pull_request events.
+    # Dependabot PRs get a read-only token WITHOUT pull-requests scope by default,
+    # so the action 403s ("Resource not accessible by integration") before scanning.
+    # Granting read access here fixes the scan on Dependabot/forked PRs.
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0   # full history for a thorough scan
       - name: Run gitleaks
