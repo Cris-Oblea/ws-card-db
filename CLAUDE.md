@@ -28,7 +28,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 ## Structure
 - `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py` + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`).
 - `pipeline/pipeline/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
-- `pipeline/fuentes/` — official rules, macros, manuals (reference material, **not code**).
+- `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
 - `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
 - `tools/ws-mcp/` — the MCP server.
 - `reference/` — official Bushiroad PDFs.
@@ -47,7 +47,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - **Encoding:** UTF-8 + NFKC normalization (full/half-width Japanese).
 
 ## What NOT to touch
-- `pipeline/fuentes/` and `reference/` — reference material, not code.
+- `pipeline/sources/` and `reference/` — reference material, not code.
 - `pipeline/translation_cache.json` — PERMANENT translation cache (reuses prior work, do not delete).
 - `.gitignore` — already excludes the regenerable artifacts (raw harvest, features.csv, uncompressed ws.sqlite).
 

@@ -112,7 +112,7 @@ for line in ["HOW TO COST A NOVEL EFFECT (step by step)","",
     ws5.append([line])
 ws5["A1"].font = Font(bold=True, size=12)
 
-out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "GUIA_COSTO_HABILIDADES.xlsx")
+out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Ability_Cost_Guide.xlsx")
 wb.save(out)
 print("Calculator OK (auto-tests passed). Sheet written:", out)
 print("Calculator example: easy burn=%d, costed burn=%d, strict-cond burn=%d, board+500=%d" % (

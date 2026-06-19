@@ -52,7 +52,7 @@ Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflo
 Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still pending — do it as a careful, dedicated pass (some of it changes behavior), verifying the pipeline still runs after each step. The native **Japanese card data stays as-is** (it's the source).
 
 - ✅ Done (2026-06-19): translated the remaining Spanish in code comments and Excel labels (`pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `official_en.py`, `build_features.py`). The DB/web (`build_db.py`, `site/`) were already English. Japanese card data kept as-is (it's the source); the two `.xlsx` output filenames are left as-is.
-- Rename the folder **`pipeline/fuentes/` → `pipeline/sources/`** and update every code reference to it.
+- ✅ Done (2026-06-19): renamed `pipeline/fuentes/` → `pipeline/sources/` (+ all references) and translated the Spanish `.xlsx`/`.md` filenames to English (`Complete_Abilities_List`, `Ability_Cost_Guide`, `Conclusions.md`). Generated `.xlsx` are no longer versioned (gitignored).
 
 ### Cost accuracy improvement (planned saturday sessions)
 
@@ -72,7 +72,7 @@ User still sees wrong costs in places. Plan not implemented yet:
 
 ## Dependencies
 
-- **Consumes:** official JP/EN card lists, Bushiroad rules (see `reference/`, `pipeline/fuentes/`)
+- **Consumes:** official JP/EN card lists, Bushiroad rules (see `reference/`, `pipeline/sources/`)
 - **Feeds:** `ws-sim-ai` (card costs + structured data)
 - **Related:** card images live in `WSAI/Galería/` (4.1 GB, not in git)
 

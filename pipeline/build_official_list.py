@@ -414,7 +414,7 @@ for sheet in wb.worksheets:
             if cell.data_type == "f":
                 cell.data_type = "s"
 
-out = os.path.join(D, "Lista_Habilidades_COMPLETA.xlsx"); wb.save(out)
+out = os.path.join(D, "Complete_Abilities_List.xlsx"); wb.save(out)
 nrows = sum(len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"])
 withen = sum(1 for t in rows_by_type for r in rows_by_type[t] if r["en"])
 print(f"filas={nrows} | con EN={withen} | sin EN={nrows-withen}")

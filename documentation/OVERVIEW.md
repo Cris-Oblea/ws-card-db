@@ -15,13 +15,13 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
    - **LOW (estimated):** model when there's no measurement.
    - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
 5. **Outputs:**
-   - `build_official_list.py` → `Lista_Habilidades_COMPLETA.xlsx` (15,889 abilities; local Excel, generated on demand).
+   - `build_official_list.py` → `Complete_Abilities_List.xlsx` (15,889 abilities; local Excel, generated on demand).
    - `build_db.py` → `site/ws.sqlite(.gz)` for the web.
-   - `build_cost_sheet.py` → `GUIA_COSTO_HABILIDADES.xlsx` (model for costing new effects).
+   - `build_cost_sheet.py` → `Ability_Cost_Guide.xlsx` (model for costing new effects).
 6. **Web** (`site/`): static app — downloads `ws.sqlite.gz`, gunzips with pako, sql.js in memory, queries in the browser. **No backend.**
 
 ## How it was built / validation
-- Sources: official JP list (scrape) + official EN (harvest) + Bushiroad rules/manuals (`reference/`, `pipeline/fuentes/`).
+- Sources: official JP list (scrape) + official EN (harvest) + Bushiroad rules/manuals (`reference/`, `pipeline/sources/`).
 - **Empirical validation:** ~98% accuracy against the official list. There are NO unit tests — the oracle is the official list + audits (`cardlist_audit.json`, counts, suspects).
 - De-dup: keeps the base rarity, discards alt-art/parallels.
 
@@ -37,4 +37,4 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 Pipeline validated at 98%; web in production (~40k cards). In progress: bilingual JP→EN translation (10/16 batches) + accuracy improvement ("suspects" detection + golden costs).
 
 ## To go deeper
-`pipeline/README.md` · `pipeline/GUIA_COSTO_HABILIDADES.md` · `pipeline/CONCLUSIONES.md` (the model in detail) · `STATUS.md` (live status).
+`pipeline/README.md` · `pipeline/Ability_Cost_Guide.md` · `pipeline/Conclusions.md` (the model in detail) · `STATUS.md` (live status).

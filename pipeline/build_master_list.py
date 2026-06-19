@@ -237,11 +237,11 @@ for line in ["HOW TO USE THIS LIST", "",
     "  • Bundle = SUM; modal 'choose 1 of N' = the strongest option; multi-trigger = value × number of triggers.",
     "  • CX-combo / hard-gate: floor ~500 regardless of power (paid by assembling the combo).",
     "  • For NOVEL effects: decompose into primitives, apply modifiers, compose, round to 500.",
-    "    (see GUIA_COSTO_HABILIDADES.xlsx for the full model and examples)"]:
+    "    (see Ability_Cost_Guide.xlsx for the full model and examples)"]:
     ws3.append([line])
 ws3["A1"].font = Font(bold=True, size=12); ws3.column_dimensions["A"].width = 100
 
-out = os.path.join(D, "Lista_Habilidades_COMPLETA.xlsx"); wb.save(out)
+out = os.path.join(D, "Complete_Abilities_List.xlsx"); wb.save(out)
 print(f"\nTOTAL rows: {tot} | measured {bym['measured']} residual {bym['residual']} estimated {bym['estimated']}")
 print(f"Other (family): {byf['Other']} | with EN: {sum(1 for r in rows if r['en'])}")
 print("written:", out)
