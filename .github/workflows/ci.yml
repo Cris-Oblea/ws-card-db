@@ -24,3 +24,17 @@ jobs:
         # It does NOT import, so third-party deps (openpyxl, mcp) are not required here.
         # There is no lint/test config yet (see CLAUDE.md "Validation"); add ruff/pytest later.
         run: python -m compileall -q pipeline tools
+
+  secret-scan:
+    name: gitleaks — secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history for a thorough scan
+      - name: Run gitleaks
+        # Free for personal/public repos. If it flags a false positive, add a
+        # .gitleaksignore entry or a .gitleaks.toml allowlist.
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
