@@ -7,8 +7,8 @@
 
 ## Current state
 
-- **Query app:** static site in `docs/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `docs/`.
-- **Cost pipeline:** validated ~98% (15,889 abilities). Deliverables in `deliverables/` / generated via `pipeline/build_official_list.py`.
+- **Query app:** static site in `site/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
+- **Cost pipeline:** validated ~98% (15,889 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
 - **EN-exclusive sets (WX/SX):** 1,439 cards with EN-native costing.
 - **GitHub Pages:** not enabled (private repo).
 
@@ -41,7 +41,7 @@ Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflo
 2. Run translation workflow → write remaining `.out.json`
 3. Validate each output covers all keys in its batch
 4. Merge into `abilities_tr.json`, `name_tr.json`, `trait_tr.json`
-5. `python pipeline/build_db.py` → rebuild `docs/ws.sqlite`
+5. `python pipeline/build_db.py` → rebuild `site/ws.sqlite`
 
 **Phase 2 (later):** flavor text (~37k JP), neo-standard title names (74 JP-only franchises).
 
@@ -51,7 +51,7 @@ Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflo
 
 Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still pending — do it as a careful, dedicated pass (some of it changes behavior), verifying the pipeline still runs after each step. The native **Japanese card data stays as-is** (it's the source).
 
-- Translate the remaining Spanish in **code comments and user-facing strings** — e.g. the Excel labels written by `pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `build_db.py`, and the web UI in `docs/app.js` / `docs/index.html`.
+- Translate the remaining Spanish in **code comments and user-facing strings** — e.g. the Excel labels written by `pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `build_db.py`, and the web UI in `site/app.js` / `site/index.html`.
 - Rename the folder **`pipeline/fuentes/` → `pipeline/sources/`** and update every code reference to it.
 
 ### Cost accuracy improvement (planned saturday sessions)

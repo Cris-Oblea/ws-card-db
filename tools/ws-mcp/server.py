@@ -100,8 +100,8 @@ def get_logger_version() -> str:
 
 def _db_path() -> Path | None:
     for candidate in (
-        CARD_DB / "docs" / "ws.sqlite",
-        CARD_DB / "docs" / "ws.sqlite.gz",
+        CARD_DB / "site" / "ws.sqlite",
+        CARD_DB / "site" / "ws.sqlite.gz",
     ):
         if candidate.suffix == ".sqlite" and candidate.is_file():
             return candidate
@@ -110,11 +110,11 @@ def _db_path() -> Path | None:
 
 @mcp.tool()
 def search_cards(query: str, limit: int = 10) -> str:
-    """Search cards by card number, name, or ability text (requires docs/ws.sqlite)."""
+    """Search cards by card number, name, or ability text (requires site/ws.sqlite)."""
     db_file = _db_path()
     if db_file is None:
         return (
-            "docs/ws.sqlite not found. Build it first:\n"
+            "site/ws.sqlite not found. Build it first:\n"
             "  cd ws-card-db && python pipeline/build_db.py"
         )
     limit = max(1, min(limit, 50))
@@ -153,10 +153,10 @@ def search_cards(query: str, limit: int = 10) -> str:
 
 @mcp.tool()
 def get_card(card_number: str) -> str:
-    """Full card row + abilities for one card_number (requires docs/ws.sqlite)."""
+    """Full card row + abilities for one card_number (requires site/ws.sqlite)."""
     db_file = _db_path()
     if db_file is None:
-        return "docs/ws.sqlite not found — run pipeline/build_db.py first."
+        return "site/ws.sqlite not found — run pipeline/build_db.py first."
     cn = card_number.strip().upper()
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row

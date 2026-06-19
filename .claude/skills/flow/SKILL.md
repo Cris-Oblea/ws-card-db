@@ -38,7 +38,7 @@ For a sizeable feature, keep a minimal trail under `documentation/imp/{feature-n
 - `plan.md` — architect's plan + the "done" list + which dev-agent.
 - `review.md` — reviewer's verdict against the "done" list.
 
-Skip the trail for small changes. (If you want it ephemeral rather than versioned, add `documentation/imp/` to `.gitignore`.) Do **not** use `docs/` — that is the deployed web app.
+Skip the trail for small changes. (If you want it ephemeral rather than versioned, add `documentation/imp/` to `.gitignore`.) Do **not** use `site/` — that is the deployed web app.
 
 ## Closing
 

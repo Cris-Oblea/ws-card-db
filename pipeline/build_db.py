@@ -4,14 +4,14 @@
 # estimated) but, instead of an aggregated Excel, it emits a per-CARD / per-ABILITY SQLite
 # so the app can answer: for THIS card, what does each effect cost in power?
 #
-# Output: ../docs/ws.sqlite   (the static site loads it in the browser via sql.js)
+# Output: ../site/ws.sqlite   (the static site loads it in the browser via sql.js)
 #
 # NOTE: the cost logic is intentionally kept identical to build_official_list.py. The model is
 # WIP; when it improves, re-run this to regenerate the DB. (TODO: unify both into cost_model.py.)
 import json, os, re, sqlite3, collections, statistics as st, unicodedata
 
 D = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(D, "..", "docs", "ws.sqlite")
+OUT = os.path.join(D, "..", "site", "ws.sqlite")
 
 # ---------------- shared helpers (verbatim from build_official_list.py) ----------------
 def _nk(s):

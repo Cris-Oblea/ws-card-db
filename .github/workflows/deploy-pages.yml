@@ -1,6 +1,6 @@
 name: Deploy Pages
 
-# CD: publishes the static lookup site (docs/) to GitHub Pages.
+# CD: publishes the static lookup site (site/) to GitHub Pages.
 # Mirrors tumatch's "auto-deploy on merge to main", adapted to a static site.
 #
 # ⚠️ PREREQUISITE: GitHub Pages requires either a PUBLIC repo (free) or a paid
@@ -39,10 +39,10 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload site artifact (docs/ = the deployed web app)
+      - name: Upload site artifact (site/ = the deployed web app)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: site
 
       - name: Deploy to GitHub Pages
         id: deployment
