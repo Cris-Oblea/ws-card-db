@@ -9,7 +9,7 @@ You are the specialist for the **data pipeline** of ws-card-db: turning the offi
 Read the repo's **`CLAUDE.md`**: that's where the CURRENT stack (don't assume versions), the structure and the conventions live. If the stack has grown, the CLAUDE.md is the truth — follow it.
 
 ## Your domain
-- `pipeline/pipeline/` — the sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py` (+ the fetch_*).
+- `pipeline/ingest/` — the sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py` (+ the fetch_*).
 - `pipeline/build_*.py` — the output builders (Excel, SQLite).
 - The canonical JSON sources (`cardlist_clean.json`, `cardlist_en.json`, `card_era.json`).
 
