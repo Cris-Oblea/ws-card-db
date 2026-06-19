@@ -9,8 +9,8 @@ Cost = power that is SUBTRACTED from a card relative to its base (`power_real = 
 
 | File | What it is |
 |---|---|
-| **`Lista_Habilidades_COMPLETA.xlsx`** | **THE product.** The **15,889** distinct abilities in the game, each with its measured cost. Sheets: *All abilities* (the table), *Summary*, *How to use*. |
-| `GUIA_COSTO_HABILIDADES.xlsx` / `.md` | The **model** for costing NEW effects that don't exist on any card (primitives + modifiers + composition + examples). Complements the list. |
+| **`Complete_Abilities_List.xlsx`** | **THE product.** The **15,889** distinct abilities in the game, each with its measured cost. Sheets: *All abilities* (the table), *Summary*, *How to use*. |
+| `Ability_Cost_Guide.xlsx` / `.md` | The **model** for costing NEW effects that don't exist on any card (primitives + modifiers + composition + examples). Complements the list. |
 | `phases_reference.md` | Reference of game phases/timing (from the official JP ruling). |
 
 ### How to read the list
@@ -24,8 +24,8 @@ Cost = power that is SUBTRACTED from a card relative to its base (`power_real = 
 
 ## How to regenerate the deliverable
 ```
-python build_master_list.py      # -> Lista_Habilidades_COMPLETA.xlsx
-python build_cost_sheet.py       # -> GUIA_COSTO_HABILIDADES.xlsx
+python build_master_list.py      # -> Complete_Abilities_List.xlsx
+python build_cost_sheet.py       # -> Ability_Cost_Guide.xlsx
 ```
 
 ### Active scripts (root)
@@ -61,7 +61,7 @@ complementing the AI scripts in `StreamingAssets/AIData/`.
 
 ## Folders
 - **`pipeline/`** — scripts and raw data to *regenerate* the canonical data (JP/EN harvest, cleanup, set dating, features). To run them you must co-locate the data; normally you don't need to touch them.
-- **`fuentes/`** — raw learning material: official rules (`ws_rule*.txt`), manual scans (`manual_*`), video transcript, macros, screenshots.
+- **`sources/`** — raw learning material: official rules (`ws_rule*.txt`), manual scans (`manual_*`), video transcript, macros, screenshots.
 - **`_archive/`** — EVERYTHING obsolete/experimental (reversible, nothing deleted): the old v3 cost system (`costs_*`, `ws_decompose*`), the lossy EN (`en_match`, `variant_tr*`), the regression experiments (`v4_*`, `log_linear`) that **failed**, superseded primitive measurements, signature/translation intermediates, and the old list `Power_by_ability_OFICIAL.xlsx` (superseded).
 
 ---

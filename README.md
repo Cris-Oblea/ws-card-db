@@ -34,7 +34,7 @@ pipeline/        Extraction, cleaning, cost model and derived data
   translation_cache.json   PERMANENT JP->EN translation cache (do not delete)
   card_era.json            legacy/modern dating per card
   pipeline/                Harvest, clean, set dating, features
-  fuentes/                 Rules, macros and reference material
+  sources/                 Rules, macros and reference material
 reference/       Official Bushiroad documents (reference)
 site/            Query web app (sql.js + ws.sqlite.gz) — the deliverable, deployed to GitHub Pages
 ```

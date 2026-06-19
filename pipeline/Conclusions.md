@@ -1,7 +1,7 @@
 # Conclusions — Ability cost in Weiss Schwarz (2026-06-14)
 
 ## 1. What was delivered
-**`Lista_Habilidades_COMPLETA.xlsx`** — the **15,889 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`GUIA_COSTO_HABILIDADES`** for costing effects that do NOT exist on any card.
+**`Complete_Abilities_List.xlsx`** — the **15,889 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`Ability_Cost_Guide`** for costing effects that do NOT exist on any card.
 
 It serves what you wanted: **look up "this effect → costs X"** and **draw inspiration for new cards**.
 

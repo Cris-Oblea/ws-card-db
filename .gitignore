@@ -15,6 +15,7 @@ site/ws.sqlite
 
 # --- Excel cost sheets: generated on demand, not versioned (the deliverable is the site) ---
 deliverables/
+pipeline/*.xlsx
 
 # --- OS junk ---
 Thumbs.db
