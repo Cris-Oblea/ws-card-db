@@ -6,7 +6,7 @@ using the official JSON endpoint ws-tcg.com/manage/CardListUser/searchJson.
 - Polite throttle, retries w/ backoff.
 - Incremental JSONL writes (resumable via state file).
 - Final consolidation to a single deduped JSON array.
-Read-only on everything else. Writes ONLY new files under analisis/.
+Read-only on everything else. Writes ONLY new files in this folder.
 """
 import urllib.request, json, ssl, time, os, io
 

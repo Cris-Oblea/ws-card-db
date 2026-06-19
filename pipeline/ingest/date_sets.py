@@ -15,7 +15,7 @@ Outputs:
   set_dates.json  : list of {expansion_id, name, set_code, track, series,
                     cards, release_date, release_year, source, era}
   prints a quality + retention report.
-Read-only on inputs. Writes ONLY set_dates.json under analisis/.
+Read-only on inputs. Writes ONLY set_dates.json (in this folder).
 """
 import json, re, os, unicodedata, datetime, bisect
 from collections import defaultdict, Counter
@@ -31,7 +31,7 @@ fo = jload("filter_options.json")
 exps = {e["id"]: e for e in fo["expansions"]}
 
 # ---------- expansion -> set_code, series, card_count (from cards) ----------
-cards = jload("cardlist_clean.json")
+cards = jload("../cardlist_clean.json")   # canonical lives one level up (consumed by the builders)
 exp_setcode = defaultdict(Counter)
 exp_series  = defaultdict(Counter)
 exp_cards   = Counter()

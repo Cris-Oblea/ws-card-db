@@ -417,6 +417,6 @@ for sheet in wb.worksheets:
 out = os.path.join(D, "Complete_Abilities_List.xlsx"); wb.save(out)
 nrows = sum(len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"])
 withen = sum(1 for t in rows_by_type for r in rows_by_type[t] if r["en"])
-print(f"filas={nrows} | con EN={withen} | sin EN={nrows-withen}")
+print(f"rows={nrows} | with EN={withen} | without EN={nrows-withen}")
 print("by type:", {t: len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"]})
 print("escrito:", out)

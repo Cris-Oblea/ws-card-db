@@ -4,8 +4,8 @@ Normalize the raw harvested cardlist (cardlist_full.json) into a clean,
 work-ready JSON (cardlist_clean.json), plus an AUDIT (cardlist_audit.json)
 to verify field-decoding mappings against real data before trusting them.
 
-Reads:  analisis/cardlist_full.json   (raw harvest)
-Writes: analisis/cardlist_clean.json  + analisis/cardlist_audit.json
+Reads:  cardlist_full.json   (raw harvest, in this folder)
+Writes: ../cardlist_clean.json (canonical, consumed by the builders) + cardlist_audit.json (here)
 Read-only on everything else.
 """
 import json, os, re, io
@@ -13,7 +13,7 @@ from collections import Counter, defaultdict
 
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW     = os.path.join(OUT_DIR, "cardlist_full.json")
-CLEAN   = os.path.join(OUT_DIR, "cardlist_clean.json")
+CLEAN   = os.path.join(OUT_DIR, "..", "cardlist_clean.json")   # canonical lives one level up (consumed by the builders)
 AUDIT   = os.path.join(OUT_DIR, "cardlist_audit.json")
 NEO     = os.path.join(OUT_DIR, "neo_titles.json")
 
@@ -31,13 +31,13 @@ TIMING = {"【自】": "AUTO", "【永】": "CONT", "【起】": "ACT"}
 # Known source-data errors -> corrections (official structured field wrong vs the
 # printed card). Each entry overrides fields on the cleaned card.
 OVERRIDES = {
-    "P3/S01-19T": {"power": 6000},   # oficial publica '-'; carta real = 6000 (verificado por el usuario)
-    "WS/WSPR-P19": {"level": None},  # tag mal puesto (level 13); es un climax normal -> sin level (no excluir)
+    "P3/S01-19T": {"power": 6000},   # official lists '-'; real card = 6000 (verified by the user)
+    "WS/WSPR-P19": {"level": None},  # wrong tag (level 13); it's a normal climax -> no level (don't exclude)
 }
 
 # Neo Standard title taxonomy: card-code (作品番号) -> list of title NAMES.
-# Un titulo agrupa varios codigos (BanG Dream! = BD,BDY); un codigo puede compartirse
-# entre titulos (BDY -> BanG Dream! + Virtual Girl). Fuente: /filter-options -> neo_titles.json.
+# A title groups several codes (BanG Dream! = BD,BDY); a code can be shared
+# across titles (BDY -> BanG Dream! + Virtual Girl). Source: /filter-options -> neo_titles.json.
 def _load_neo():
     try:
         with io.open(NEO, encoding="utf-8") as f:
@@ -51,9 +51,9 @@ def _load_neo():
     return dict(m)
 CODE2TITLES = _load_neo()
 
-# Exclusion: cartas inutilizables para medir power objetivamente.
-#  - stats fuera del rango estandar WS (level/soul 0..3, power multiplo de 500), o
-#  - marcadas por la propia Bushiroad como NO usables en torneo (joke/promo).
+# Exclusion: cards unusable for measuring power objectively.
+#  - stats outside the standard WS range (level/soul 0..3, power multiple of 500), or
+#  - marked by Bushiroad itself as NOT tournament-usable (joke/promo).
 NON_TOURNAMENT_MARK = "大会では使用できません"
 
 def exclude_reason(card):
@@ -111,7 +111,7 @@ def clean_card(c):
         "id":          c.get("id"),
         "card_number": c.get("card_number"),
         "series":      code,                          # card-code prefix (作品番号)
-        "neo_titles":  CODE2TITLES.get(code, []),     # nombre(s) de serie Neo Standard
+        "neo_titles":  CODE2TITLES.get(code, []),     # Neo Standard series name(s)
         "name":        c.get("card_name"),
         "name_kana":   c.get("card_name_kana"),
         "type":        CARD_KIND.get(str(c.get("card_kind")), "?:" + str(c.get("card_kind"))),
@@ -134,7 +134,7 @@ def clean_card(c):
     }
     ov = OVERRIDES.get(d["card_number"])
     if ov:
-        d.update(ov)                                   # corrige errores de la fuente
+        d.update(ov)                                   # fix source errors
     return d
 
 def main():

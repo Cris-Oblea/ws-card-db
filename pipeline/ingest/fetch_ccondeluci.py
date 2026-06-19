@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Baja WeissSchwarz-ENG-DB (CCondeluci) = texto EN oficial en JSON -> cardlist_en.json"""
+"""Fetch WeissSchwarz-ENG-DB (CCondeluci) = official EN text as JSON -> ../cardlist_en.json"""
 import urllib.request, json, ssl, io, os, time, sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 D = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ for i, it in enumerate(files):
         print(f"  {i+1}/{len(files)} files ({len(allcards)} cards)")
     time.sleep(0.03)
 
-with io.open(os.path.join(D, "cardlist_en.json"), "w", encoding="utf-8") as f:
+with io.open(os.path.join(D, "..", "cardlist_en.json"), "w", encoding="utf-8") as f:   # canonical, one level up
     json.dump(allcards, f, ensure_ascii=False)
 
 print("\nTOTAL EN cards:", len(allcards))
