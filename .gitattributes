@@ -1,1 +1,18 @@
+# Normalize line endings across OSes (stops the LF/CRLF churn on Windows).
+* text=auto eol=lf
+
+# Windows scripts keep CRLF.
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+# Shell scripts stay LF.
+*.sh text eol=lf
+# Binary assets — never normalize or diff.
+*.sqlite binary
+*.gz binary
+*.xlsx binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary
 pipeline/cardlist_clean.json filter=lfs diff=lfs merge=lfs -text
