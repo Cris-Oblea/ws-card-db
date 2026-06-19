@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-smoke:
+    name: Python — compile smoke (pipeline + tools)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          # Match CLAUDE.md (Python 3.14). Bump here if the stack moves.
+          python-version: "3.14"
+
+      - name: Compile-check (syntax smoke, no deps needed)
+        # compileall byte-compiles every .py recursively and fails on any syntax error.
+        # It does NOT import, so third-party deps (openpyxl, mcp) are not required here.
+        # There is no lint/test config yet (see CLAUDE.md "Validation"); add ruff/pytest later.
+        run: python -m compileall -q pipeline tools
