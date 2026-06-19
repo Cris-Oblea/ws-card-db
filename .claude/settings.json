@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(py *)",
+      "Bash(pip *)",
+      "Bash(pip3 *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git rev-parse*)",
+      "Bash(git rev-list*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "timeout": 10, "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:/Users/CRUIZ/ws-card-db/.claude/hooks/gitleaks-precommit.ps1\"" }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          { "type": "command", "timeout": 10, "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File \"C:/Users/CRUIZ/ws-card-db/.claude/hooks/session-summary.ps1\"" }
+        ]
+      }
+    ]
+  }
+}
