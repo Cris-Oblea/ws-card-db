@@ -25,7 +25,7 @@ sd = {r["expansion_id"]: r for r in jload("set_dates.json")}
 vcost = {v["sig"]: v for v in jload("costs_by_variant.json")}
 
 CUT = 2017
-EXCLUDE_CARDS = {"WS/KDN-246"}   # carta gag de Kidani (trigger 'bushi' falso)
+EXCLUDE_CARDS = {"WS/KDN-246"}   # Kidani gag card (fake 'bushi' trigger)
 
 def base_power(c):
     trig = 1 if c.get("trigger") == ["soul"] else 0

@@ -1,14 +1,14 @@
-# official_en.py — match CONFIABLE de habilidad JP -> texto EN OFICIAL (harvest cardlist_en.json).
-# Candidato por (titulo,numero) o por titulo; alinea habilidad-por-habilidad SOLO si la carta EN tiene
-# el mismo nº de habilidades y TODAS los pares pasan el filtro de consistencia (markers+numeros>=2+anclas).
-# Devuelve {(jp_card_number, ability_index): en_text}. En la duda NO asigna (honesto).
+# official_en.py — RELIABLE match of a JP ability -> OFFICIAL EN text (harvest cardlist_en.json).
+# Candidate by (title,number) or by title; aligns ability-by-ability ONLY if the EN card has
+# the same number of abilities and ALL pairs pass the consistency filter (markers+numbers>=2+anchors).
+# Returns {(jp_card_number, ability_index): en_text}. When in doubt it does NOT assign (honest).
 import json, os, re, collections
 D = os.path.dirname(os.path.abspath(__file__))
 ZT = str.maketrans("０１２３４５６７８９＋－", "0123456789+-")
 
 def _nums(t):
     c = collections.Counter(re.findall(r"\d+", (t or "").translate(ZT)))
-    c.pop("1", None)   # el EN oficial a veces omite/añade "1"; magnitudes >=2 sí deben calzar
+    c.pop("1", None)   # the official EN sometimes omits/adds "1"; magnitudes >=2 must match
     return c
 
 MK = [("自","AUTO"),("永","CONT"),("起","ACT"),("カウンター","COUNTER")]
@@ -57,7 +57,7 @@ def build(clean, en_cards):
             ok = all(_consistent(jp_abs[i].get("text",""), jp_abs[i].get("markers"), en_ab[i])
                      for i in range(n))
             if ok:
-                if match is not None and match != en_ab:   # >1 candidato distinto consistente -> ambiguo
+                if match is not None and match != en_ab:   # >1 distinct consistent candidate -> ambiguous
                     match = None; break
                 match = en_ab
         if match:
@@ -70,4 +70,4 @@ if __name__ == "__main__":
     en = json.load(open(os.path.join(D, "cardlist_en.json"), encoding="utf-8"))
     m = build(clean, en)
     cards = {k[0] for k in m}
-    print("habilidades (carta,idx) con EN oficial CONFIABLE:", len(m), "| cartas:", len(cards))
+    print("abilities (card,idx) with RELIABLE official EN:", len(m), "| cards:", len(cards))

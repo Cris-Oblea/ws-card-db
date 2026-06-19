@@ -51,7 +51,7 @@ Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflo
 
 Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still pending — do it as a careful, dedicated pass (some of it changes behavior), verifying the pipeline still runs after each step. The native **Japanese card data stays as-is** (it's the source).
 
-- Translate the remaining Spanish in **code comments and user-facing strings** — e.g. the Excel labels written by `pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `build_db.py`, and the web UI in `site/app.js` / `site/index.html`.
+- ✅ Done (2026-06-19): translated the remaining Spanish in code comments and Excel labels (`pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `official_en.py`, `build_features.py`). The DB/web (`build_db.py`, `site/`) were already English. Japanese card data kept as-is (it's the source); the two `.xlsx` output filenames are left as-is.
 - Rename the folder **`pipeline/fuentes/` → `pipeline/sources/`** and update every code reference to it.
 
 ### Cost accuracy improvement (planned saturday sessions)

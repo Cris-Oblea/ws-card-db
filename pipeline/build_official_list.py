@@ -1,6 +1,6 @@
-# build_official_list.py — ENTREGABLE FINAL en formato OFICIAL (6 hojas por TIPO, todo en inglés).
-# Costos: medido->residual->estimado (validado 98%). Confianza = MÉTODO. EN = oficial + traducción.
-# Example card = hasta 3. Concepto BUDGET = power_base-500. Dumpea to_translate.json + _tr/chunk_*.json.
+# build_official_list.py — FINAL DELIVERABLE in OFFICIAL format (6 sheets per TYPE, all in English).
+# Costs: measured->residual->estimated (validated 98%). Confidence = METHOD. EN = official + translation.
+# Example card = up to 3. BUDGET concept = power_base-500. Dumps to_translate.json + _tr/chunk_*.json.
 import json, os, re, collections, statistics as st, glob, unicodedata
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -94,7 +94,7 @@ for c in clean:
 _before = len(clean); clean = list(_dedup.values())
 print(f"alt-art de-dup: {_before} rows -> {len(clean)} distinct cards (removed {_before - len(clean)})")
 
-# ---------- recolectar ----------
+# ---------- collect ----------
 EN_AB = official_en.build(clean, en_cards)
 variant_occ = collections.defaultdict(list)   # sig -> [(card, idx, markers, text)]
 iso = collections.defaultdict(lambda: {"m": [], "l": []})
@@ -119,7 +119,7 @@ for c in clean:
         (iso[sigs[0]]["m"] if e == "modern" else iso[sigs[0]]["l"]).append(delta)
 
 ALLV = set(variant_occ)
-# PASO 1 medido
+# STEP 1 measured
 cost = {}; method = {}; nsamp = {}; rng = {}
 for sig, d in iso.items():
     use = d["m"] if len(d["m"]) >= 2 else (d["m"] + d["l"])
@@ -131,7 +131,7 @@ for sig, d in iso.items():
     cost[sig] = mode500(use); method[sig] = "measured"; nsamp[sig] = len(use); rng[sig] = (min(use), max(use))
 # families that may legitimately cost NEGATIVE (drawbacks) = those seen negative in MEASURED data
 neg_fams = {family(variant_text[s][1]) for s, c in cost.items() if c < 0}
-# PASO 2 residual propagado
+# STEP 2 propagated residual
 multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in cards if len(sg) > 1]
 for _ in range(10):
     res = collections.defaultdict(list)
@@ -149,11 +149,11 @@ for _ in range(10):
             continue
         cost[sig] = val; method[sig] = "residual"; nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
     if new == 0: break
-# validación
+# validation
 errs = [abs(dl - sum(cost[s] for s in sg)) for cn, dl, sg, e in multi if all(s in cost for s in sg)]
 if errs:
-    print(f"VALIDACION: |err|<=500 en {sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% (n={len(errs)})")
-# PASO 3 estimado (mediana de familia)
+    print(f"VALIDATION: |err|<=500 in {sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% (n={len(errs)})")
+# STEP 3 estimated (family median)
 fam_known = collections.defaultdict(list)
 for sig, cst in cost.items(): fam_known[family(variant_text[sig][1])].append(cst)
 fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
@@ -192,7 +192,7 @@ if os.environ.get("DBG_CARD") or os.environ.get("DBG_SIG"):
                     print(f"      {cn} delta={dl} era={e}")
     raise SystemExit
 
-# ---------- por variante: tipo, ejemplos, JP real, EN ----------
+# ---------- per variant: type, examples, real JP, EN ----------
 to_translate = []
 rows_by_type = collections.defaultdict(list)
 for sig in ALLV:
@@ -204,7 +204,7 @@ for sig in ALLV:
     else:
         primary = occ[0]; jp_real = (primary[2] + " " + primary[3]).strip()
         en = CACHE.get(_nk(jp_real), "")             # normalized lookup; only blanks go to to_translate
-    # ejemplos hasta 3 (primary primero)
+    # examples up to 3 (primary first)
     seen = set(); ex = []
     for o in [primary] + occ:
         if o[0] not in seen:
@@ -220,7 +220,7 @@ for sig in ALLV:
         "range": (f"{lo} – {hi}" if lo is not None else "—"), "conf": CONF[method[sig]],
         "method": method[sig], "ex": ", ".join(ex)})
 
-# dump pendientes de traducir + chunks
+# dump pending translations + chunks
 json.dump(to_translate, open(os.path.join(D, "to_translate.json"), "w", encoding="utf-8"), ensure_ascii=False)
 trdir = os.path.join(D, "_tr"); os.makedirs(trdir, exist_ok=True)
 for f in glob.glob(os.path.join(trdir, "chunk_*.json")) + glob.glob(os.path.join(trdir, "out_*.json")):
@@ -231,7 +231,7 @@ for i in range(0, len(to_translate), CH):
     chunk = [{"id": r["id"], "type": r["type"], "jp": r["jp"]} for r in to_translate[i:i+CH]]
     json.dump(chunk, open(os.path.join(trdir, f"chunk_{nch:03d}.json"), "w", encoding="utf-8"), ensure_ascii=False)
     nch += 1
-print(f"variantes={len(ALLV)} | sin EN (a traducir)={len(to_translate)} | chunks={nch}")
+print(f"variants={len(ALLV)} | without EN (to translate)={len(to_translate)} | chunks={nch}")
 
 # ---------- Excel formato OFICIAL ----------
 ORDER = {"measured": 0, "residual": 1, "estimated": 2}
@@ -340,7 +340,7 @@ wsb.cell(ex, 2).alignment = WRAP
 fit_height(wsb, ex, [(wsb.cell(ex, 2).value, 95)], cap=60)
 for col, w in zip("ABCD", [30, 24, 60, 22]): wsb.column_dimensions[col].width = w
 
-# sheets por tipo
+# sheets by type
 for typ, title in [("CONT", "Power CONT"), ("AUTO", "Power AUTO"), ("ACT", "Power ACT"), ("OTHER", "Power OTHER")]:
     ws = wb.create_sheet(title)
     hdr = ["Family", "Ability (English)", "Source text (JP)", "Power", "cards (n)", "isolated (n)", "Range (min–max)", "Confidence", "Example card"]
@@ -360,7 +360,7 @@ for typ, title in [("CONT", "Power CONT"), ("AUTO", "Power AUTO"), ("ACT", "Powe
     ws.freeze_panes = "A2"
     ws.auto_filter.ref = f"A1:I{ws.max_row}"   # filter/sort dropdowns on the headers
 
-# Formulas (English, modelo validado)
+# Formulas (English, validated model)
 wsf = wb.create_sheet("Formulas")
 wsf.append(["Scalable cost formulas & design rules (validated from the data)"]); wsf["A1"].font = Font(bold=True, size=13)
 wsf.append([])
@@ -418,5 +418,5 @@ out = os.path.join(D, "Lista_Habilidades_COMPLETA.xlsx"); wb.save(out)
 nrows = sum(len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"])
 withen = sum(1 for t in rows_by_type for r in rows_by_type[t] if r["en"])
 print(f"filas={nrows} | con EN={withen} | sin EN={nrows-withen}")
-print("por tipo:", {t: len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"]})
+print("by type:", {t: len(rows_by_type.get(t, [])) for t in ["CONT","AUTO","ACT","OTHER"]})
 print("escrito:", out)
