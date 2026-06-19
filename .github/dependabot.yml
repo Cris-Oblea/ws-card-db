@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Keep GitHub Actions versions fresh (ci.yml, deploy-pages.yml).
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+  # Python deps declared in requirements.txt (openpyxl, mcp).
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
