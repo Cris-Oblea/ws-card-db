@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Baja la taxonomia oficial de filtros (incl. titulos Neo Standard) a local."""
+"""Fetch the official filter taxonomy (incl. Neo Standard titles) to local."""
 import urllib.request, json, ssl, os, io
 
 D = os.path.dirname(os.path.abspath(__file__))

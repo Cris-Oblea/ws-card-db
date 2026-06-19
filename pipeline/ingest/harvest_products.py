@@ -9,7 +9,7 @@ true 発売日 of legacy sets. Modern sets (>=2018) already have a real create_d
 in filter_options.json; we harvest them too for cross-validation.
 
 Output: products_jp.json  = list of {code, title, category, date, year, month, day}
-Read-only on everything else. Writes ONLY new files under analisis/.
+Read-only on everything else. Writes ONLY new files in this folder.
 """
 import urllib.request, json, ssl, time, os, io, re
 

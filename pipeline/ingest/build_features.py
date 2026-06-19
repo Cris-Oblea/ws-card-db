@@ -1,26 +1,26 @@
 # -*- coding: utf-8 -*-
 """
-Propaga features de ERA (y demas) a cada (carta, habilidad) -> sustrato tidy para
-el auto-descubrimiento de formulas (feature-extraction + symbolic regression).
+Propagate ERA features (and others) to each (card, ability) -> tidy substrate for
+the auto-discovery of formulas (feature-extraction + symbolic regression).
 
 Outputs:
-  features_by_card.csv     : 1 fila por (Character, habilidad no-vanilla). Columnas =
+  features_by_card.csv     : 1 row per (Character, non-vanilla ability). Columns =
                              features + targets (card_delta, variant_cost).
-  variant_era_cost.csv     : 1 fila por (sig_variant x era) con costo medido (mediana
-                             de delta de cartas AISLADAS) -> vista era-aware + creep.
+  variant_era_cost.csv     : 1 row per (sig_variant x era) with measured cost (median
+                             of delta from ISOLATED cards) -> era-aware view + creep.
 
-Features de era derivadas del timeline EMPIRICO de debut de triggers JP:
-  launch 2008 | treasure/shot 2009 | gate 2012 | standby 2017 | choice 2019 | nuevos 2026
+Era features derived from the EMPIRICAL timeline of JP trigger debuts:
+  launch 2008 | treasure/shot 2009 | gate 2012 | standby 2017 | choice 2019 | new ones 2026
   -> trigger_era ordinal 0..5 ; standby_era / choice_era boolean.
 
-Reads: cardlist_clean.json, set_dates.json, costs_by_variant.json. Solo escribe los 2 CSV.
+Reads: ../cardlist_clean.json (canonical), set_dates.json, costs_by_variant.json. Writes only the 2 CSVs.
 """
 import json, os, re, csv, statistics
 from collections import defaultdict
 
 D = os.path.dirname(os.path.abspath(__file__))
 def jload(p): return json.load(open(os.path.join(D, p), encoding="utf-8"))
-cards = jload("cardlist_clean.json")
+cards = jload("../cardlist_clean.json")          # canonical lives one level up (consumed by the builders)
 sd = {r["expansion_id"]: r for r in jload("set_dates.json")}
 vcost = {v["sig"]: v for v in jload("costs_by_variant.json")}
 
@@ -124,13 +124,13 @@ with open(os.path.join(D,"variant_era_cost.csv"),"w",encoding="utf-8",newline=""
 
 # ---- report ----
 from collections import Counter
-print(f"features_by_card.csv : {len(rows)} filas (carta x habilidad)")
-print("  por era:", dict(Counter(r['era'] for r in rows)))
-print("  por trigger_era:", dict(sorted(Counter(r['trigger_era_label'] for r in rows).items())))
-print("  aisladas (isolated=1):", sum(r['isolated'] for r in rows))
-print("  con variant_cost joineado:", sum(1 for r in rows if r['variant_cost'] is not None))
+print(f"features_by_card.csv : {len(rows)} rows (card x ability)")
+print("  by era:", dict(Counter(r['era'] for r in rows)))
+print("  by trigger_era:", dict(sorted(Counter(r['trigger_era_label'] for r in rows).items())))
+print("  isolated (isolated=1):", sum(r['isolated'] for r in rows))
+print("  with variant_cost joined:", sum(1 for r in rows if r['variant_cost'] is not None))
 comparable = [r for r in ve if r['n_legacy']>=5 and r['n_modern']>=5]
 crept = [r for r in comparable if r['crept']]
-print(f"\nvariant_era_cost.csv : {len(ve)} variantes; comparables(nL>=5,nM>=5)={len(comparable)}; CREPEARON={len(crept)}")
+print(f"\nvariant_era_cost.csv : {len(ve)} variants; comparable(nL>=5,nM>=5)={len(comparable)}; CREPT={len(crept)}")
 for r in sorted(crept, key=lambda r:r['shift'])[:8]:
     print(f"  shift={int(r['shift']):+5} {int(r['cost_legacy'])}->{int(r['cost_modern'])} (nL={r['n_legacy']},nM={r['n_modern']}) {r['sig_variant'][:58]}")
