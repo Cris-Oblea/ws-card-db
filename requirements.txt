@@ -3,4 +3,4 @@
 # Excel output and the MCP server.
 # Install with:  pip install -r requirements.txt
 openpyxl>=3.1   # Excel output (pipeline/build_*.py)
-mcp>=1.0        # MCP server (tools/ws-mcp/server.py)
+mcp>=1.28.0        # MCP server (tools/ws-mcp/server.py)
