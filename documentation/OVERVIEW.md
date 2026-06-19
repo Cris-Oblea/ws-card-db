@@ -8,7 +8,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 ## How it works (the flow)
 1. **Harvest** (`pipeline/ingest/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
 2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (63,350 JP cards, UTF-8 NFKC).
-3. **Date** (`date_sets.py`): assigns `release_year` and `era` (legacy <2017 / modern ≥2017) — power-creep matters.
+3. **Date** (`date_sets.py` → `set_dates.json`): assigns `release_year` and `era` per set (legacy <2017 / modern ≥2017). `build_card_era.py` then projects that onto each card → `card_era.json` (era buckets configurable). Power-creep matters.
 4. **Cost model** (in the `build_*.py`), three confidence levels:
    - **HIGH (measured):** derived from the card's real power vs its base.
    - **MEDIUM (residual):** inferred on cards with several abilities, subtracting the already-measured ones.
