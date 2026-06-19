@@ -11,7 +11,10 @@ pipeline/_archive/
 to_translate.json
 
 # --- App build: ship only the compressed DB (the app fetches ws.sqlite.gz) ---
-docs/ws.sqlite
+site/ws.sqlite
+
+# --- Excel cost sheets: generated on demand, not versioned (the deliverable is the site) ---
+deliverables/
 
 # --- OS junk ---
 Thumbs.db

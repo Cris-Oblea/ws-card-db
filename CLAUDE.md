@@ -9,19 +9,19 @@ This repository is **English-only**. All documentation, code comments, commit me
 
 ## Documentation (RULE — to keep the repo tidy)
 - **Any stack/convention change is updated IN THIS `CLAUDE.md`** as soon as it happens (new lib, version, folder). It is the source of truth; never let it go stale.
-- **The entire workings of the project live documented in `documentation/`**: what it does, **how it works**, **how it was built**, **what technologies** it uses, the architecture and the decisions. ⚠️ Here the docs go in `documentation/` (and not in `docs/`) because **`docs/` is already the deployed web app** (GitHub Pages). The `CLAUDE.md` is the index/summary; `documentation/` is the detail.
+- **The entire workings of the project live documented in `documentation/`**: what it does, **how it works**, **how it was built**, **what technologies** it uses, the architecture and the decisions. ⚠️ Here the docs go in `documentation/` (and not in `site/`) because **`site/` is already the deployed web app** (GitHub Pages). The `CLAUDE.md` is the index/summary; `documentation/` is the detail.
 - Keeping `documentation/` + this `CLAUDE.md` up to date **is part of finishing a change**, just like the code. A change without updated docs is not finished.
 
 ## Underlying purpose
 The reason it exists: **a balance reference for designing CUSTOM cards** — *"I want this effect → it costs X power"*. The cost is the power SUBTRACTED from a card relative to its base (`power_real = power_base − cost`), **always in multiples of 500**. Measuring the cost of the 15,889 real abilities gives the yardstick for costing new effects that don't exist on any card.
 
 ## What it is (two products)
-1. **Pipeline (Python):** scrapes the official JP list, normalizes, dates by era, and computes the power cost of each ability (measured → residual → estimated). Output: Excel (`deliverables/`) + SQLite for the web.
+1. **Pipeline (Python):** scrapes the official JP list, normalizes, dates by era, and computes the power cost of each ability (measured → residual → estimated). Output: the SQLite that powers the static site (the deliverable); Excel cost sheets are generated locally on demand.
 2. **Lookup website (static):** search any card and see the cost breakdown of each effect. No backend — everything runs in the browser.
 
 ## Stack (the volatile part — updated HERE as it grows)
 - **Python 3.14** — stdlib (`json`, `sqlite3`, `re`, `urllib.request`, `csv`, `statistics`, `unicodedata`, `glob`) + **`openpyxl`** (Excel) + **`mcp>=1.0`** (FastMCP).
-- **Web:** HTML5 + vanilla JS + **`sql.js`** (SQLite in the browser) + **`pako`** (gunzip). Data in `docs/ws.sqlite.gz`. Cache versioning with `?v=N`.
+- **Web:** HTML5 + vanilla JS + **`sql.js`** (SQLite in the browser) + **`pako`** (gunzip). Data in `site/ws.sqlite.gz`. Cache versioning with `?v=N`.
 - **MCP server** (`tools/ws-mcp/server.py`): cross-repo portfolio status tools + card search.
 - No CI; no formal test suite (see "Validation").
 
@@ -29,8 +29,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py` + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`).
 - `pipeline/pipeline/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
 - `pipeline/fuentes/` — official rules, macros, manuals (reference material, **not code**).
-- `deliverables/` — the final Excel files (versioned).
-- `docs/` — the web (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`).
+- `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
 - `tools/ws-mcp/` — the MCP server.
 - `reference/` — official Bushiroad PDFs.
 

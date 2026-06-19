@@ -35,9 +35,8 @@ pipeline/        Extraction, cleaning, cost model and derived data
   card_era.json            legacy/modern dating per card
   pipeline/                Harvest, clean, set dating, features
   fuentes/                 Rules, macros and reference material
-deliverables/    Excel deliverables (Lista_Habilidades_COMPLETA, OFICIAL, ...)
 reference/       Official Bushiroad documents (reference)
-app/             Query web app (sql.js + ws.sqlite)  [in progress]
+site/            Query web app (sql.js + ws.sqlite.gz) — the deliverable, deployed to GitHub Pages
 ```
 
 ## Cost model (summary)

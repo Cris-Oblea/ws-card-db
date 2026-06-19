@@ -1,6 +1,6 @@
 # Runtime dependencies for ws-card-db.
 # The pipeline core uses only the Python standard library; these cover the
-# Excel deliverables and the MCP server.
+# Excel output and the MCP server.
 # Install with:  pip install -r requirements.txt
 openpyxl>=3.1   # Excel output (pipeline/build_*.py)
 mcp>=1.0        # MCP server (tools/ws-mcp/server.py)

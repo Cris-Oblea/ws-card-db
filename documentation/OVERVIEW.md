@@ -15,10 +15,10 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
    - **LOW (estimated):** model when there's no measurement.
    - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
 5. **Outputs:**
-   - `build_official_list.py` → `deliverables/Lista_Habilidades_COMPLETA.xlsx` (15,889 abilities — THE product).
-   - `build_db.py` → `docs/ws.sqlite(.gz)` for the web.
+   - `build_official_list.py` → `Lista_Habilidades_COMPLETA.xlsx` (15,889 abilities; local Excel, generated on demand).
+   - `build_db.py` → `site/ws.sqlite(.gz)` for the web.
    - `build_cost_sheet.py` → `GUIA_COSTO_HABILIDADES.xlsx` (model for costing new effects).
-6. **Web** (`docs/`): static app — downloads `ws.sqlite.gz`, gunzips with pako, sql.js in memory, queries in the browser. **No backend.**
+6. **Web** (`site/`): static app — downloads `ws.sqlite.gz`, gunzips with pako, sql.js in memory, queries in the browser. **No backend.**
 
 ## How it was built / validation
 - Sources: official JP list (scrape) + official EN (harvest) + Bushiroad rules/manuals (`reference/`, `pipeline/fuentes/`).
