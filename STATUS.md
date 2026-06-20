@@ -10,8 +10,9 @@
 - **Query app:** static site in `site/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
 - **Cost pipeline:** validated ~98% (15,889 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
 - **EN-exclusive sets (WX/SX):** 1,439 cards with EN-native costing.
-- **EN name matching:** cascade official EN → unofficial simulator → blank. Curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name (gates both sources). Coverage: **names 91.6%, traits 84.2%, ability text 92.7%**. See `documentation/en-name-matching.md`.
-- **Simulator import:** `pipeline/extract_simulator.py` harvests EN name/traits/ability text from the fan WS game's `CardData.txt` → `name_sim.json` / `traits_sim.json` / `abilities_sim.json` (set-parity filtered, ~+19.8k names). Re-run with the new path when the simulator updates (date-stamped folder). Remaining gap → Heart of the Cards (planned).
+- **EN name matching:** cascade official EN → simulator → Heart of the Cards → blank. Curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name. Coverage: **names 95.2%, traits 84.2%, ability text 92.7%**. See `documentation/en-name-matching.md`.
+- **Translation sources:** `pipeline/extract_simulator.py` (fan WS game `CardData.txt` → `name_sim.json`/`traits_sim.json`/`abilities_sim.json`, ~+19.8k names; set-parity filtered) + `pipeline/fetch_hotc.py` (Heart of the Cards → `name_hotc.json`, 2,909 names, JP-name-keyed; correct even for blocked legacy). Re-run extractor with the new sim path when it updates (date-stamped folder); HotC paces slowly (rate-limited). HotC blocked-franchise run done; remaining ~514 non-blocked names = a future full HotC scrape.
+- **NK/W30 regional variants:** 4 Nisekoi cards modeled as 8 (4 JP "Maiden's Heart" + 4 EN-exclusive "The One", same code, different effect by language). See `documentation/en-name-matching.md`.
 - **GitHub Pages:** not enabled (private repo).
 
 ## Resume phrases

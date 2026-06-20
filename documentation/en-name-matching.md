@@ -28,8 +28,12 @@ text match still works while the number match breaks.
    the official taxonomy, keyed by `strict_key`. Fills the JP-only gap → names jump to ~91.6%,
    traits ~84%, ability text ~92.7%. Abilities/traits are taken **positionally only when the count
    matches** (the simulator sometimes splits abilities differently); names need no alignment.
-3. **(planned) Heart of the Cards** — fan translations (non-official phrasing) for the remainder and
-   for the blocked legacy franchises where it is the only JP-aligned source.
+3. **Heart of the Cards** — `name_hotc.json`, scraped by `pipeline/fetch_hotc.py`, keyed by the
+   Japanese NAME (so it applies even to blocked franchises). HotC translates the ORIGINAL JP cards,
+   so it is JP-ALIGNED and CORRECT even for renumbered legacy (e.g. it gives DG/S02-T05 the right
+   "Universe Police Justice Flonne" where official EN/sim grafted the wrong "Laharl & Flonne").
+   Non-official phrasing, so it is the LAST name fallback → names reach ~95.2%. Names only (set pages
+   carry no effect text). HotC rate-limits scraping, so the scraper paces slowly + retries on stubs.
 4. **Blank** — better than wrong.
 
 ⚠️ The simulator SHARES the official list's legacy disparity errors (same permuted BD/W63; Disgaea
@@ -66,8 +70,16 @@ ground truth is character identity. So exclusions are a **curated manual list**,
 |---|---|
 | `EN_BLOCK_PUB = {DG, P4, PI, LL}` | whole franchise — EN release is a mutated renumber of JP |
 | `FT_ALLOW_SET = {S120}` | Fairy Tail: keep only `S120`, block `S02/S09/SE10` |
-| `EN_BLOCK_CARD = {BD/W63-102, -103, -104}` | specific permuted BanG Dream! cards |
+| `EN_BLOCK_CARD = {BD/W63-102/-103/-104, NK/W30-002/-026/-052/-076}` | specific permuted cards + Nisekoi regional variants |
 | `EN_BLOCK_ENSET = {(BD, W03)}` | safeguard: EN-only special booster (no JP counterpart) |
+| `NAME_OVERRIDE = {NK/W30-002: "Maiden's Heart, Chitoge", ...}` | manual JP names for the regional variants |
+
+**Regional variants (NK/W30):** 4 Nisekoi cards share a JP/EN code but have a DIFFERENT effect by
+language. The JP card (乙女心 "Maiden's Heart") is blocked from its same-code EN match (which is a
+different card), gets its name from `NAME_OVERRIDE`, and its `en_text` is blanked (the text cache
+would otherwise return the EN variant's wrong effect). The ENGLISH printing ("The One", different
+effect) is added as its OWN `en_exclusive` row under code `NK/W30-E0xx`, grouped under Nisekoi — so
+all 8 cards exist. See the `NK_VARIANTS` block in build_db.py.
 
 Effect: a blocked card keeps its (correct) **JP** stats/abilities and its **text-matched EN ability
 translations**; only the unreliable **EN name** is withheld (left blank — "better blank than wrong").
