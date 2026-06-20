@@ -268,6 +268,58 @@ CARD_FIX = {
 }
 
 # ---------------- cost model: measured -> residual -> estimated (Characters only) ----------
+# REPLAY folding -- a 【リプレイ】 (REPLAY) is NEVER a standalone effect: its text is not AUTO/CONT/ACT,
+# it is the BODY of a CITING ability (an AUTO/CONT/ACT that names it via "〔action〕する / を発動する /
+# を使用する / トリガー"). The replay "develops" wherever it is cited, so its cost belongs to the citer and
+# is counted ONCE. We therefore (a) FOLD the replay's effect text into its citer (the citer's signature /
+# family / cost then reflect the real effect -- a CXC citer stays CX Combo because the climax gate is in
+# its own text; a Charisma citer becomes the board-pump it really is), and (b) set the 【リプレイ】 row
+# itself to cost 0 (method "replay-body", a HIGH-confidence structural zero excluded from family pools).
+# The citer becomes a residual ABSORBER (same regime as a CX-combo sig: it soaks delta - sum(others)),
+# which unifies and SUPERSEDES the prior pure-anchor zeroing: every replay's cost lives on its citer.
+# Matching is robust to multi-word actions ("Nelson Touch", "オールラブ・イズ・マイン !") and to actions
+# that already end in a verb ("煙幕を張る"): we scan a sibling ability for the LONGEST whitespace-bounded
+# prefix of the replay text it contains, optionally followed by an activation verb or a clause boundary.
+REPLAY_MARK = "【リプレイ】"
+_RP_VERB = re.compile(r"^(を発動する|を発動|を使用する|を使用|をトリガー|する)")
+def _rp_action_prefixes(rtext):
+    r = rtext.strip(); cands = []
+    for m in re.finditer(r"[\s　]+", r): cands.append(r[:m.start()])   # raw prefixes (keep internal spaces)
+    cands.append(r)
+    return sorted({x for x in cands if len(x.strip()) >= 2}, key=len, reverse=True)   # longest (most specific) first
+def _rp_find_citer(rtext, abs_, ri):
+    for cand in _rp_action_prefixes(rtext):
+        for j, a in enumerate(abs_):
+            if j == ri or REPLAY_MARK in "".join(a.get("markers") or []): continue
+            ct = a.get("text") or ""; idx = ct.find(cand)
+            while idx != -1:
+                after = ct[idx + len(cand):]
+                if _RP_VERB.match(after) or re.match(r"^[。、，）\)]", after) or after == "":
+                    return j, cand
+                idx = ct.find(cand, idx + 1)
+    return None, None
+RP_SIG_OVERRIDE = {}   # (card_number, ability_idx) -> signature (folded citer text / verbatim replay text)
+REPLAY_SIGS = set(); CITER_SIGS = set(); RP_ORPHANS = []
+for c in clean:
+    if c["type"] != "Character" or c["excluded"]: continue
+    abs_ = ra(c)
+    for ri, a in enumerate(abs_):
+        if REPLAY_MARK not in "".join(a.get("markers") or []): continue
+        rtext = (a.get("text") or "").strip()
+        cj, cand = _rp_find_citer(rtext, abs_, ri)
+        if cj is None:                                   # no citer on this card -> leave the replay untouched
+            RP_ORPHANS.append((c["card_number"], rtext[:40])); continue
+        reff = rtext[len(cand):].lstrip(" 　!！")          # replay EFFECT = replay text minus the leading action
+        cmk = "".join(abs_[cj].get("markers") or []); rmk = "".join(abs_[ri].get("markers") or [])
+        csig = cmk + " :: " + gen((abs_[cj].get("text") or "") + " " + reff)   # fold body into the citer sig
+        rsig = rmk + " :: " + gen(rtext)
+        RP_SIG_OVERRIDE[(c["card_number"], cj)] = csig
+        RP_SIG_OVERRIDE[(c["card_number"], ri)] = rsig
+        CITER_SIGS.add(csig); REPLAY_SIGS.add(rsig)
+if RP_ORPHANS:
+    print(f"replay folding: {len(REPLAY_SIGS)} replays -> {len(CITER_SIGS)} citers | {len(RP_ORPHANS)} orphans (no citer): {RP_ORPHANS[:6]}")
+else:
+    print(f"replay folding: {len(REPLAY_SIGS)} replays -> {len(CITER_SIGS)} citers | 0 orphans")
 variant_occ = collections.defaultdict(list)
 iso = collections.defaultdict(lambda: {"m": [], "l": []})
 variant_text = {}
@@ -280,10 +332,10 @@ for c in clean:
     sigs = []
     for i, a in enumerate(ab):
         mk = "".join(a.get("markers") or [])
-        sig = mk + " :: " + gen(a.get("text", ""))
+        sig = RP_SIG_OVERRIDE.get((c["card_number"], i), mk + " :: " + gen(a.get("text", "")))
         sigs.append(sig)
         variant_occ[sig].append((c["card_number"], i, mk, a.get("text", "")))
-        variant_text.setdefault(sig, (mk, gen(a.get("text", ""))))
+        variant_text.setdefault(sig, (mk, sig.split(" :: ", 1)[1]))   # gen text from the sig (folded for citers)
     delta = pb(c) - c["power"]
     e = era.get(c["card_number"])
     char_cards.append((c["card_number"], delta, sigs, e))
@@ -294,64 +346,32 @@ ALLV = set(variant_occ)
 cost = {}; method = {}; nsamp = {}; rng = {}
 CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
 def is_cxc(sig): return family(variant_text[sig][1]) == "CX Combo"
-# STEP 0 replay anchors -- a 【リプレイ】 (REPLAY) is a NAMED reusable effect that the data lists as TWO
-# rows that are really ONE: (a) an ANCHOR ability whose only effect is "activate 〔name〕" and (b) the
-# 【リプレイ】 row (its 〔name〕 = the first token of its text) holding the real effect. Costing both
-# double-counts the anchor. We zero the PURE anchor (does nothing but activate the replay) so the PAIR
-# costs once; the 【リプレイ】 row keeps the effect's cost (measured/residual/estimated as usual). We
-# zero ONLY the strict pure form (every effect sentence is just "〔name〕[を発動する/を使用する/する]");
-# an anchor that also pays a cost / gates a CX-combo / adds another effect keeps its own cost. Seeded
-# BEFORE step 1 so the residual solver attributes the freed delta to the 【リプレイ】 effect.
-def _replay_names(abs_):
-    names = []
-    for a in abs_:
-        if "【リプレイ】" in "".join(a.get("markers") or []):
-            t = (a.get("text") or "").strip()
-            p = re.split(r"[\s　]+", t, maxsplit=1)        # name = first whitespace-delimited token
-            if p and p[0]: names.append(p[0])
-    return names
-def _is_pure_anchor(text, rnames):
-    """True if EVERY effect sentence of this (non-replay) ability is just 'activate <replay name>'
-    (optionally via を発動する / を使用する / する), i.e. it does nothing on its own."""
-    full = (text or "").strip()
-    if not full: return False
-    matched = other = False
-    for s in (s for s in full.split("。") if s.strip()):
-        last = re.sub(r"^そうしたら", "", re.split(r"[、，]", s.strip())[-1])   # last clause, sans connector
-        if any(re.fullmatch(re.escape(rn) + r"(を発動する|を使用する|する)?", last) for rn in rnames):
-            matched = True
-        else:
-            other = True
-    return matched and not other
-ANCHOR_SIGS = set()
-for c in clean:
-    if c["type"] != "Character" or c["excluded"]: continue
-    if c["power"] is None or c["level"] is None or c["cost"] is None or c["soul"] is None: continue
-    ab = ra(c); rnames = _replay_names(ab)
-    if not rnames: continue
-    for a in ab:
-        if "【リプレイ】" in "".join(a.get("markers") or []): continue
-        if _is_pure_anchor(a.get("text"), rnames):
-            ANCHOR_SIGS.add("".join(a.get("markers") or []) + " :: " + gen(a.get("text", "")))
-for sig in ANCHOR_SIGS:
-    cost[sig] = 0; method[sig] = "anchor"; nsamp[sig] = 0; rng[sig] = (0, 0)
+# A residual ABSORBER soaks a card's leftover delta (delta - sum(others)) instead of being measured/estimated
+# in isolation. Two kinds: CX-combo sigs (gated + pay-to-assemble, hardest to measure directly) AND replay
+# CITER sigs (they carry the folded replay body, counted once on the citer). Both are deferred out of the
+# NON-absorber residual (step 2) and the NON-absorber family estimate (step 3a), then absorbed in step 3b.
+def is_absorber(sig): return is_cxc(sig) or sig in CITER_SIGS
+# STEP 0 replay bodies -> 0. The 【リプレイ】 row is NOT a standalone effect (its body was folded into the
+# citer sig above); fix it at 0 BEFORE step 1 (method "replay-body", HIGH-confidence structural zero).
+for sig in REPLAY_SIGS:
+    if sig in ALLV:
+        cost[sig] = 0; method[sig] = "replay-body"; nsamp[sig] = 0; rng[sig] = (0, 0)
 # STEP 1 measured -- single-ability cards (a single-ability CX-combo card still measures directly)
 for sig, d in iso.items():
-    if sig in cost: continue                       # a seeded replay anchor is already fixed at 0
+    if sig in cost: continue                       # a zeroed replay body is already fixed at 0
     use = d["m"] if len(d["m"]) >= 2 else (d["m"] + d["l"])
     if not use: continue
     if not d["m"] and len(d["l"]) == 1: continue
     cost[sig] = mode500(use); method[sig] = "measured"; nsamp[sig] = len(use); rng[sig] = (min(use), max(use))
 neg_fams = {family(variant_text[s][1]) for s, c in cost.items() if c < 0}
 multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in char_cards if len(sg) > 1]
-# STEP 2 NON-CXC residual: solve the lone unknown ONLY when it is NOT a CX-combo sig. A still-unknown
-# CXC sig therefore keeps a card "unresolved" here -> CXC is deferred to be the residual absorber (it is
-# the hardest part to measure directly: gated + pay-to-assemble). Resolve everything else first.
+# STEP 2 NON-absorber residual: solve the lone unknown ONLY when it is NOT an absorber sig (CXC or citer).
+# A still-unknown absorber keeps its card "unresolved" here -> it is deferred to step 3b to soak the delta.
 for _ in range(10):
     res = collections.defaultdict(list)
     for cn, dl, sg, e in multi:
         unk = [s for s in sg if s not in cost]
-        if len(unk) == 1 and not is_cxc(unk[0]):
+        if len(unk) == 1 and not is_absorber(unk[0]):
             res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
     new = 0
     for sig, samples in res.items():
@@ -364,28 +384,30 @@ for _ in range(10):
 errs = [abs(dl - sum(cost[s] for s in sg)) for cn, dl, sg, e in multi if all(s in cost for s in sg)]
 if errs:
     print(f"validation |err|<=500 on {sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% (n={len(errs)})")
-# STEP 3a NON-CXC family estimate: give every remaining NON-CXC sig a value NOW, so the only unknown
-# left on a CXC card is its CX-combo sig (which step 3b will then absorb from the card's delta).
+# STEP 3a NON-absorber family estimate: give every remaining NON-absorber sig a value NOW, so the only
+# unknown left on an absorber card is its CXC / citer sig (which step 3b then absorbs from the card's delta).
 fam_known = collections.defaultdict(list)
 for sig, cst in cost.items():
-    if sig in ANCHOR_SIGS: continue   # structural 0s are not effect costs -> don't bias family medians
-    if not is_cxc(sig): fam_known[family(variant_text[sig][1])].append(cst)
+    if sig in REPLAY_SIGS: continue   # structural 0s are not effect costs -> don't bias family medians
+    if not is_absorber(sig): fam_known[family(variant_text[sig][1])].append(cst)
 fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
 for sig in ALLV:
-    if sig in cost or is_cxc(sig): continue
+    if sig in cost or is_absorber(sig): continue
     cost[sig] = fam_med.get(family(variant_text[sig][1]), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
-# STEP 3b CXC residual ABSORBER: with all non-CXC sigs known, derive each CX-combo sig from the cards
-# where it is now the lone unknown -> CXC = delta - sum(non-CXC). Floor at >= 500.
+# STEP 3b absorber residual ABSORBER: with all non-absorber sigs known, derive each CXC / citer sig from the
+# cards where it is now the lone unknown -> absorber = delta - sum(others). CXC floored at >= 500; a citer
+# floored at >= 0 (the folded replay body never gives power back to the card).
 for _ in range(10):
     res = collections.defaultdict(list)
     for cn, dl, sg, e in multi:
         unk = [s for s in sg if s not in cost]
-        if len(unk) == 1 and is_cxc(unk[0]):
+        if len(unk) == 1 and is_absorber(unk[0]):
             res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
     new = 0
     for sig, samples in res.items():
         if sig in cost: continue
-        cost[sig] = max(CXC_FLOOR, mode500(samples)); method[sig] = "residual"
+        v = mode500(samples)
+        cost[sig] = max(CXC_FLOOR, v) if is_cxc(sig) else max(0, v); method[sig] = "residual"
         nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
     if new == 0: break
 # STEP 3c estimate any leftover sig: CXC -> CXC family median (floored), else its family median.
@@ -399,11 +421,12 @@ for sig in ALLV:
 # enforce the CXC floor on EVERY CX-combo sig (incl. a single-ability measured combo below 500)
 for sig in ALLV:
     if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
-CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "anchor": "HIGH"}
+CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "replay-body": "HIGH"}
 
-def ab_cost(card_number, markers, text):
-    """cost/method/family for one ability instance (None if not a measurable Character ability)."""
-    sig = "".join(markers or "") + " :: " + gen(text or "")
+def ab_cost(card_number, idx, markers, text):
+    """cost/method/family for one ability instance (None if not a measurable Character ability).
+    Honors the replay sig override (folded citer / zeroed replay body) keyed by (card_number, idx)."""
+    sig = RP_SIG_OVERRIDE.get((card_number, idx), "".join(markers or "") + " :: " + gen(text or ""))
     if sig in cost:
         return cost[sig], method[sig], CONF[method[sig]], family(variant_text.get(sig, ("", gen(text or "")))[1])
     return None, None, None, family(gen(text or ""))
@@ -450,7 +473,7 @@ for c in clean:
     sim_align = (not align) and bool(sim_ab) and len(sim_ab) == len(abs_)
     ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: official-EN cache is the wrong card's effect
     for i, a in enumerate(abs_):
-        pc, meth, conf, fam = ab_cost(cn, a.get("markers"), a.get("text"))
+        pc, meth, conf, fam = ab_cost(cn, i, a.get("markers"), a.get("text"))
         key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
         en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
         if ab_blocked: en = ABTR.get(key, "")              # blocked cards: trust ONLY the LLM translation of their real JP text
