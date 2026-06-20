@@ -601,3 +601,16 @@ import gzip, shutil
 with open(OUT, "rb") as fi, gzip.open(OUT + ".gz", "wb", compresslevel=9) as fo:
     shutil.copyfileobj(fi, fo)
 print(f"gzipped -> {OUT}.gz  ({os.path.getsize(OUT + '.gz')/1048576:.1f} MB)")
+
+# Cache-bust the web app: stamp the DB's ability count as ?v=N in app.js so a rebuild is never
+# served stale by the browser (the manual ?v= bump was easy to forget). The count changes whenever
+# the data changes, so every meaningful rebuild gets a fresh URL.
+_appjs = os.path.join(D, "..", "site", "app.js")
+try:
+    _t = open(_appjs, encoding="utf-8").read()
+    _n = re.sub(r"(ws\.sqlite\.gz\?v=)\d+", r"\g<1>" + str(len(arows)), _t)
+    if _n != _t:
+        open(_appjs, "w", encoding="utf-8").write(_n)
+        print(f"bumped app.js cache version -> ws.sqlite.gz?v={len(arows)}")
+except FileNotFoundError:
+    pass
