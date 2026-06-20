@@ -61,7 +61,17 @@ FAMPAT = [
   ("Cannot Attack", r"アタックできない|サイドアタックできない"), ("Restriction", r"できない|選べない|受けない"),
   ("Card Select", r"\d+枚(まで)?選"),
 ]
+# CX Combo: an ability HARD-GATED to a specific named climax. Detected on the gen()-normalized text
+# (names already collapsed to 「N」) by the climax-area gate, NOT by the 【CXコンボ】 marker (legacy
+# cards predate it). Two gate shapes + the explicit modern marker:
+#   クライマックス置場に「N」が(ある|あり)  = "if [name] is in your climax area" (the classic combo trigger)
+#   「N」が(クライマックス置場に)?置かれた     = "when [name] is placed (in the climax area)" (on-place flavor)
+#   クライマックスコンボ / ＣＸコンボ / CXコンボ = the explicit tagged marker (kept for the few oddballs)
+# Deliberately NOT matched: あなたのクライマックスが…置かれた ("when ANY/your climax is placed"), which is a
+# generic on-climax trigger, not gated to a specific combo CX -> it must keep its own family.
+CXC_PAT = re.compile(r"クライマックス置場に「N」が(ある|あり)|「N」が(クライマックス置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
 def family(text):
+    if CXC_PAT.search(text): return "CX Combo"   # FIRST: a combo encapsulates whatever sub-effects it mixes
     for k, v in KW.items():
         if k in text: return v
     for name, pat in FAMPAT:
@@ -119,7 +129,9 @@ for c in clean:
         (iso[sigs[0]]["m"] if e == "modern" else iso[sigs[0]]["l"]).append(delta)
 
 ALLV = set(variant_occ)
-# STEP 1 measured
+CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
+def is_cxc(sig): return family(variant_text[sig][1]) == "CX Combo"
+# STEP 1 measured (a single-ability CX-combo card still measures directly)
 cost = {}; method = {}; nsamp = {}; rng = {}
 for sig, d in iso.items():
     use = d["m"] if len(d["m"]) >= 2 else (d["m"] + d["l"])
@@ -131,13 +143,15 @@ for sig, d in iso.items():
     cost[sig] = mode500(use); method[sig] = "measured"; nsamp[sig] = len(use); rng[sig] = (min(use), max(use))
 # families that may legitimately cost NEGATIVE (drawbacks) = those seen negative in MEASURED data
 neg_fams = {family(variant_text[s][1]) for s, c in cost.items() if c < 0}
-# STEP 2 propagated residual
+# STEP 2 propagated residual -- NON-CXC only. Solve a card's lone unknown ONLY when it is NOT a
+# CX-combo sig; a still-unknown CXC sig keeps the card "unresolved" here, deferring CXC so it becomes
+# the residual ABSORBER later (CXC is the hardest to measure directly: gated + pay-to-assemble).
 multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in cards if len(sg) > 1]
 for _ in range(10):
     res = collections.defaultdict(list)
     for cn, dl, sg, e in multi:
         unk = [s for s in sg if s not in cost]
-        if len(unk) == 1:
+        if len(unk) == 1 and not is_cxc(unk[0]):
             res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
     new = 0
     for sig, samples in res.items():
@@ -149,17 +163,41 @@ for _ in range(10):
             continue
         cost[sig] = val; method[sig] = "residual"; nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
     if new == 0: break
-# validation
+# validation (checkpoint: measured+residual only, estimated/unresolved excluded -- same basis as before)
 errs = [abs(dl - sum(cost[s] for s in sg)) for cn, dl, sg, e in multi if all(s in cost for s in sg)]
 if errs:
     print(f"VALIDATION: |err|<=500 in {sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% (n={len(errs)})")
-# STEP 3 estimated (family median)
+# STEP 3 estimated (family median). 3a: estimate every NON-CXC sig first, so the lone unknown left on a
+# CX-combo card is its CXC sig. 3b: derive each CXC sig as the residual absorber (delta - sum(non-CXC)),
+# floored. 3c: estimate any leftover (CXC -> floored CXC median, else family median).
 fam_known = collections.defaultdict(list)
-for sig, cst in cost.items(): fam_known[family(variant_text[sig][1])].append(cst)
+for sig, cst in cost.items():
+    if not is_cxc(sig): fam_known[family(variant_text[sig][1])].append(cst)
 fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
+for sig in ALLV:                                   # 3a non-CXC family estimate
+    if sig in cost or is_cxc(sig): continue
+    cost[sig] = fam_med.get(family(variant_text[sig][1]), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+for _ in range(10):                                # 3b CXC residual absorber
+    res = collections.defaultdict(list)
+    for cn, dl, sg, e in multi:
+        unk = [s for s in sg if s not in cost]
+        if len(unk) == 1 and is_cxc(unk[0]):
+            res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
+    new = 0
+    for sig, samples in res.items():
+        if sig in cost: continue
+        cost[sig] = max(CXC_FLOOR, mode500(samples)); method[sig] = "residual"
+        nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
+    if new == 0: break
+cxc_known = [c for s, c in cost.items() if is_cxc(s)]   # 3c estimate leftovers
+cxc_med = max(CXC_FLOOR, r500(st.median(cxc_known))) if cxc_known else CXC_FLOOR
+fam_med["CX Combo"] = cxc_med
 for sig in ALLV:
     if sig in cost: continue
-    cost[sig] = fam_med.get(family(variant_text[sig][1]), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+    base = cxc_med if is_cxc(sig) else fam_med.get(family(variant_text[sig][1]), 500)
+    cost[sig] = base; method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+for sig in ALLV:                                   # enforce the CXC floor on every CX-combo sig
+    if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
 
 CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW"}
 
