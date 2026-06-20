@@ -25,3 +25,4 @@ desktop.ini
 # translation workflow temp
 pipeline/_tr_batches/
 pipeline/_tr_manifest.json
+pipeline/_tr2/
