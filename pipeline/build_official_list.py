@@ -131,9 +131,51 @@ for c in clean:
 ALLV = set(variant_occ)
 CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
 def is_cxc(sig): return family(variant_text[sig][1]) == "CX Combo"
-# STEP 1 measured (a single-ability CX-combo card still measures directly)
 cost = {}; method = {}; nsamp = {}; rng = {}
+# STEP 0 replay anchors -- a 【リプレイ】 (REPLAY) is a NAMED reusable effect that the data lists as TWO
+# rows that are really ONE: (a) an ANCHOR ability whose only effect is "activate 〔name〕" and (b) the
+# 【リプレイ】 row (its 〔name〕 = the first token of its text) holding the real effect. Costing both
+# double-counts the anchor. We zero the PURE anchor (does nothing but activate the replay) so the PAIR
+# costs once; the 【リプレイ】 row keeps the effect's cost (measured/residual/estimated as usual). We
+# zero ONLY the strict pure form (every effect sentence is just "〔name〕[を発動する/を使用する/する]");
+# an anchor that also pays a cost / gates a CX-combo / adds another effect keeps its own cost. Seeded
+# BEFORE step 1 so the residual solver attributes the freed delta to the 【リプレイ】 effect.
+def _replay_names(abs_):
+    names = []
+    for a in abs_:
+        if "【リプレイ】" in "".join(a.get("markers") or []):
+            t = (a.get("text") or "").strip()
+            p = re.split(r"[\s　]+", t, maxsplit=1)        # name = first whitespace-delimited token
+            if p and p[0]: names.append(p[0])
+    return names
+def _is_pure_anchor(text, rnames):
+    """True if EVERY effect sentence of this (non-replay) ability is just 'activate <replay name>'
+    (optionally via を発動する / を使用する / する), i.e. it does nothing on its own."""
+    full = (text or "").strip()
+    if not full: return False
+    matched = other = False
+    for s in (s for s in full.split("。") if s.strip()):
+        last = re.sub(r"^そうしたら", "", re.split(r"[、，]", s.strip())[-1])   # last clause, sans connector
+        if any(re.fullmatch(re.escape(rn) + r"(を発動する|を使用する|する)?", last) for rn in rnames):
+            matched = True
+        else:
+            other = True
+    return matched and not other
+ANCHOR_SIGS = set()
+for c in clean:
+    if c["type"] != "Character" or c["excluded"]: continue
+    if c["power"] is None or c["level"] is None or c["cost"] is None or c["soul"] is None: continue
+    ab = ra(c); rnames = _replay_names(ab)
+    if not rnames: continue
+    for a in ab:
+        if "【リプレイ】" in "".join(a.get("markers") or []): continue
+        if _is_pure_anchor(a.get("text"), rnames):
+            ANCHOR_SIGS.add("".join(a.get("markers") or []) + " :: " + gen(a.get("text", "")))
+for sig in ANCHOR_SIGS:
+    cost[sig] = 0; method[sig] = "anchor"; nsamp[sig] = 0; rng[sig] = (0, 0)
+# STEP 1 measured (a single-ability CX-combo card still measures directly)
 for sig, d in iso.items():
+    if sig in cost: continue                       # a seeded replay anchor is already fixed at 0
     use = d["m"] if len(d["m"]) >= 2 else (d["m"] + d["l"])
     if not use: continue
     # a single LEGACY-only isolated sample is era-inflated & unstable -> don't lock it as measured;
@@ -172,6 +214,7 @@ if errs:
 # floored. 3c: estimate any leftover (CXC -> floored CXC median, else family median).
 fam_known = collections.defaultdict(list)
 for sig, cst in cost.items():
+    if sig in ANCHOR_SIGS: continue   # structural 0s are not effect costs -> don't bias family medians
     if not is_cxc(sig): fam_known[family(variant_text[sig][1])].append(cst)
 fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
 for sig in ALLV:                                   # 3a non-CXC family estimate
@@ -199,7 +242,7 @@ for sig in ALLV:
 for sig in ALLV:                                   # enforce the CXC floor on every CX-combo sig
     if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
 
-CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW"}
+CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "anchor": "HIGH"}
 
 # debug:  DBG_CARD=RZ/SE35-11 python build_official_list.py   (per-ability breakdown of one card)
 #         DBG_SIG="レベル×500" python build_official_list.py  (dump variants matching a substring + isolated samples)
@@ -272,7 +315,7 @@ for i in range(0, len(to_translate), CH):
 print(f"variants={len(ALLV)} | without EN (to translate)={len(to_translate)} | chunks={nch}")
 
 # ---------- Excel formato OFICIAL ----------
-ORDER = {"measured": 0, "residual": 1, "estimated": 2}
+ORDER = {"anchor": 0, "measured": 0, "residual": 1, "estimated": 2}
 wb = Workbook()
 HEAD = PatternFill("solid", fgColor="2F5597"); HF = Font(bold=True, color="FFFFFF")
 SUBHEAD = PatternFill("solid", fgColor="D6DCE4")
