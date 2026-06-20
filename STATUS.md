@@ -10,7 +10,8 @@
 - **Query app:** static site in `site/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
 - **Cost pipeline:** validated ~98% (15,889 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
 - **EN-exclusive sets (WX/SX):** 1,439 cards with EN-native costing.
-- **EN name matching:** official EN names attached by `strict_key`; curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name. Removed 320 wrong/untrusted `name_en`. See `documentation/en-name-matching.md`.
+- **EN name matching:** cascade official EN → unofficial simulator → blank. Curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name (gates both sources). Coverage: **names 91.6%, traits 84.2%, ability text 92.7%**. See `documentation/en-name-matching.md`.
+- **Simulator import:** `pipeline/extract_simulator.py` harvests EN name/traits/ability text from the fan WS game's `CardData.txt` → `name_sim.json` / `traits_sim.json` / `abilities_sim.json` (set-parity filtered, ~+19.8k names). Re-run with the new path when the simulator updates (date-stamped folder). Remaining gap → Heart of the Cards (planned).
 - **GitHub Pages:** not enabled (private repo).
 
 ## Resume phrases
