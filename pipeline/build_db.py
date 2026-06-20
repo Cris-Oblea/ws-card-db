@@ -115,6 +115,7 @@ _abtr = _load("abilities_tr.json")               # agent-translated abilities (f
 CACHE = {}
 for k, v in {**_cache, **_vtf, **_aboff, **_abtr}.items():
     CACHE[_nk(k)] = v
+ABTR = {_nk(k): v for k, v in _abtr.items()}   # LLM ability translations only — the ONLY trusted EN for blocked cards
 print(f"cards: {len(clean)} | en: {len(en_cards)} | translations: {len(CACHE)} (cache {len(_cache)} + full {len(_vtf)})")
 
 # --- STRICT EN matching: same publisher + SET + number (e.g. ("DAL","W131",2)).
@@ -359,19 +360,20 @@ for c in clean:
     align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
     sim_ab = sim_for(ABILS_SIM, cn)                        # simulator EN ability texts (JP-only gap filler)
     sim_align = (not align) and bool(sim_ab) and len(sim_ab) == len(abs_)
-    ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: even cache-by-text is the wrong card's effect
+    ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: official-EN cache is the wrong card's effect
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, a.get("markers"), a.get("text"))
         key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
-        en = "" if ab_blocked else (en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else "")))   # official -> cache(text) -> sim
+        en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
+        if ab_blocked: en = ABTR.get(key, "")              # blocked cards: trust ONLY the LLM translation of their real JP text
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
     name_en = NAME_OVERRIDE.get(cn) or (ec.get("name") if ec else None)   # manual overrides first (regional variants)
-    if not name_en and not en_card_blocked(cn):                  # official EN -> simulator (blocked sets skip both)
-        name_en = NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn)) or NAME_TR.get(c.get("name"))
-    if not name_en:                                              # Heart of the Cards: JP-aligned, correct even for blocked legacy
-        name_en = NAME_HOTC.get(_nk(c.get("name")))
+    if not name_en and not en_card_blocked(cn):                  # official EN -> simulator (blocked sets skip both, they're renumbered)
+        name_en = NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn))
+    if not name_en:                                              # HotC + LLM names: JP-aligned, CORRECT even for blocked legacy
+        name_en = NAME_HOTC.get(_nk(c.get("name"))) or NAME_TR.get(c.get("name"))
     # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
     traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []
