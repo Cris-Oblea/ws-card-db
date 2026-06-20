@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db) · Portfolio project **1 of 3**.
 
-**Last updated:** 2026-06-19
+**Last updated:** 2026-06-20
 
 ## Current state
 
@@ -19,34 +19,15 @@
 
 | Task | Say |
 |---|---|
-| Bilingual translation | *"continue with the translation"* |
 | Cost accuracy (saturday session) | *"golden costs session"* or *"suspects report"* |
 
-## Blocked / paused
+## Done / recent
 
-### Bilingual JP→EN translation (paused — usage limit, 2026-06-15)
+### Bilingual JP→EN translation — COMPLETE (2026-06-20)
 
-Infrastructure is ready (`pipeline/_tr_extract.py`, `_tr_manifest.json`, workflow ~41 Sonnet agents).
+EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAME?` data-error cells remain). Achieved via the cascade official EN → simulator → Heart of the Cards → LLM pass (see "Current state" + `documentation/en-name-matching.md`). The old `pipeline/_tr_batches/` + `_tr_extract.py` flow is superseded by `_tr2_extract.py` and the `name_tr.json`/`abilities_tr.json`/`trait_tr.json` artifacts that `build_db.py` loads.
 
-**Gap after official-EN rescue (not yet merged to DB):**
-
-| Field | Remaining |
-|---|---|
-| Abilities | ~7,327 |
-| Card names | ~22,446 |
-| Traits | ~548 |
-
-**Local progress (not merged):** `pipeline/_tr_batches/` — **10 / 16** ability `.out.json` files done (`0001`, `0004`, `0007`–`0013`, `0015`). Name batches (24) and trait batch (1) have input JSON only; no `.out.json` yet.
-
-**Steps to resume:**
-
-1. `python pipeline/_tr_extract.py` (refresh batches/gap)
-2. Run translation workflow → write remaining `.out.json`
-3. Validate each output covers all keys in its batch
-4. Merge into `abilities_tr.json`, `name_tr.json`, `trait_tr.json`
-5. `python pipeline/build_db.py` → rebuild `site/ws.sqlite`
-
-**Phase 2 (later):** flavor text (~37k JP), neo-standard title names (74 JP-only franchises).
+**Phase 2 (later, optional):** flavor text (~37k JP) is still untranslated; neo-standard title names are covered.
 
 ## Next up (not blocked)
 
