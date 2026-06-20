@@ -38,15 +38,19 @@ Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still 
 - ✅ Done (2026-06-19): translated the remaining Spanish in code comments and Excel labels (`pipeline/build_master_list.py`, `build_official_list.py`, `build_cost_sheet.py`, `official_en.py`, `build_features.py`). The DB/web (`build_db.py`, `site/`) were already English. Japanese card data kept as-is (it's the source); the two `.xlsx` output filenames are left as-is.
 - ✅ Done (2026-06-19): renamed `pipeline/fuentes/` → `pipeline/sources/` (+ all references) and translated the Spanish `.xlsx`/`.md` filenames to English (`Complete_Abilities_List`, `Ability_Cost_Guide`, `Conclusions.md`). Generated `.xlsx` are no longer versioned (gitignored).
 
-### Cost accuracy improvement (planned saturday sessions)
+### Cost accuracy improvement — THE focus from now on
 
-User still sees wrong costs in places. Plan not implemented yet:
+Translation is done, so future sessions are **only** about cost-model accuracy. (The "98%" is a consistency metric, not per-ability correctness — validate against real cards via the live site.)
 
-1. Generate `suspects_report.xlsx` (top variants by impact × uncertainty)
-2. Create `golden_costs.json` + wire into builder (anchor + regression check)
-3. Validate ~20 variants per session → rebuild → measure improvement
+**Done 2026-06-20:**
+- ✅ **CX Combo** is its own family, detected by climax-area text, resolved LAST as the residual absorber, floor ≥500, no ceiling. CXC subset 93.4%→95.0%; negative/zero/below-500 CXC costs → 0.
+- ✅ **【リプレイ】 (replay)** abilities folded into their citer and counted once (handles pure-anchor / cost-gated / CX-combo / modal-wrapper). All 21 replay cards reconstruct exactly.
 
-**Error hotspots:** estimated/LOW, bad residual seeds, era mixing, CX-combo/gate floor, drawback sign.
+**Next leads:**
+1. **Over-costed companion families surfaced by the CXC absorber** — standout: **Search effects valued ~+8000** (`SAO/S51-073`). Likely a mis-costed family → investigate/correct.
+2. `suspects_report.xlsx` (top variants by impact × uncertainty) → `golden_costs.json` (anchor + regression) → validate ~20 variants/session → rebuild → measure.
+
+**Error hotspots:** estimated/LOW, bad residual seeds, era mixing, gate floor, drawback sign, over-costed families (Search).
 
 ### Era / dating
 
