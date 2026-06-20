@@ -26,7 +26,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - No CI; no formal test suite (see "Validation").
 
 ## Structure
-- `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py` + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`).
+- `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py`, `extract_simulator.py` (harvests EN translations from the fan simulator's `CardData.txt`) + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`, `name_sim.json`/`traits_sim.json`/`abilities_sim.json` = simulator translations).
 - `pipeline/ingest/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
 - `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
 - `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.

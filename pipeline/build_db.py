@@ -165,6 +165,15 @@ def en_match(cn):
 
 # agent translations (full bilingual pass) + reuse of official EN names across same-name cards
 NAME_TR = _load("name_tr.json"); TRAIT_TR = _load("trait_tr.json")
+# Unofficial-simulator translations (built by pipeline/extract_simulator.py), keyed by strict_key
+# string "PUB/SET/SUF". They fill the JP-only gap the official EN list can't (~20k cards). The
+# simulator shares the official list's legacy disparity errors, so every read is gated by
+# en_card_blocked() (blocked franchises never pull from it). See documentation/en-name-matching.md.
+NAME_SIM = _load("name_sim.json"); TRAITS_SIM = _load("traits_sim.json"); ABILS_SIM = _load("abilities_sim.json")
+def _skey_s(cn):
+    k = strict_key(cn); return "/".join(k) if k else None
+def sim_for(d, cn):
+    return None if en_card_blocked(cn) else d.get(_skey_s(cn))
 NAME_OFFICIAL = {}
 for c in clean:
     ec = en_match(c["card_number"])
@@ -179,6 +188,11 @@ for c in clean:
     jt, et = c.get("traits") or [], ec.get("attributes") or []
     if len(jt) == len(et):
         for a, b in zip(jt, et):
+            if a and b: _tp[a][b] += 1
+for c in clean:                              # extend the dictionary with simulator traits (positional, same count)
+    simt = sim_for(TRAITS_SIM, c["card_number"]); jt = c.get("traits") or []
+    if simt and len(jt) == len(simt):
+        for a, b in zip(jt, simt):
             if a and b: _tp[a][b] += 1
 TRAIT_EN = {k: v.most_common(1)[0][0] for k, v in _tp.items()}
 
@@ -332,13 +346,16 @@ for c in clean:
     model_total = 0; have_cost = False
     ab_buf = []
     align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
+    sim_ab = sim_for(ABILS_SIM, cn)                        # simulator EN ability texts (JP-only gap filler)
+    sim_align = (not align) and bool(sim_ab) and len(sim_ab) == len(abs_)
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, a.get("markers"), a.get("text"))
-        en = en_abs[i] if align else CACHE.get(_nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip()), "")
+        key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
+        en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
-    name_en = ec.get("name") if ec else (None if en_card_blocked(cn) else (NAME_OFFICIAL.get(c.get("name")) or NAME_TR.get(c.get("name"))))
+    name_en = ec.get("name") if ec else (None if en_card_blocked(cn) else (NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn)) or NAME_TR.get(c.get("name"))))   # official -> sim
     # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
     traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []

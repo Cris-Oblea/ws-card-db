@@ -17,6 +17,27 @@ Two independent mechanisms, by design:
 This asymmetry is why a legacy card can show translated abilities but a blank/garbled name: the
 text match still works while the number match breaks.
 
+## Translation cascade (priority order)
+
+`build_db.py` fills each field from the best available source, top to bottom:
+
+1. **Official EN** — exact same-code EN card (`cardlist_en.json`), or same-JP-name propagation
+   (`NAME_OFFICIAL`). Best phrasing; only ~16.8k of 39.9k cards (the rest never released in English).
+2. **Unofficial simulator** — `name_sim.json` / `traits_sim.json` / `abilities_sim.json`, built by
+   `pipeline/extract_simulator.py` from a fan-made WS game's `CardData.txt` files. English in roughly
+   the official taxonomy, keyed by `strict_key`. Fills the JP-only gap → names jump to ~91.6%,
+   traits ~84%, ability text ~92.7%. Abilities/traits are taken **positionally only when the count
+   matches** (the simulator sometimes splits abilities differently); names need no alignment.
+3. **(planned) Heart of the Cards** — fan translations (non-official phrasing) for the remainder and
+   for the blocked legacy franchises where it is the only JP-aligned source.
+4. **Blank** — better than wrong.
+
+⚠️ The simulator SHARES the official list's legacy disparity errors (same permuted BD/W63; Disgaea
+only under the renumber `DG/ENS03`), so **every simulator read is gated by `en_card_blocked()`** —
+blocked franchises (below) never pull from it. The extractor also keeps only entries whose
+`strict_key` maps to a real JP card ("set parity"), dropping the simulator's `EN`/`SX`/`WX`-prefixed
+renumber sets automatically.
+
 ## The legacy disparity problem
 
 For several **old franchises**, Bushiroad **renumbered or consolidated** the Japanese sets for their
