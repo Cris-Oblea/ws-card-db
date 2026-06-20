@@ -141,7 +141,14 @@ for e in en_cards:
 # than a wrong EN, consistent with the strict-matching philosophy). Per-franchise rationale is from
 # manual review against the live site; see documentation/ and STATUS.md.
 EN_BLOCK_PUB   = {"DG", "P4", "PI", "LL"}   # whole franchise: EN release is a mutated renumber of JP
-EN_BLOCK_CARD  = {"BD/W63-102", "BD/W63-103", "BD/W63-104"}   # confirmed permuted matches (BanG Dream!)
+EN_BLOCK_CARD  = {"BD/W63-102", "BD/W63-103", "BD/W63-104",   # confirmed permuted matches (BanG Dream!)
+                  "NK/W30-002", "NK/W30-026", "NK/W30-052", "NK/W30-076"}   # Nisekoi regional variants (JP/EN same code, DIFFERENT effect)
+# Manual name overrides: the JP side of the NK/W30 regional variants (乙女心 = "Maiden's Heart") whose
+# same-code EN printing is a DIFFERENT card ("The One"); that EN printing is added as its own row below.
+NAME_OVERRIDE = {
+    "NK/W30-002": "Maiden's Heart, Chitoge", "NK/W30-026": "Maiden's Heart, Seishiro",
+    "NK/W30-052": "Maiden's Heart, Marika",  "NK/W30-076": "Maiden's Heart, Kosaki",
+}
 EN_BLOCK_ENSET = {("BD", "W03")}            # EN-only special booster of band trial decks; no JP counterpart
 FT_ALLOW_SET   = {"S120"}                   # Fairy Tail: only S120 maps cleanly to JP; S02/S09/SE10 don't
 def en_card_blocked(cn):
@@ -170,6 +177,10 @@ NAME_TR = _load("name_tr.json"); TRAIT_TR = _load("trait_tr.json")
 # simulator shares the official list's legacy disparity errors, so every read is gated by
 # en_card_blocked() (blocked franchises never pull from it). See documentation/en-name-matching.md.
 NAME_SIM = _load("name_sim.json"); TRAITS_SIM = _load("traits_sim.json"); ABILS_SIM = _load("abilities_sim.json")
+# Heart of the Cards (pipeline/fetch_hotc.py) — JP-name -> EN-name. HotC translates the original JP
+# cards, so it is JP-ALIGNED and has the CORRECT name even for renumbered legacy sets. Non-official
+# phrasing, so it's the LAST name fallback — but it applies even to en_card_blocked() franchises.
+NAME_HOTC = _load("name_hotc.json")
 def _skey_s(cn):
     k = strict_key(cn); return "/".join(k) if k else None
 def sim_for(d, cn):
@@ -348,14 +359,19 @@ for c in clean:
     align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
     sim_ab = sim_for(ABILS_SIM, cn)                        # simulator EN ability texts (JP-only gap filler)
     sim_align = (not align) and bool(sim_ab) and len(sim_ab) == len(abs_)
+    ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: even cache-by-text is the wrong card's effect
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, a.get("markers"), a.get("text"))
         key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
-        en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
+        en = "" if ab_blocked else (en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else "")))   # official -> cache(text) -> sim
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
-    name_en = ec.get("name") if ec else (None if en_card_blocked(cn) else (NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn)) or NAME_TR.get(c.get("name"))))   # official -> sim
+    name_en = NAME_OVERRIDE.get(cn) or (ec.get("name") if ec else None)   # manual overrides first (regional variants)
+    if not name_en and not en_card_blocked(cn):                  # official EN -> simulator (blocked sets skip both)
+        name_en = NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn)) or NAME_TR.get(c.get("name"))
+    if not name_en:                                              # Heart of the Cards: JP-aligned, correct even for blocked legacy
+        name_en = NAME_HOTC.get(_nk(c.get("name")))
     # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
     traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []
@@ -501,6 +517,44 @@ for c in ex_cards:
     ))
     arows.extend(ab_buf)
 print(f"English-exclusive cards added (WX/SX): {len(ex_cards)}")
+
+# --- NK/W30 regional variants: 4 Nisekoi cards share a JP/EN code but have DIFFERENT effects by
+#     language. The JP printing (乙女心 "Maiden's Heart") stays in the main DB above (its wrong EN match
+#     is blocked + name-overridden); here we add the ENGLISH printing ("The One", different effect) as
+#     its OWN en_exclusive row under the EN code NK/W30-E0xx, grouped under Nisekoi. ---
+NK_VARIANTS = ["NK/W30-E002", "NK/W30-E026", "NK/W30-E052", "NK/W30-E076"]
+EN_RAW = {e.get("code"): e for e in en_cards}
+_nkneo = "ニセコイ"; _nt = NAME2NEO.get(_nkneo)
+NK_TS = " ".join(x for x in ([_nkneo] + ([_nt.get("name_kana", "")] + _nt.get("codes", []) if _nt else []) + [neo_en(_nkneo)]) if x).lower()
+nk_added = 0
+for code in NK_VARIANTS:
+    e = EN_RAW.get(code)
+    if not e: continue
+    nk_added += 1
+    lv, co, pw, so = _i(e.get("level")), _i(e.get("cost")), _i(e.get("power")), _i(e.get("soul"))
+    is_char = e.get("type") == "Character" and None not in (lv, co, pw, so)
+    trig = [str(x).lower() for x in (e.get("trigger") or [])]
+    pbase = (3000 + 2500*lv + 1500*co - 1000*(1 if "soul" in trig else 0) - 1000*(so-1)) if is_char else None
+    attrs = e.get("attributes") or []
+    model_total = 0; have = False; ab_buf = []
+    for i, a in enumerate([x for x in (e.get("ability") or []) if x and x.strip()]):
+        if is_char:
+            s = gen_en(a)
+            pc, meth = (encost[s], enmethod.get(s, "matched")) if s in encost else (fam_med.get(en_family(a), 500), "estimated")
+        else:
+            pc, meth = None, None
+        if pc is not None: model_total += pc; have = True
+        ab_buf.append((code, i, _en_type(a), en_family(a), "", a, pc, meth, ENCONF.get(meth)))
+    crows.append((
+        code, base_num(code), "NK", e.get("name"), e.get("name"), "", _nkneo, e.get("type"),
+        (e.get("color") or "").lower(), lv, co, pw, so, " / ".join(trig),
+        " / ".join(attrs), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
+        None, 0, None, pbase, (pbase - 500 if pbase is not None else None),
+        (model_total if have else None), (pbase - pw if pbase is not None else None), "", e.get("image"),
+        " / ".join(attrs), NK_TS, 1, None,
+    ))
+    arows.extend(ab_buf)
+print(f"NK/W30 EN-variant cards added: {nk_added}")
 
 db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*30), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
