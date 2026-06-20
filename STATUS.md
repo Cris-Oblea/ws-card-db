@@ -3,13 +3,14 @@
 > Living status file. Update at the end of each session.  
 > Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db) · Portfolio project **1 of 3**.
 
-**Last updated:** 2026-06-17
+**Last updated:** 2026-06-19
 
 ## Current state
 
 - **Query app:** static site in `site/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
 - **Cost pipeline:** validated ~98% (15,889 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
 - **EN-exclusive sets (WX/SX):** 1,439 cards with EN-native costing.
+- **EN name matching:** official EN names attached by `strict_key`; curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name. Removed 320 wrong/untrusted `name_en`. See `documentation/en-name-matching.md`.
 - **GitHub Pages:** not enabled (private repo).
 
 ## Resume phrases
