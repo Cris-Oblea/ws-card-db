@@ -581,7 +581,12 @@ db.executemany("INSERT INTO meta VALUES (?,?)", meta)
 # neo-standards (official deck-construction groups): each is a SEPARATE standard with its own
 # set codes. The app uses this for an exact title filter (pick a neo -> match its codes only).
 db.execute("CREATE TABLE neos (jp_name TEXT, en_name TEXT, kana TEXT, codes TEXT, en_only INTEGER)")
-neo_rows = [(nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])), 0)
+# JP neos that ALSO contain EN-exclusive variant cards (e.g. Nisekoi's 4 NK/W30 "The One" printings,
+# which share the JP series code NK). en_only=2 makes the Title filter select the whole series
+# (JP cards + EN variants); without it the en_exclusive split would hide the 4 variants.
+NEO_WITH_EN_VARIANTS = {"ニセコイ"}
+neo_rows = [(nt["name"], neo_en(nt["name"]), nt.get("name_kana", ""), " ".join(nt.get("codes", [])),
+             2 if nt["name"] in NEO_WITH_EN_VARIANTS else 0)
             for nt in neo_data]
 # EN-exclusive titles (one per EN-exclusive series). codes = the series.
 #  en_only=1: the English title is ONLY the exclusive cards (CCS-EN: the JP CCS cards differ).
@@ -597,20 +602,21 @@ print(f"wrote {OUT}  ({sz:.1f} MB)  | cards={len(crows)} abilities={len(arows)}"
 
 # Ship a gzipped copy: the app fetches ws.sqlite.gz (small download, under GitHub's file limit)
 # and decompresses it in the browser before loading it into sql.js.
-import gzip, shutil
-with open(OUT, "rb") as fi, gzip.open(OUT + ".gz", "wb", compresslevel=9) as fo:
-    shutil.copyfileobj(fi, fo)
+import gzip, hashlib
+raw = open(OUT, "rb").read()
+with gzip.GzipFile(OUT + ".gz", "wb", compresslevel=9, mtime=0) as fo:   # mtime=0 -> deterministic gz
+    fo.write(raw)
 print(f"gzipped -> {OUT}.gz  ({os.path.getsize(OUT + '.gz')/1048576:.1f} MB)")
 
-# Cache-bust the web app: stamp the DB's ability count as ?v=N in app.js so a rebuild is never
-# served stale by the browser (the manual ?v= bump was easy to forget). The count changes whenever
-# the data changes, so every meaningful rebuild gets a fresh URL.
+# Cache-bust the web app: stamp a short hash of the DB CONTENT as ?v= in app.js, so a rebuild is
+# never served stale and the URL changes for ANY data change (not just card/ability counts).
+ver = hashlib.sha1(raw).hexdigest()[:10]
 _appjs = os.path.join(D, "..", "site", "app.js")
 try:
     _t = open(_appjs, encoding="utf-8").read()
-    _n = re.sub(r"(ws\.sqlite\.gz\?v=)\d+", r"\g<1>" + str(len(arows)), _t)
+    _n = re.sub(r"(ws\.sqlite\.gz\?v=)\w+", r"\g<1>" + ver, _t)
     if _n != _t:
         open(_appjs, "w", encoding="utf-8").write(_n)
-        print(f"bumped app.js cache version -> ws.sqlite.gz?v={len(arows)}")
+        print(f"bumped app.js cache version -> ws.sqlite.gz?v={ver}")
 except FileNotFoundError:
     pass
