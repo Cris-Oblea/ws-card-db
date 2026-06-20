@@ -132,18 +132,49 @@ EN_BY = {}
 for e in en_cards:
     kk = strict_key(e.get("code", ""))
     if kk: EN_BY.setdefault(kk, e)
+
+# --- Curated legacy DISPARITY exclusions --------------------------------------------------------
+# Some old franchises were RENUMBERED / CONSOLIDATED for their English release, so the EN set code
+# no longer lines up card-for-card with the JP one (e.g. EN DG/S03 merges JP DG/S02+SE08+SE17; the
+# JP/EN trial-deck numbering also diverges). strict_key (same publisher+set+number) then links the
+# WRONG English card -> wrong name/abilities. We refuse the EN match for these cases (better a blank
+# than a wrong EN, consistent with the strict-matching philosophy). Per-franchise rationale is from
+# manual review against the live site; see documentation/ and STATUS.md.
+EN_BLOCK_PUB   = {"DG", "P4", "PI", "LL"}   # whole franchise: EN release is a mutated renumber of JP
+EN_BLOCK_CARD  = {"BD/W63-102", "BD/W63-103", "BD/W63-104"}   # confirmed permuted matches (BanG Dream!)
+EN_BLOCK_ENSET = {("BD", "W03")}            # EN-only special booster of band trial decks; no JP counterpart
+FT_ALLOW_SET   = {"S120"}                   # Fairy Tail: only S120 maps cleanly to JP; S02/S09/SE10 don't
+def en_card_blocked(cn):
+    """True if this JP card must get NO English NAME at all (its franchise/set was renumbered, so even
+    same-JP-name propagation could graft a wrong English name). Abilities still translate by text."""
+    k = strict_key(cn)
+    if k is None: return False
+    pub, st = k[0], k[1]
+    if pub in EN_BLOCK_PUB: return True                       # DG / P4 / PI / LL: drop the whole franchise
+    if pub == "FT" and st not in FT_ALLOW_SET: return True    # Fairy Tail: keep only S120
+    if base_num(cn) in EN_BLOCK_CARD: return True             # specific permuted cards
+    return False
+def en_match(cn):
+    """EN_BY lookup for a JP card_number with the curated legacy-disparity exclusions applied."""
+    if en_card_blocked(cn): return None
+    ec = EN_BY.get(strict_key(cn))
+    if ec is None: return None
+    ek = strict_key(ec.get("code", ""))                      # safeguard: never pull from an EN-only renumber set
+    if ek and (ek[0], ek[1]) in EN_BLOCK_ENSET: return None
+    return ec
+
 # agent translations (full bilingual pass) + reuse of official EN names across same-name cards
 NAME_TR = _load("name_tr.json"); TRAIT_TR = _load("trait_tr.json")
 NAME_OFFICIAL = {}
 for c in clean:
-    ec = EN_BY.get(strict_key(c["card_number"]))
+    ec = en_match(c["card_number"])
     if ec and ec.get("name"): NAME_OFFICIAL.setdefault(c.get("name"), ec["name"])
 
 # --- traits JP->EN dictionary: align clean.traits[i] <-> EN attributes[i] on exact-matched
 #     cards (same count); the most common EN per JP trait wins (robust to occasional misorder). ---
 _tp = collections.defaultdict(collections.Counter)
 for c in clean:
-    ec = EN_BY.get(strict_key(c["card_number"]))
+    ec = en_match(c["card_number"])
     if not ec: continue
     jt, et = c.get("traits") or [], ec.get("attributes") or []
     if len(jt) == len(et):
@@ -292,7 +323,7 @@ def join(v):
 crows, arows = [], []
 for c in clean:
     if c.get("excluded"): continue            # keep only valid printings in the queryable DB
-    cn = c["card_number"]; ec = EN_BY.get(strict_key(cn))   # exact EN card (same set+number) or None
+    cn = c["card_number"]; ec = en_match(cn)   # exact EN card (same set+number), legacy-disparity-filtered
     en_abs = _ra_en(ec) if ec else []
     is_char = c["type"] == "Character" and None not in (c.get("level"), c.get("cost"), c.get("soul"), c.get("power"))
     power_base = pb(c) if is_char else None
@@ -307,7 +338,7 @@ for c in clean:
         if pc is not None: model_total += pc; have_cost = True
         ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
     real_delta = (power_base - c["power"]) if power_base is not None else None
-    name_en = ec.get("name") if ec else (NAME_OFFICIAL.get(c.get("name")) or NAME_TR.get(c.get("name")))
+    name_en = ec.get("name") if ec else (None if en_card_blocked(cn) else (NAME_OFFICIAL.get(c.get("name")) or NAME_TR.get(c.get("name"))))
     # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
     traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []

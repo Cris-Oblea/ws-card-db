@@ -37,4 +37,4 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 Pipeline validated at 98%; web in production (~40k cards). In progress: bilingual JP→EN translation (10/16 batches) + accuracy improvement ("suspects" detection + golden costs).
 
 ## To go deeper
-`pipeline/README.md` · `pipeline/Ability_Cost_Guide.md` · `pipeline/Conclusions.md` (the model in detail) · `STATUS.md` (live status).
+`pipeline/README.md` · `pipeline/Ability_Cost_Guide.md` · `pipeline/Conclusions.md` (the model in detail) · `documentation/en-name-matching.md` (how official EN is attached + legacy disparity exclusions) · `STATUS.md` (live status).
