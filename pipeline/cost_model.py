@@ -95,7 +95,7 @@ FAMPAT = [
   ("Add to Hand", r"手札に(加える|加え|戻す)"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
   ("Power Pump (self)", r"このカードのパワーを[＋+]"), ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
-  ("Grant Ability", r"』を与える|の能力を得"), ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
+  ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
   ("Stock Boost", r"ストック置場に置"), ("Choice", r"次の効果から|から\d+つを選"),
   ("Early Play", r"レベル\d+以下[^。]{0,12}手札からプレイ|レベルを参照しない"),
@@ -126,11 +126,16 @@ ONREV_PAT = [
 # family never converges). Requires the CHOOSING (…のうち…選 / 次の効果から…選), so a "do both" bundle
 # (次の2つの効果を…行う) is deliberately NOT a modal.
 MODAL_PAT = re.compile(r"(次の[\dＸ０-９]+つの効果のうち|次の効果から)[^。]{0,16}選")
+# Grant = give an ability to a character (次の能力を与える / 『…』を与える / の能力を得). Detected EARLY, like
+# Modal, because the GRANTED ability's text (a look-deck, a heal, "cannot move"…) must NOT decide the family.
+# Avoids matching "ダメージを与える" — it requires "能力を" or "』を" before 与え.
+GRANT_PAT = re.compile(r"(能力|』)を与え|の能力を得")
 def family(text, markers=""):
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
-    if MODAL_PAT.search(text): return "Modal"   # a "choose 1 of N" modal — its own family, not a sub-effect
+    if MODAL_PAT.search(text): return "Modal"          # a "choose 1 of N" modal — its own family
+    if GRANT_PAT.search(text): return "Grant Ability"  # grants an ability — its own family, not what's granted
     for name, pat in ONREV_PAT:
         if pat.search(text): return name
     for k, v in KW.items():
