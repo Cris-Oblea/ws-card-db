@@ -36,10 +36,11 @@ The base is the effect's **net** value (card advantage / tempo), NOT the raw ver
   the family ideal for validating the model — base is readable.
 - **Search (to hand):** ~1000.  Cross-family note from the owner: **Power Debuff (remove the opponent's
   power) base > Power Pump (self) base.**
-- **Flexibility shifts the base.** A salvage restricted to a `《trait》` character is worth LESS than an
-  unrestricted "recover any card" salvage. Designers balance this against riders: `T27` (trait-locked
-  salvage **+** a pump) ≈ `5HY/W90-024` (no-trait-lock salvage, no pump) — the trait-lock restriction funds
-  the pump.
+- **Flexibility shifts the base, and designers balance it against riders.** A salvage restricted to a
+  `《trait》` character is worth LESS than an unrestricted "recover any card" salvage. Clean balanced pair —
+  both net-0 on-enter salvages paying `［1 stock + discard 1］`, both measure **500**: `5HY/W90-024[1]`
+  (NO trait-lock, no rider) = `PJS/S91-T34[1]` (trait-LOCKED **+** a pump rider). The trait-lock restriction
+  (−) exactly funds the pump rider (+), so both land at the net-0 salvage value of 500.
 - **A small RIDER does not add cost** (within one ability). `PD/S22-055` = `［1 stock + discard 1］ on-enter,
   recover 1` (net-0, NO rider) measures **500**; `PJS/S91-T34` = the SAME net-0 salvage **plus** a `+1000
   (turn)` pump rider also measures **500**. The rider (a new-era addition) is folded in for free.
