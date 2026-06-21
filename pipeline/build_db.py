@@ -9,7 +9,7 @@
 # NOTE: the per-ability cost MATH lives in cost_model.py (the single source, shared with
 # build_official_list.py). This file owns only the SQLite I/O around it: schema/emit, the EN matching /
 # exclusion machinery, gzip + cache-bust. The model is WIP; when it improves, re-run this to regen the DB.
-import json, os, re, sqlite3, collections, html
+import json, os, re, sqlite3, collections, html, unicodedata
 from cost_model import (_nk, pb, ra, base_num, gen, r500, mode500, family, ability_type,
                         gen_en, en_family, build_cost_model, en_cost_model, ENCONF)
 
@@ -114,6 +114,14 @@ def fix_name(s):
     for bad, good in _NAME_REPL:
         if bad in s: s = s.replace(bad, good)
     return s
+
+# --- search folding: accent- AND case-insensitive key for the lookup box (so "deja vu" finds
+# "Déjà Vu"). NFKD splits accents into base + combining mark; we drop the Latin combining marks
+# (U+0300-036F) and lowercase. Japanese is preserved: dakuten/handakuten (U+3099/309A) are OUTSIDE
+# that range, so が stays distinct from か.
+def fold(s):
+    if not s: return ""
+    return "".join(ch for ch in unicodedata.normalize("NFKD", s) if not (0x0300 <= ord(ch) <= 0x036f)).lower()
 
 NAME_OVERRIDE = {
     "NK/W30-002": "Maiden's Heart, Chitoge", "NK/W30-026": "Maiden's Heart, Seishiro",
@@ -255,7 +263,8 @@ CREATE TABLE cards (
   trigger TEXT, traits TEXT, rare TEXT, side TEXT, expansion INTEGER, parallel INTEGER, era TEXT,
   power_base INTEGER, budget INTEGER, model_cost_total INTEGER, real_delta INTEGER,
   residual INTEGER, is_suspect INTEGER, release_date TEXT,
-  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER, text_en TEXT
+  picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER, text_en TEXT,
+  search_fold TEXT
 );
 CREATE TABLE abilities (
   card_number TEXT, idx INTEGER, ability_type TEXT, family TEXT,
@@ -328,6 +337,7 @@ for c in clean:
         residual, is_suspect, RELEASE_DATE.get(c.get("expansion")),
         c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search, 0,
         (" ".join(en_abs) if (ec is not None and not align) else None),   # official full EN when the JP/EN ability split differs
+        fold(" ".join(x for x in (fix_name(c.get("name")), name_en, join(c.get("neo_titles")), cn, title_search) if x)),
     ))
     arows.extend(ab_buf)
 
@@ -401,6 +411,7 @@ for c in ex_cards:
         (model_total if have else None), c["delta"], residual, is_suspect, None,
         "", e.get("image"), " / ".join(c["attrs"]), title.lower(), 1,
         None,   # text_en (EN-exclusive abilities are already per-ability)
+        fold(" ".join(x for x in (fix_name(e.get("name")), title, code) if x)),
     ))
     arows.extend(ab_buf)
 print(f"English-exclusive cards added (WX/SX): {len(ex_cards)}")
@@ -442,11 +453,12 @@ for code in NK_VARIANTS:
         None, 0, None, pbase, (pbase - 500 if pbase is not None else None),
         (model_total if have else None), delta, residual, is_suspect, None,
         "", e.get("image"), " / ".join(attrs), NK_TS, 1, None,
+        fold(" ".join(x for x in (fix_name(e.get("name")), _nkneo, code, NK_TS) if x)),
     ))
     arows.extend(ab_buf)
 print(f"NK/W30 EN-variant cards added: {nk_added}")
 
-db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*33), crows)
+db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*34), crows)
 db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*12), arows)
 db.executescript("""
 CREATE INDEX i_color ON cards(color);
