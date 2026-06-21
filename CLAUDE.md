@@ -39,7 +39,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 ## How to run
 - Abilities Excel: `python pipeline/build_official_list.py`
 - SQLite for the web: `python pipeline/build_db.py`
-- Local web: `cd docs && python -m http.server 8000` → http://localhost:8000/
+- Local web: `cd site && python -m http.server 8000` → http://localhost:8000/
 - MCP server: `python tools/ws-mcp/server.py`
 
 ## Conventions
