@@ -33,8 +33,17 @@ def _nk(s):  # normalize encoding noise (full/half-width, quote styles, ALL spac
 def pb(c):   # vanilla (ability-less) base power. Validated on 99.7% of vanilla characters.
     t = 1 if "soul" in (c.get("trigger") or []) else 0
     return 3000 + 2500*c["level"] + 1500*c["cost"] - 1000*t - 1000*(c["soul"]-1)
-def ra(c):   # real abilities = non-empty ability rows (drop dash placeholders)
-    return [a for a in c["abilities"] if (a.get("text") or "").strip() not in ("-","ー","－","ｰ","")]
+_REMINDER = re.compile(r"[（(].*[）)]", re.S)   # text wholly wrapped in parens = reminder / flavor text
+def ra(c):   # real abilities = non-empty rows; drop dash placeholders AND markerless parenthetical reminders
+    out = []
+    for a in c["abilities"]:
+        t = (a.get("text") or "").strip()
+        if t in ("-", "ー", "－", "ｰ", ""): continue
+        # Markerless text fully wrapped in （）/() is beginner/trigger-icon REMINDER text (e.g. "（bounce：…）",
+        # "（このデッキの切り札！…）") — it has no 自/永/起 marker and is not a real ability. Drop it.
+        if not a.get("markers") and _REMINDER.fullmatch(t): continue
+        out.append(a)
+    return out
 def base_num(cn):  # strip rarity/parallel suffix: DAL/W99-001SP -> DAL/W99-001 (same card, only art differs)
     return re.sub(r"(\d)[A-Za-z]+$", r"\1", cn or "")
 ZT = str.maketrans("０１２３４５６７８９＋－", "0123456789+-")
