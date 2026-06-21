@@ -27,7 +27,10 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 
 ## Structure
 - `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py`, `extract_simulator.py` (harvests EN translations from the fan simulator's `CardData.txt`), `fetch_hotc.py` (scrapes EN names from heartofthecards.com) + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`, `name_sim.json`/`traits_sim.json`/`abilities_sim.json` = simulator translations, `name_hotc.json` = Heart of the Cards names).
+- `pipeline/cost_model.py` — **the SINGLE SOURCE of the power-cost MATH** (helpers + family/type taxonomy + replay folding + the measured→residual→estimated cascade + the EN-exclusive pass). `build_official_list.py` and `build_db.py` both `import` it and read costs off `build_cost_model(clean)`; each caller does its own I/O (Excel sheets / SQLite emit + EN matching) around it. Cost no longer depends on era (the legacy/modern split was dead and is removed — `card_era.json` holds FORMAT names, so era/date is metadata only). Keep the board-pump regex `あなたの…(キャラ|「N」|《T》)すべてに…パワーを＋` exact. NOTE: `build_master_list.py` is an older, divergent cost variant (no CXC, no replay folding, different family labels) NOT wired to this module — superseded by the two canonical builders.
 - `pipeline/ingest/` — sub-pipeline: `harvest_cardlist.py` → `clean_cardlist.py` → `date_sets.py` → `build_features.py`.
+- `pipeline/cost_standardize.py` — READ-ONLY cost analysis (does not touch the live model/DB/cache): standardizes the per-ability *package* price (mode over all years, no era split), hunts cost suspects, and estimates payment-bracket credits. Outputs to `pipeline/analysis/`.
+- `pipeline/analysis/` — generated analysis artifacts: `package_standards.csv` (the standardized price list), `suspects.csv` (cards deviating from their package mode), `payment_credits.csv` (per-payment credit), `cost_standardize_report.md` (the written report).
 - `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
 - `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
 - `tools/ws-mcp/` — the MCP server.
@@ -41,8 +44,9 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 
 ## Conventions
 - **Costs** always multiples of **500** (the game's power economy).
-- **Confidence:** `HIGH` (measured) · `MEDIUM` (residual) · `LOW` (estimated).
-- **Era:** `legacy` (<2017, ~2x more expensive) · `modern` (≥2017). Power-creep matters.
+- **Confidence (evidence-based):** `HIGH` (measured with `n_samples ≥ 3` and `mode_share ≥ 60%`) · `MEDIUM` (residual, or measured with weaker evidence) · `LOW` (estimated). Reflects the standard's evidence, not just the method.
+- **Cost = a fixed per-package STANDARD (the MODE of the signature's samples, pooled across ALL years — NO era split).** A package = the full ability signature (markers + normalized text, brackets/payment INCLUDED). The DB shows the per-card **actual** budget vs that standard; the **residual** (`real_delta − Σ standard_cost`) is the designer's adjustment, and a card with `|residual| ≥ 500` is a **suspect**. There is **no power-creep at the package level** (validated: high-n packages have a flat mode 2008→now); the apparent creep was effect-mix shift + dispersion.
+- **Era / date:** descriptive **metadata only** (NOT a cost driver). `release_date` (YYYY-MM-DD) is stored per card; the format-era label (Genesis/Bounty/Gate/Standby/Choice/Horizon, bounded by climax trigger-icon debuts) is optional flavor.
 - **Dedup:** keep the base rarity, discard alt-art/parallels.
 - **Encoding:** UTF-8 + NFKC normalization (full/half-width Japanese).
 
