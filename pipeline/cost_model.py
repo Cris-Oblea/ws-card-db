@@ -94,9 +94,11 @@ FAMPAT = [
 #   クライマックスコンボ / ＣＸコンボ / CXコンボ = the explicit tagged marker (kept for the few oddballs)
 # Deliberately NOT matched: あなたのクライマックスが…置かれた ("when ANY/your climax is placed"), which is a
 # generic on-climax trigger, not gated to a specific combo CX -> it must keep its own family.
-CXC_PAT = re.compile(r"クライマックス置場に「N」が(ある|あり)|「N」が(クライマックス置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
-def family(text):
-    if CXC_PAT.search(text): return "CX Combo"   # FIRST: a combo encapsulates whatever sub-effects it mixes
+CXC_PAT = re.compile(r"(クライマックス|CX|ＣＸ)置場に「N」が(ある|あり)|「N」が((クライマックス|CX|ＣＸ)置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
+def family(text, markers=""):
+    # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
+    # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
+    if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
     for k, v in KW.items():
         if k in text: return v
     for name, pat in FAMPAT:
@@ -213,8 +215,8 @@ class CostModel:
 
     # taxonomy passthroughs (so callers can use the model object as the one entry point)
     @staticmethod
-    def family(text): return family(text)
-    def is_cxc(self, sig): return family(self.variant_text[sig][1]) == "CX Combo"
+    def family(text, markers=""): return family(text, markers)
+    def is_cxc(self, sig): return family(self.variant_text[sig][1], self.variant_text[sig][0]) == "CX Combo"
     def is_absorber(self, sig): return self.is_cxc(sig) or sig in self.CITER_SIGS
 
     # --- the per-signature STANDARD and its evidence (the converged model's price list) ---
@@ -234,12 +236,14 @@ class CostModel:
         """cost/method/confidence/family for one ability instance (None cost if not a measurable
         Character ability). Honors the replay sig override (folded citer / zeroed replay body).
         Confidence is evidence-aware (conf_evidence over the sig's n_samples + mode_share)."""
-        sig = self.RP_SIG_OVERRIDE.get((card_number, idx), "".join(markers or "") + " :: " + gen(text or ""))
+        mk = "".join(markers or "")
+        sig = self.RP_SIG_OVERRIDE.get((card_number, idx), mk + " :: " + gen(text or ""))
         if sig in self.cost:
+            vt = self.variant_text.get(sig, (mk, gen(text or "")))
             return (self.cost[sig], self.method[sig],
                     conf_evidence(self.method[sig], self.nsamp.get(sig), self.mshare.get(sig)),
-                    family(self.variant_text.get(sig, ("", gen(text or "")))[1]))
-        return None, None, None, family(gen(text or ""))
+                    family(vt[1], vt[0]))
+        return None, None, None, family(gen(text or ""), mk)
 
     def ab_std(self, card_number, idx, markers, text):
         """standard_cost / mode_share / n_samples for one ability instance (None,None,0 if not measurable).
@@ -311,7 +315,8 @@ def build_cost_model(clean):
     cost = {}; method = {}; nsamp = {}; rng = {}
     mshare = {}   # sig -> mode_share % of the modal value among pooled MEASURED samples (only measured sigs)
 
-    def is_cxc(sig): return family(variant_text[sig][1]) == "CX Combo"
+    def fam_of(sig): return family(variant_text[sig][1], variant_text[sig][0])   # text + markers (honors 【CXコンボ】)
+    def is_cxc(sig): return fam_of(sig) == "CX Combo"
     # A residual ABSORBER soaks a card's leftover delta (delta - sum(others)) instead of being
     # measured/estimated in isolation. Two kinds: CX-combo sigs (gated + pay-to-assemble, hardest to
     # measure directly) AND replay CITER sigs (they carry the folded replay body, counted once on the
@@ -340,7 +345,7 @@ def build_cost_model(clean):
         mode, share, n = mode500_share(samples)
         cost[sig] = mode; method[sig] = "measured"; nsamp[sig] = n; rng[sig] = (min(samples), max(samples)); mshare[sig] = share
     # families that may legitimately cost NEGATIVE (drawbacks) = those seen negative in MEASURED data
-    neg_fams = {family(variant_text[s][1]) for s, c in cost.items() if c < 0}
+    neg_fams = {fam_of(s) for s, c in cost.items() if c < 0}
     multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in char_cards if len(sg) > 1]
     # STEP 2 NON-absorber residual: solve the lone unknown ONLY when it is NOT an absorber sig (CXC or
     # citer). A still-unknown absorber keeps its card "unresolved" here -> deferred to step 3b.
@@ -356,7 +361,7 @@ def build_cost_model(clean):
             val = mode500(samples)
             # a beneficial ability can't be a drawback: a negative residual means the seeds over-counted
             # -> reject it, let step 3 estimate a sane positive.
-            if val < 0 and family(variant_text[sig][1]) not in neg_fams: continue
+            if val < 0 and fam_of(sig) not in neg_fams: continue
             cost[sig] = val; method[sig] = "residual"; nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
         if new == 0: break
     # checkpoint validation: measured+residual only (estimated/unresolved excluded), same basis as before.
@@ -368,11 +373,11 @@ def build_cost_model(clean):
     fam_known = collections.defaultdict(list)
     for sig, cst in cost.items():
         if sig in replay_sigs or sig in noop_sigs: continue   # structural 0s are not effect costs -> don't bias family medians
-        if not is_absorber(sig): fam_known[family(variant_text[sig][1])].append(cst)
+        if not is_absorber(sig): fam_known[fam_of(sig)].append(cst)
     fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
     for sig in ALLV:
         if sig in cost or is_absorber(sig): continue
-        cost[sig] = fam_med.get(family(variant_text[sig][1]), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+        cost[sig] = fam_med.get(fam_of(sig), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
     # STEP 3b absorber residual ABSORBER: with all non-absorber sigs known, derive each CXC / citer sig
     # from the cards where it is now the lone unknown -> absorber = delta - sum(others). CXC floored at
     # >= 500; a citer floored at >= 0 (the folded replay body never gives power back to the card).
@@ -395,7 +400,7 @@ def build_cost_model(clean):
     fam_med["CX Combo"] = cxc_med
     for sig in ALLV:
         if sig in cost: continue
-        base = cxc_med if is_cxc(sig) else fam_med.get(family(variant_text[sig][1]), 500)
+        base = cxc_med if is_cxc(sig) else fam_med.get(fam_of(sig), 500)
         cost[sig] = base; method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
     # enforce the CXC floor on EVERY CX-combo sig (incl. a single-ability measured combo below 500)
     for sig in ALLV:
