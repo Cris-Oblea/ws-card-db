@@ -126,10 +126,11 @@ ONREV_PAT = [
 # family never converges). Requires the CHOOSING (…のうち…選 / 次の効果から…選), so a "do both" bundle
 # (次の2つの効果を…行う) is deliberately NOT a modal.
 MODAL_PAT = re.compile(r"(次の[\dＸ０-９]+つの効果のうち|次の効果から)[^。]{0,16}選")
-# Grant = give an ability to a character (次の能力を与える / 『…』を与える / の能力を得). Detected EARLY, like
-# Modal, because the GRANTED ability's text (a look-deck, a heal, "cannot move"…) must NOT decide the family.
-# Avoids matching "ダメージを与える" — it requires "能力を" or "』を" before 与え.
-GRANT_PAT = re.compile(r"(能力|』)を与え|の能力を得")
+# Grant = someone GAINS an auto/cont/act ability (give OR gain): 次の能力を与える / 『…』を与える / 能力を得る /
+# 『…』を得る. Detected EARLY, like Modal, because the GRANTED ability's text (a look-deck, a heal, an encore,
+# "cannot move"…) must NOT decide the family. Requires "能力を" or "』を" before 与え/得, so it does NOT match
+# "ダメージを与える" (deal damage) nor "『…』を持つ" (HAS the ability — that's a condition, e.g. an Assist target).
+GRANT_PAT = re.compile(r"(能力を|』を)(与え|得)")
 def family(text, markers=""):
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
