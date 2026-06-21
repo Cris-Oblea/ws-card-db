@@ -109,6 +109,13 @@ def ability_type(markers):
     if "起" in m: return "ACT"
     return "OTHER"
 
+# A NO-OP ability: an AUTO/CONT/ACT whose WHOLE effect is just declaring/saying a quote ("…と宣言してよい")
+# with no game action — no resource, no opponent interaction, no power change. It costs 0 (a structural
+# zero, like a replay body, but a SEPARATE category). The declaration must be the LAST clause ($), so a
+# card that declares THEN does something real (e.g. then both players search) is NOT matched.
+NOOP_PAT = re.compile(r"[「『][^」』]*[」』]と(宣言し|言っ)て(も)?よい[。\s]*$")
+def is_noop(text): return bool(NOOP_PAT.search(text or ""))
+
 # ---------------- EN-side cost math (for English-EXCLUSIVE WX/SX cards) ----------------
 # Same methodology as JP, applied over the ENGLISH ability text. The caller owns the EN-card iteration
 # and dedup; this module owns the cost MATH (gen_en, en_family, and en_cost_model below).
@@ -159,7 +166,7 @@ def _rp_find_citer(rtext, abs_, ri):
 # Method -> base confidence. Kept as a plain dict so the Excel builder (build_official_list.py) can still
 # subscript CONF[method] for its method-based label. The DB uses conf_evidence() below, which UPGRADES a
 # measured sig to HIGH only when its standard has real evidence (n>=3 AND mode_share>=60).
-CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "replay-body": "HIGH"}
+CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "replay-body": "HIGH", "noop": "HIGH"}
 # Evidence thresholds for the DB confidence remap (see conf_evidence()).
 CONF_MIN_N = 3        # a HIGH standard needs at least this many pooled measured samples
 CONF_MIN_SHARE = 60   # ...AND the modal value must take at least this % of them
@@ -171,7 +178,7 @@ def conf_evidence(method, n_samples, mode_share):
       MEDIUM    = 'residual', OR 'measured' with weaker n / mode_share
       LOW       = 'estimated' (sparse, no reliable mode)
     n_samples / mode_share may be None (residual/estimated sigs carry no pooled measured mode)."""
-    if method == "replay-body":
+    if method in ("replay-body", "noop"):
         return "HIGH"
     if method == "measured":
         if (n_samples or 0) >= CONF_MIN_N and (mode_share or 0) >= CONF_MIN_SHARE:
@@ -280,6 +287,7 @@ def build_cost_model(clean):
     variant_occ = collections.defaultdict(list)   # sig -> [(card, idx, markers, text)]
     iso = collections.defaultdict(list)           # sig -> [isolated single-ability delta...]  (one pool, all years)
     variant_text = {}                              # sig -> (markers, gen_text)
+    noop_sigs = set()                              # sigs whose whole effect is a no-op declaration -> cost 0
     char_cards = []                                # (card_number, delta, [sig...], era)  -- era kept as metadata only
     for c in clean:
         if c["type"] != "Character" or c["excluded"]: continue
@@ -293,6 +301,7 @@ def build_cost_model(clean):
             sigs.append(sig)
             variant_occ[sig].append((c["card_number"], i, mk, a.get("text", "")))
             variant_text.setdefault(sig, (mk, sig.split(" :: ", 1)[1]))   # gen text from the sig (folded for citers)
+            if is_noop(a.get("text", "")): noop_sigs.add(sig)             # "declare 『X』" and nothing else -> 0
         delta = pb(c) - c["power"]
         char_cards.append((c["card_number"], delta, sigs, None))
         if len(ab) == 1:
@@ -315,6 +324,11 @@ def build_cost_model(clean):
     for sig in replay_sigs:
         if sig in ALLV:
             cost[sig] = 0; method[sig] = "replay-body"; nsamp[sig] = 0; rng[sig] = (0, 0)
+    # STEP 0b no-op declares -> 0. An ability whose whole effect is "declare 『X』" does nothing (no
+    # resource / no opponent interaction / no power) -> structural 0 (method "noop", HIGH confidence).
+    for sig in noop_sigs:
+        if sig in ALLV and sig not in cost:
+            cost[sig] = 0; method[sig] = "noop"; nsamp[sig] = 0; rng[sig] = (0, 0)
     # STEP 1 measured -- single-ability cards, mode over ALL years (no era split).
     for sig, samples in iso.items():
         if sig in cost: continue                       # a zeroed replay body is already fixed at 0
@@ -353,7 +367,7 @@ def build_cost_model(clean):
     # unknown left on an absorber card is its CXC / citer sig (step 3b then absorbs it from the delta).
     fam_known = collections.defaultdict(list)
     for sig, cst in cost.items():
-        if sig in replay_sigs: continue   # structural 0s are not effect costs -> don't bias family medians
+        if sig in replay_sigs or sig in noop_sigs: continue   # structural 0s are not effect costs -> don't bias family medians
         if not is_absorber(sig): fam_known[family(variant_text[sig][1])].append(cst)
     fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
     for sig in ALLV:
