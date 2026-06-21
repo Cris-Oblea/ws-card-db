@@ -49,6 +49,13 @@ def ra(c):   # real abilities = non-empty rows; drop dash placeholders AND marke
     return out
 def base_num(cn):  # strip rarity/parallel suffix: DAL/W99-001SP -> DAL/W99-001 (same card, only art differs)
     return re.sub(r"(\d)[A-Za-z]+$", r"\1", cn or "")
+# Reliability of a card as a COST-MEASUREMENT source. Only A-suffix demo / learn-to-play prints (e.g.
+# LSS/WE27-A16) use intentionally "closed" (under-curve) stats, so their delta must NOT seed the standard
+# (they're still costed & shown — just not measured FROM). Everything else is trustworthy: all P promos
+# (mostly on-budget) and every alt-art parallel (SR/RRR/N/SP/SSP/SEC/RE/... = same card, different art,
+# identical stats). (User's rule.)
+def reliable(c):
+    return not re.match(r"^A\d", (c.get("card_number", "") or "").rsplit("-", 1)[-1])
 ZT = str.maketrans("０１２３４５６７８９＋－", "0123456789+-")
 TRAIT = re.compile(r"《[^》]*》"); NAME = re.compile(r"「[^」]*」")
 def gen(t):
@@ -323,7 +330,7 @@ def build_cost_model(clean):
             if is_noop(a.get("text", "")): noop_sigs.add(sig)             # "declare 『X』" and nothing else -> 0
         delta = pb(c) - c["power"]
         char_cards.append((c["card_number"], delta, sigs, None))
-        if len(ab) == 1:
+        if len(ab) == 1 and reliable(c):      # only normal prints seed the measured standard (no demo A-prints)
             iso[sigs[0]].append(delta)
 
     ALLV = set(variant_occ)
