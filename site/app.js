@@ -15,6 +15,11 @@ let NEO_MAP = {};   // lowercased neo name (EN or JP) -> array of its set codes 
 
 const escHtml = s => (s == null ? "" : String(s).replace(/[&<>"]/g,
   c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])));
+// accent/case-insensitive search key: NFKD splits accents into base + combining mark; we drop the
+// Latin combining marks (U+0300-036F) and lowercase. Japanese is preserved (dakuten U+3099/309A are
+// outside that range). Mirrors fold() in build_db.py.
+const fold = s => [...(s == null ? "" : String(s)).normalize("NFKD")]
+  .filter(ch => ch.charCodeAt(0) < 0x300 || ch.charCodeAt(0) > 0x36f).join("").toLowerCase();
 
 function query(sql, params) {
   const stmt = db.prepare(sql);
@@ -29,7 +34,7 @@ async function boot() {
   try {
     const [SQL, gz] = await Promise.all([
       initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
-      fetch("ws.sqlite.gz?v=25ef5da370").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+      fetch("ws.sqlite.gz?v=a6536379e8").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
     ]);
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));
@@ -124,9 +129,10 @@ function buildWhere() {
   const q = $("#q").value.trim();
   if (q) {
     const like = "%" + q + "%";
-    w.push(`(name LIKE ? OR name_en LIKE ? OR neo_titles LIKE ? OR card_number LIKE ?
+    const flike = "%" + fold(q) + "%";   // accent- & case-insensitive: "deja vu" matches "Déjà Vu"
+    w.push(`(search_fold LIKE ?
             OR card_number IN (SELECT card_number FROM abilities WHERE en_text LIKE ? OR jp_text LIKE ?))`);
-    p.push(like, like, like, like, like, like);
+    p.push(flike, like, like);
   }
   inClause("type", multi("#f-type"));
   inClause("color", multi("#f-color"));
