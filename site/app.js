@@ -196,11 +196,15 @@ function run(reset) {
       <td>${r.color ? dot(r.color) + escHtml(r.color) : ""}</td>
       <td>${r.level == null ? "" : r.level}</td><td>${r.cost == null ? "" : r.cost}</td>
       <td>${r.power == null ? "" : r.power}</td><td>${r.soul == null ? "" : r.soul}</td>
-      <td class="cost-cell">${r.model_cost_total == null ? "—" : "−" + r.model_cost_total}</td>
+      <td class="cost-cell">${fmtCost(r.model_cost_total)}</td>
     </tr>`).join("");
   $("#results tbody").querySelectorAll("tr").forEach(tr =>
     tr.addEventListener("click", () => showDetail(tr.dataset.cn)));
 }
+
+// Resolve the sign of a power cost for display. Positive cost = power PAID (shown −N);
+// negative cost = a DRAWBACK that gives power back (shown +N, sign resolved — never "−−N"); 0 = "0".
+function fmtCost(v) { return v == null ? "—" : v < 0 ? "+" + (-v) : v > 0 ? "−" + v : "0"; }
 
 // ---- detail ----
 function showDetail(cn) {
@@ -223,8 +227,8 @@ function showDetail(cn) {
     budget = `<div class="budget">
       ${c.is_suspect ? `<span class="badge-suspect" title="|residual| ≥ 500: spent off the standard rate">SUSPECT</span> ` : ""}
       Vanilla <b>power_base ${c.power_base}</b>
-      → effects actually spend <b>−${c.real_delta}</b> → printed power ${c.power}.<br>
-      Of that, <b>−${c.model_cost_total || 0}</b> is explained by standard effect costs;
+      → effects actually spend <b>${fmtCost(c.real_delta)}</b> → printed power ${c.power}.<br>
+      Of that, <b>${fmtCost(c.model_cost_total || 0)}</b> is explained by standard effect costs;
       the rest is the designer's adjustment → <b class="residual">residual ${sgn}${residual}</b>.<br>${verdict}</div>`;
   } else {
     budget = `<div class="budget"><span class="na">The power-cost model applies to Characters only.</span></div>`;
@@ -249,7 +253,7 @@ function showDetail(cn) {
         <span><span class="ab-type">${escHtml(a.ability_type)}</span>
           <span class="fam">${escHtml(a.family || "")}</span></span>
         <span class="ab-cost"${evTitle}>${std == null ? '<span class="na">n/a</span>'
-          : "−" + std}${a.confidence ? `<span class="conf ${a.confidence}">${a.confidence}</span>` : ""}</span>
+          : fmtCost(std)}${a.confidence ? `<span class="conf ${a.confidence}">${a.confidence}</span>` : ""}</span>
       </div>
       ${ev.length ? `<div class="ab-evidence">standard cost · ${escHtml(ev.join(" · "))}</div>` : ""}
       <div class="txt">${escHtml(a.en_text || "") || '<span class="na">(no English text)</span>'}</div>
