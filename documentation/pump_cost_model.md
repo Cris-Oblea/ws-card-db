@@ -9,8 +9,15 @@
 ## The formula
 
 ```
-ability_cost = floor500( base_effect × n_triggers × (1/2)^(temporal + Σ conditions) × Π payment_factor )
+ability_cost = floor500( base_effect × Σ_triggers(trigger_difficulty) × (1/2)^(temporal + Σ conditions) )
 ```
+
+- `base_effect` = the **NET advantage** of the effect (card-flow / tempo gain), not the raw action.
+- `Σ_triggers(trigger_difficulty)` = sum over the ability's activation timings of each timing's difficulty
+  factor: **easy = 1, hard = ½**. One easy trigger ⇒ ×1; two easy ⇒ ×2; one hard ⇒ ×½ (unifies the trigger
+  COUNT and the trigger DIFFICULTY into one term).
+- **Payment (`［…］`) is NOT a factor** — it is an interchangeable resource channel (see below), so it is gone
+  from the formula.
 
 Two levels, do not mix them:
 - **Within one ability:** modifiers are **multiplicative** (the rule below).
@@ -20,22 +27,37 @@ Two levels, do not mix them:
 
 ## Component rules
 
-### base_effect
+### base_effect — the NET advantage
+The base is the effect's **net** value (card advantage / tempo), NOT the raw verb.
+- A salvage that nets **+1** card (recover, no hand-discard) ≈ **1000**.
+- A salvage that nets **0** (recover 1 but also discard 1 from hand — `-1 +1 = 0`, no plus) ≈ **500** — HALF
+  of net+1. It still has selection value (dump a dead card, take a live one), so it is 500, not 0.
 - **Power Pump (self):** the printed power number `N` (a `+4000` pump has base 4000). This is what makes
-  the family ideal for validating the model — base is readable, not estimated.
-- **Other families:** an effect-specific base (e.g. a "look 2 and reorder" ≈ 1000; a trait-search to hand
-  ≈ 500). Cross-family note from the owner: **Power Debuff (remove the opponent's power) has a higher base
-  than Power Pump (self)** — debuffing the opponent is dearer than pumping yourself.
+  the family ideal for validating the model — base is readable.
+- **Search (to hand):** ~1000.  Cross-family note from the owner: **Power Debuff (remove the opponent's
+  power) base > Power Pump (self) base.**
+- **Flexibility shifts the base.** A salvage restricted to a `《trait》` character is worth LESS than an
+  unrestricted "recover any card" salvage. Designers balance this against riders: `T27` (trait-locked
+  salvage **+** a pump) ≈ `5HY/W90-024` (no-trait-lock salvage, no pump) — the trait-lock restriction funds
+  the pump.
+- **A small RIDER does not add cost** (within one ability). `PD/S22-055` = `［1 stock + discard 1］ on-enter,
+  recover 1` (net-0, NO rider) measures **500**; `PJS/S91-T34` = the SAME net-0 salvage **plus** a `+1000
+  (turn)` pump rider also measures **500**. The rider (a new-era addition) is folded in for free.
 
-### n_triggers — a MULTIPLIER, not a discount
-Every ability needs an activation timing; the *base* trigger is free (without one it could never fire —
-the same logic as "a pump with no condition is a pointless no-op"). What costs is having **more than one**:
-- **AUTO (`【自】`):** one or more event triggers (`…時`). Each extra trigger lets the effect fire again in
-  the turn, so **k triggers ⇒ ×k**.
-- **CONT (`【永】`):** always-on; `n_triggers = 1`.
-- **ACT (`【起】`):** no event trigger — activated in the main phase by paying its cost/requirement.
-- **Evidence (measured, HIGH):** `DAL/W131-039` — a trait-search-to-hand (base 500) with **two** triggers
-  ("when placed from hand" OR "when it attacks") measures `500 × 2 = 1000`.
+### triggers — Σ of per-trigger DIFFICULTY (count × difficulty in one term)
+Every AUTO/CONT needs ≥1 activation timing (the base trigger is free — without one it could never fire,
+same logic as "a pump with no condition is a no-op"). The trigger term is the **sum over all triggers of
+each one's difficulty**:
+- **easy = ×1** (reliable timings: on-enter `手札から舞台に置かれた時`, on-attack `アタックした時`, on-play).
+- **hard = ×½** (conditional timings: on-reverse `【リバース】した時`, on-leave `舞台から控え室に置かれた時`,
+  when-sent-to-waiting-room).
+- **count adds up:** two easy triggers ⇒ ×2.
+- **ACT (`【起】`):** no event trigger — activated in the main phase by paying its cost.
+- **Evidence (all measured):**
+  - `DAL/W131-039` — search (500) with TWO easy triggers (on-enter OR on-attack) = `500 × (1+1) = 1000`.
+  - `IMC/W41-T23` vs `BD/W54-P17` — IDENTICAL salvage+1 paying `［2 stock］`, differing ONLY in trigger:
+    on-enter (easy) = **1000**, on-leave (hard) = **500**. Clean ÷2 for trigger difficulty.
+  - 2×2 over all salvage sigs: net+1 / easy = **1000** (n=137), net+1 / hard = **500** (n=67).
 
 ### temporal duration — ÷2
 A pump limited to a turn window — `あなたのターン中` / `そのターン中` / `次の…ターンの終わりまで` — is worth half
@@ -61,19 +83,16 @@ worse than round-nearest in reproduction (49.7% vs 53.8% exact). This is unresol
 choice is masked by modifier-detection errors — it can't be validated until `k` is parsed reliably.
 
 ## Open questions (need DATA investigation — the owner cannot specify these from design)
-1. **Payment factors (`［…］` leading activation-cost bracket) — INVESTIGATED 2026-06-21, NOT separable.**
-   The bracket is a large, open-ended family of costs (the owner stresses there are MANY, only some named):
-   pay stock, discard card(s) (generic vs `《trait》`-restricted vs named), sacrifice / send other characters
-   (to waiting room / clock / memory), take damage, rest this card, **send THIS card to the waiting room**,
-   **move a waiting-room card to the BOTTOM OF YOUR OWN CLOCK** (`控え室→自分のクロックの下`), return a card,
-   etc. **Matched-pairs result:** the clean test (same effect body, FREE vs exactly one payment) yields
-   ~ZERO pairs — designers do not print the same effect both free and paid; a paid version almost always
-   does MORE, so the payment buys a STRONGER effect, it is not a discount on a fixed one. The looser test
-   (add one payment to an already-paid body, n=349 pairs) shows a **MODE of 0** change (only `rest_self`
-   moved, +500, likely confounded). **Conclusion: payment cannot be isolated as a multiplicative factor
-   from this data, and the owner cannot specify it a priori either.** Payment stays BAKED INTO the
-   measured/residual signature (the package is costed whole) and is NOT applied as a separate estimation
-   factor. The many cost types only fragment the data further, making isolation harder, not easier.
+1. ~~Payment factors~~ **— RESOLVED 2026-06-21: payment is NOT a budget factor.** The `［…］` activation
+   bracket and the card's own COST/level are **interchangeable resource channels paid OUTSIDE the power
+   budget**. Clean evidence: `T27` (L3 / cost-2, salvage+1 on-enter, **FREE**) = `IMC/W41-T23` (L0 / cost-0,
+   same salvage+1 on-enter, **pays 2 stock**) = **1000** — a cost-0 card pays 2 stock to do what an L3
+   does free; same effect + trigger ⇒ same budget. A STOCK / rest / sacrifice payment does not change the
+   net card-flow, so it does not move the budget. The ONLY "payment" that moves the budget is a **hand
+   discard**, and it acts via the **net-advantage base** (it cancels card gain: a +1 salvage that discards
+   1 becomes net-0 ⇒ base 1000 → 500), not as a separate payment factor. So payment is dropped from the
+   formula entirely. (This supersedes the earlier "not separable" matched-pairs reading — it is not
+   unmeasurable, it is genuinely not a power-budget axis.)
 2. **"Hard" condition strength:** very restrictive gates (`ストック7枚以上`, opponent-relative) showed ~×0.25
    in the data, i.e. possibly a stronger discount than the standard ×0.5 — unconfirmed.
 3. **Cross-family bases:** quantify the family base values (Power Debuff > Power Pump self, etc.).
