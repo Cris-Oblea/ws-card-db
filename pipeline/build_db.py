@@ -9,7 +9,7 @@
 # NOTE: the per-ability cost MATH lives in cost_model.py (the single source, shared with
 # build_official_list.py). This file owns only the SQLite I/O around it: schema/emit, the EN matching /
 # exclusion machinery, gzip + cache-bust. The model is WIP; when it improves, re-run this to regen the DB.
-import json, os, re, sqlite3, collections
+import json, os, re, sqlite3, collections, html
 from cost_model import (_nk, pb, ra, base_num, gen, r500, mode500, family, ability_type,
                         gen_en, en_family, build_cost_model, en_cost_model, ENCONF)
 
@@ -100,6 +100,21 @@ EN_BLOCK_CARD  = {"BD/W63-102", "BD/W63-103", "BD/W63-104",   # confirmed permut
                   "NK/W30-002", "NK/W30-026", "NK/W30-052", "NK/W30-076"}   # Nisekoi regional variants (JP/EN same code, DIFFERENT effect)
 # Manual name overrides: the JP side of the NK/W30 regional variants (乙女心 = "Maiden's Heart") whose
 # same-code EN printing is a DIFFERENT card ("The One"); that EN printing is added as its own row below.
+# --- upstream scrape corruption fixes (applied to DISPLAYED names) -------------------------------
+# Two classes: (1) un-decoded HTML entities (&clubs; &hearts; &#9829; ...) -> html.unescape;
+# (2) characters lost to a literal "?" in the source (irrecoverable upstream) -> targeted replace.
+# The "?" patterns are specific enough to never hit a genuine question mark.
+# NOTE: BD/WE42 "Mas?uerade Rhapsody Re?uest" is INTENTIONAL stylization in the official name
+# (the "?" is part of the title, per user) — NOT corruption, so it is deliberately NOT repaired here.
+_NAME_REPL = [("Fr?ulein", "Fräulein"), ("Stra?e", "Straße"),          # ä / ß lost to "?" upstream
+              ("D?j? Vu", "Déjà Vu"), ("Clover?Club", "Clover♣Club")]  # é/à / ♣ lost
+def fix_name(s):
+    if not s: return s
+    s = html.unescape(s)                       # &clubs; -> ♣, &hearts;/&#9829; -> ♥, &#9825; -> ♡
+    for bad, good in _NAME_REPL:
+        if bad in s: s = s.replace(bad, good)
+    return s
+
 NAME_OVERRIDE = {
     "NK/W30-002": "Maiden's Heart, Chitoge", "NK/W30-026": "Maiden's Heart, Seishiro",
     "NK/W30-052": "Maiden's Heart, Marika",  "NK/W30-076": "Maiden's Heart, Kosaki",
@@ -291,6 +306,7 @@ for c in clean:
         name_en = NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn))
     if not name_en:                                              # HotC + LLM names: JP-aligned, CORRECT even for blocked legacy
         name_en = NAME_HOTC.get(_nk(c.get("name"))) or NAME_TR.get(c.get("name"))
+    name_en = fix_name(name_en)                                  # decode HTML entities + repair "?"-corrupted source names
     # traits in EN (aligned dict -> agent translation) + a hidden title-search blob (JP + EN franchise)
     traits_en = " / ".join([x for x in ((TRAIT_EN.get(t) or TRAIT_TR.get(t)) for t in (c.get("traits") or [])) if x])
     neos = c.get("neo_titles") or []
@@ -304,7 +320,7 @@ for c in clean:
     side = fix.get("side") or SIDE_FIX.get((c.get("series") or "").upper(), c.get("side"))
     color = fix.get("color", c.get("color"))
     crows.append((
-        cn, base_num(cn), c.get("series"), c.get("name"), name_en, c.get("name_kana"),
+        cn, base_num(cn), c.get("series"), fix_name(c.get("name")), name_en, c.get("name_kana"),
         join(c.get("neo_titles")), c.get("type"), color, c.get("level"), c.get("cost"),
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
         c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
@@ -378,7 +394,7 @@ for c in ex_cards:
     residual = (c["delta"] - model_total) if (c["delta"] is not None and have) else None
     is_suspect = 1 if (residual is not None and abs(residual) >= 500) else 0
     crows.append((
-        code, base_num(code), c["series"], e.get("name"), e.get("name"), "", title, e.get("type"),
+        code, base_num(code), c["series"], fix_name(e.get("name")), fix_name(e.get("name")), "", title, e.get("type"),
         (e.get("color") or "").lower(), c["lv"], c["co"], c["pw"], c["so"], " / ".join(c["trig"]),
         " / ".join(c["attrs"]), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
         None, 0, None, c["pbase"], (c["pbase"] - 500 if c["pbase"] is not None else None),
@@ -420,7 +436,7 @@ for code in NK_VARIANTS:
     residual = (delta - model_total) if (delta is not None and have) else None
     is_suspect = 1 if (residual is not None and abs(residual) >= 500) else 0
     crows.append((
-        code, base_num(code), "NK", e.get("name"), e.get("name"), "", _nkneo, e.get("type"),
+        code, base_num(code), "NK", fix_name(e.get("name")), fix_name(e.get("name")), "", _nkneo, e.get("type"),
         (e.get("color") or "").lower(), lv, co, pw, so, " / ".join(trig),
         " / ".join(attrs), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
         None, 0, None, pbase, (pbase - 500 if pbase is not None else None),
