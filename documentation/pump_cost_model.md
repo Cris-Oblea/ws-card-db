@@ -88,12 +88,24 @@ choice is masked by modifier-detection errors — it can't be validated until `k
    bracket and the card's own COST/level are **interchangeable resource channels paid OUTSIDE the power
    budget**. Clean evidence: `T27` (L3 / cost-2, salvage+1 on-enter, **FREE**) = `IMC/W41-T23` (L0 / cost-0,
    same salvage+1 on-enter, **pays 2 stock**) = **1000** — a cost-0 card pays 2 stock to do what an L3
-   does free; same effect + trigger ⇒ same budget. A STOCK / rest / sacrifice payment does not change the
-   net card-flow, so it does not move the budget. The ONLY "payment" that moves the budget is a **hand
-   discard**, and it acts via the **net-advantage base** (it cancels card gain: a +1 salvage that discards
-   1 becomes net-0 ⇒ base 1000 → 500), not as a separate payment factor. So payment is dropped from the
-   formula entirely. (This supersedes the earlier "not separable" matched-pairs reading — it is not
-   unmeasurable, it is genuinely not a power-budget axis.)
+   does free; same effect + trigger ⇒ same budget. A **NEUTRAL** payment (pay stock, rest, the card's own
+   cost) is just fuel — it does not change your net position, so it does not move the budget.
+   - But a **REAL-LOSS** payment DOES move the budget, because it lowers your net position — and it does so
+     via the **net-advantage base**, not as a separate factor. Real losses: **hand discard** (−1 card),
+     **self-damage to clock** (deck-top→clock, waiting-room→bottom-of-clock; −life), **sacrifice your own
+     stage character** (−board). Evidence (pure-recover salvages, easy trigger): FREE = **1000**, but paying
+     **self-damage to clock = 500** (÷2), the same drop a discard gives.
+   - **Caveat — net advantage is by VALUE, not card COUNT.** A discard-1-recover-1 that UPGRADES quality
+     (dump a dead climax, take a key character) is still ~1000, while pure cycling is ~500. So real-loss
+     payments are NOT a clean fixed per-type factor; they fold into the net-advantage base, whose magnitude
+     depends on the value swing. (This refines — and partly reopens — the earlier "payment not a factor": the
+     truth is *neutral* payments are not a factor, *loss* payments enter via net advantage, value-weighted.)
+   - The cost-type list is large and open-ended: `discard_hand(N)`, `rest(self)` / `rest(N)` (resting your
+     own characters — owner confirms it moves the budget), `deck_to_clock`, `wr_to_clock`, `sac_other_char`,
+     `self_to_clock` / `self_to_memory` / `self_to_wr`, `return_self`, trait/named-restricted variants of
+     each, etc. **Method note (owner):** to measure a cost's effect you must read the **complete effect in
+     context with its cost**, never the `［…］` bracket in isolation; and a **negative/drawback** effect is
+     not usable as a measurement sample. The per-type magnitudes remain UNRESOLVED (thin, value-entangled).
 2. **"Hard" condition strength:** very restrictive gates (`ストック7枚以上`, opponent-relative) showed ~×0.25
    in the data, i.e. possibly a stronger discount than the standard ×0.5 — unconfirmed.
 3. **Cross-family bases:** quantify the family base values (Power Debuff > Power Pump self, etc.).
@@ -112,8 +124,15 @@ modeling variant tried (trigger-as-discount, trigger-as-multiplier, round-neares
 at **~54% exact / ~84% within ±500**. The residual ~16% is largely **irreducible from text parsing**:
 condition-strength variation, per-card designer adjustments, and the genuinely-split half-step rounding.
 
-## Implications for wiring (deferred decision)
-- Apply ONLY to `estimated` (LOW-confidence) sigs; never touch measured/residual (they already encode this).
-- Highest-precision first: fire the multiplicative estimator where parsing is reliable (clean self-pumps
-  with a readable `N` and detectable modifiers); fall back to the flat family median elsewhere.
-- Pair with **golden-cost overrides** for the cards the formula can't nail (the irreducible tail).
+## Wiring status — PARTIAL cabling done (2026-06-21)
+- **CABLED: Power Pump (self).** `cost_model.py` step 3d (`pump_self_estimate`) overrides the flat
+  family-median ESTIMATE of self-pump sigs with `base N × (1/2)^(temporal + #conditions)`, floored at 500.
+  Estimated-only — measured/residual untouched. Result: the 484 estimated self-pumps now scale with `N`
+  (e.g. `+10000 if hand ≤1` = 5000 instead of the old flat 500) instead of all sitting at 500. Gates held:
+  validation 99%, Explained% 95.5% (≥94), suspects +14 (negligible).
+- **NOT cabled: the net-advantage families** (salvage / search / bounce / debuff / …). Their base is the
+  effect's net VALUE (card-flow / tempo), which the text parser cannot read reliably (it would need to
+  understand card advantage, trait-lock, riders, real-loss payments). They keep the flat family-median
+  estimate for now. Trigger-difficulty (easy ×1 / hard ×½) is also not yet wired.
+- **Next levers** when resumed: golden-cost overrides for cards the formula can't nail; pin the OPEN items
+  (hard-condition strength, rounding direction, per-cost-type magnitudes) before cabling more families.

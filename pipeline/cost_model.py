@@ -253,6 +253,28 @@ def conf_evidence(method, n_samples, mode_share):
 
 CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
 
+# ---- partial cabling: Power Pump (self) multiplicative estimate (see documentation/pump_cost_model.md) ----
+# For an ESTIMATED self-pump sig, replace the flat family-median GUESS (which ignores N entirely — it gives a
+# +500 and a +8000 pump the same value) with the owner's multiplicative model: base N x (1/2)^(temporal +
+# #conditions). base = the printed +N (text-readable); a permanent unconditional pump keeps full N; "during
+# your turn" and each なら/場合 gate halve it. Only THIS family is cabled (its base is readable); the
+# net-advantage families (salvage/search/…) need card-flow understanding the parser does not have. Beats the
+# flat median on the MEASURED pumps (84% vs 75% within +/-500), and only touches estimated (LOW) sigs.
+_PUMP_SELF_N = re.compile(r"このカードのパワーを[＋+](\d+)")
+_PUMP_TEMP   = re.compile(r"ターン中|ターンの終わりまで|そのターン")
+_PUMP_COND   = re.compile(r"なら|場合|いれば")
+_PUMP_SCALE  = re.compile(r"につき|枚数")
+def pump_self_estimate(gen_text):
+    """Multiplicative estimate for a Power Pump (self) gen sig; None if N is unreadable or the pump SCALES
+    per-unit (base is not a flat N). Floored at 500 (a real pump effect costs at least 500)."""
+    if _PUMP_SCALE.search(gen_text): return None
+    mt = _PUMP_SELF_N.search(gen_text)
+    if not mt: return None
+    n = int(mt.group(1))
+    if n <= 0: return None
+    k = (1 if _PUMP_TEMP.search(gen_text) else 0) + len(_PUMP_COND.findall(gen_text))
+    return max(500, r500(n * (0.5 ** k)))
+
 
 class CostModel:
     """Result of build_cost_model(clean). Holds the per-signature cost cascade and the lookups both
@@ -484,6 +506,13 @@ def build_cost_model(clean):
         if sig in cost: continue
         base = cxc_med if is_cxc(sig) else fam_med.get(fam_of(sig), 500)
         cost[sig] = base; method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+    # STEP 3d partial cabling: override the flat-median ESTIMATE of Power Pump (self) sigs with the
+    # multiplicative model (estimated-only; measured/residual untouched). Stays method "estimated" (LOW) —
+    # still a guess, just an N-scaled one instead of a flat family median.
+    for sig in ALLV:
+        if method.get(sig) != "estimated" or fam_of(sig) != "Power Pump (self)": continue
+        est = pump_self_estimate(variant_text[sig][1])
+        if est is not None: cost[sig] = est
     # enforce the CXC floor on EVERY CX-combo sig (incl. a single-ability measured combo below 500)
     for sig in ALLV:
         if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
