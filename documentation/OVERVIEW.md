@@ -8,11 +8,15 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 ## How it works (the flow)
 1. **Harvest** (`pipeline/ingest/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
 2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (63,350 JP cards, UTF-8 NFKC).
-3. **Date** (`date_sets.py` → `set_dates.json`): assigns `release_year` and `era` per set (legacy <2017 / modern ≥2017). `build_card_era.py` then projects that onto each card → `card_era.json` (era buckets configurable). Power-creep matters.
-4. **Cost model** (in the `build_*.py`), three confidence levels:
-   - **HIGH (measured):** derived from the card's real power vs its base.
-   - **MEDIUM (residual):** inferred on cards with several abilities, subtracting the already-measured ones.
-   - **LOW (estimated):** model when there's no measurement.
+3. **Date** (`date_sets.py` → `set_dates.json`): assigns `release_date`/`release_year` per set; `build_card_era.py` projects a descriptive format-era label (Genesis/Bounty/Gate/Standby/Choice/Horizon, bounded by climax trigger-icon debuts) onto each card → `card_era.json`. Date/era are **metadata only — NOT a cost driver** (validated: there is no power-creep at the package level; the apparent creep was effect-mix shift + dispersion).
+4. **Cost model** (single-sourced in `pipeline/cost_model.py`, imported by both `build_*.py`):
+   - **Package = full signature** (`''.join(markers) + ' :: ' + gen(text)`). The **standard cost** of a package = the **MODE (rounded 500)** of its measured per-card actuals, pooled across ALL years (no era split). Each standard carries its evidence: **`mode_share`** (% the modal value takes) and **`n_samples`**.
+   - **Per-card residual** = real budget (`power_base − power`) **− Σ(ability standard costs)** = the designer's unexplained adjustment. A card is a **suspect** when `abs(residual) >= 500` (a cost anomaly worth review).
+   - **Confidence reflects the standard's EVIDENCE**, not just the method:
+     - **HIGH** = `measured` AND `n_samples >= 3` AND `mode_share >= 60` (a tight, well-sampled mode). Structural replay-body zeros are also HIGH.
+     - **MEDIUM** = `residual`, or `measured` with weaker n / mode-share.
+     - **LOW** = `estimated` (family median, no reliable mode).
+   - **CX-Combo / replay** keep the residual-ABSORBER cascade (CX-combo floored at ≥500; replay body folded into its citer, counted once).
    - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
 5. **Outputs:**
    - `build_official_list.py` → `Complete_Abilities_List.xlsx` (15,889 abilities; local Excel, generated on demand).
@@ -22,7 +26,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 
 ## How it was built / validation
 - Sources: official JP list (scrape) + official EN (harvest) + Bushiroad rules/manuals (`reference/`, `pipeline/sources/`).
-- **Empirical validation:** ~98% accuracy against the official list. There are NO unit tests — the oracle is the official list + audits (`cardlist_audit.json`, counts, suspects).
+- **Empirical validation:** the acceptance metric is **Explained%** = share of valid costed Character cards whose per-card residual is within ±500 (currently **94.5%**, n≈31.9k; acceptance floor 94%). It is a real out-of-sample check (per-card actual vs the package STANDARDS), unlike the older near-tautological residual-resum consistency %. There are NO unit tests — the oracle is the official list + audits (`cardlist_audit.json`, counts, suspects: ~4.2k cards flagged `is_suspect`).
 - De-dup: keeps the base rarity, discards alt-art/parallels.
 
 ## Technologies
@@ -30,7 +34,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 - **Web:** HTML5 + vanilla JS + **`sql.js`** + **`pako`** + **SQLite**.
 
 ## Key data
-- 63,350 JP cards + 18,532 EN · 15,889 distinct abilities · 74 Neo-Standard franchises · legacy/modern eras.
+- 63,350 JP cards + 18,532 EN · 15,889 distinct abilities · 74 Neo-Standard franchises · release-date metadata (trigger-debut format eras as flavor, not a cost driver).
 - `pipeline/translation_cache.json` = PERMANENT translation cache (**do not delete**).
 
 ## Status

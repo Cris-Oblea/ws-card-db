@@ -29,7 +29,7 @@ async function boot() {
   try {
     const [SQL, gz] = await Promise.all([
       initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
-      fetch("ws.sqlite.gz?v=6a20b0307e").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+      fetch("ws.sqlite.gz?v=25ef5da370").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
     ]);
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));
@@ -37,7 +37,7 @@ async function boot() {
     const meta = {};
     query("SELECT key,value FROM meta").forEach(r => { meta[r.key] = r.value; });
     status.innerHTML = `${(+meta.cards).toLocaleString()} cards · ${(+meta.abilities).toLocaleString()} abilities ` +
-      `· <span title="${escHtml(meta.note)}">cost model WIP (${escHtml(meta.validation)})</span>`;
+      `· <span title="${escHtml(meta.note)}">cost model: ${escHtml(meta.validation)}</span>`;
     initFilters();
     $("#app").hidden = false;
     run();
@@ -212,28 +212,50 @@ function showDetail(cn) {
 
   let budget = "";
   if (c.power_base != null) {
-    const gap = c.real_delta - (c.model_cost_total || 0);
-    const match = gap === 0
-      ? `<span class="ok">model reconstructs it exactly</span>`
-      : `<span class="warn">model −${c.model_cost_total || 0} vs actual −${c.real_delta} (gap ${gap > 0 ? "+" : ""}${gap}, cost model is WIP)</span>`;
+    const residual = c.residual == null ? 0 : c.residual;
+    const sgn = residual > 0 ? "+" : "";
+    // residual = what the designer spent beyond (or below) the explained standards.
+    const verdict = c.is_suspect
+      ? `<span class="warn">designer adjustment <b>${sgn}${residual}</b> — over/under the standard rate</span>`
+      : residual === 0
+        ? `<span class="ok">on-budget — every effect priced at its standard</span>`
+        : `<span class="ok">designer adjustment <b>${sgn}${residual}</b> (within ±500)</span>`;
     budget = `<div class="budget">
-      Vanilla <b>power_base ${c.power_base}</b> · budget ${c.budget}
-      · effects spend <b>−${c.real_delta}</b> of power → printed power ${c.power}.<br>${match}</div>`;
+      ${c.is_suspect ? `<span class="badge-suspect" title="|residual| ≥ 500: spent off the standard rate">SUSPECT</span> ` : ""}
+      Vanilla <b>power_base ${c.power_base}</b>
+      → effects actually spend <b>−${c.real_delta}</b> → printed power ${c.power}.<br>
+      Of that, <b>−${c.model_cost_total || 0}</b> is explained by standard effect costs;
+      the rest is the designer's adjustment → <b class="residual">residual ${sgn}${residual}</b>.<br>${verdict}</div>`;
   } else {
     budget = `<div class="budget"><span class="na">The power-cost model applies to Characters only.</span></div>`;
   }
 
-  const abHtml = abs.map(a => `
+  const abHtml = abs.map(a => {
+    // Headline = the package's STANDARD cost (what this effect "should" cost). Fall back to the
+    // card-specific power_cost when no standard was derived. Evidence (samples / mode share) goes
+    // in a tooltip on the cost.
+    const std = a.standard_cost != null ? a.standard_cost : a.power_cost;
+    // Evidence only matters when there is a measured cost; skip it for n/a (e.g. non-Character rows).
+    const ev = [];
+    if (std != null) {
+      if (a.n_samples) ev.push(`${a.n_samples} sample${a.n_samples === 1 ? "" : "s"}`);
+      if (a.mode_share != null) ev.push(`${Math.round(a.mode_share)}% mode`);
+      if (a.method) ev.push(a.method);
+    }
+    const evTitle = ev.length ? ` title="${escHtml(ev.join(" · "))}"` : "";
+    return `
     <div class="ab">
       <div class="ab-top">
         <span><span class="ab-type">${escHtml(a.ability_type)}</span>
           <span class="fam">${escHtml(a.family || "")}</span></span>
-        <span class="ab-cost">${a.power_cost == null ? '<span class="na">n/a</span>'
-          : "−" + a.power_cost}${a.confidence ? `<span class="conf ${a.confidence}">${a.confidence}</span>` : ""}</span>
+        <span class="ab-cost"${evTitle}>${std == null ? '<span class="na">n/a</span>'
+          : "−" + std}${a.confidence ? `<span class="conf ${a.confidence}">${a.confidence}</span>` : ""}</span>
       </div>
+      ${ev.length ? `<div class="ab-evidence">standard cost · ${escHtml(ev.join(" · "))}</div>` : ""}
       <div class="txt">${escHtml(a.en_text || "") || '<span class="na">(no English text)</span>'}</div>
       ${a.jp_text ? `<div class="jp">${escHtml(a.jp_text)}</div>` : ""}
-    </div>`).join("") || `<p class="na">No abilities.</p>`;
+    </div>`;
+  }).join("") || `<p class="na">No abilities.</p>`;
 
   $("#detail-body").innerHTML = `
     <div class="d-head">
@@ -247,7 +269,8 @@ function showDetail(cn) {
         <div class="statline">
           ${chip("Type", c.type)}${chip("Color", c.color)}${chip("Side", c.side)}
           ${chip("Level", c.level)}${chip("Cost", c.cost)}${chip("Power", c.power)}
-          ${chip("Soul", c.soul)}${chip("Trigger", c.trigger)}${chip("Rare", c.rare)}${chip("Era", c.era)}
+          ${chip("Soul", c.soul)}${chip("Trigger", c.trigger)}${chip("Rare", c.rare)}
+          ${chip("Released", c.release_date)}${chip("Era", c.era)}
         </div>
         <div class="statline">
           ${chip("Series", c.series)}${chip("Title", c.neo_titles)}

@@ -20,11 +20,12 @@ Read-only on inputs. Writes ONLY set_dates.json (in this folder).
 import json, re, os, unicodedata, datetime, bisect
 from collections import defaultdict, Counter
 
+from eras import ERAS, era_for_month   # 6 trigger-debut eras (single source of truth)
+
 D = os.path.dirname(os.path.abspath(__file__))
 def jload(p): return json.load(open(os.path.join(D, p), encoding="utf-8"))
 
 CLAMP = "2018-01-10"               # site-migration create_date (means "unknown, pre-2018")
-CUTOFF_YEAR = 2017                 # legacy < 2017 <= modern
 
 # ---------- load expansions ----------
 fo = jload("filter_options.json")
@@ -170,11 +171,11 @@ for r in recs:
         o = interp(r["set_alpha"], r["set_num"])
         if o: r["release_date"] = from_ord(o); r["source"] = "curve"
 
-# finalize era + year
+# finalize era + year (era = the 6 trigger-debut eras, aligned to card-level via eras.py)
 for r in recs:
     if r["release_date"]:
         r["release_year"] = int(r["release_date"][:4])
-        r["era"] = "modern" if r["release_year"] >= CUTOFF_YEAR else "legacy"
+        r["era"] = era_for_month(r["release_date"][:7], "unknown")   # "YYYY-MM" -> era
     else:
         r["release_year"] = None; r["era"] = "unknown"
 
@@ -187,11 +188,16 @@ src = Counter(r["source"] for r in recs)
 print("sets by source:", dict(src), "| total", len(recs))
 era = Counter(r["era"] for r in recs)
 print("sets by era:", dict(era))
-# card-weighted retention
+# card-weighted breakdown across the 6 trigger-debut eras (+ unknown for undated sets)
 cards_by_era = Counter()
 for r in recs: cards_by_era[r["era"]] += r["cards"]
 tot = sum(cards_by_era.values())
-print("CARDS by era:", dict(cards_by_era), f"| modern share = {100*cards_by_era['modern']//max(tot,1)}%")
+print("CARDS by era:")
+for name, start in ERAS:
+    n = cards_by_era.get(name, 0)
+    print(f"  {name:8} (>= {start}) = {n:6}  ({100*n//max(tot,1)}%)")
+if cards_by_era.get("unknown"):
+    print(f"  {'unknown':8} (no date) = {cards_by_era['unknown']:6}  ({100*cards_by_era['unknown']//max(tot,1)}%)")
 # match quality histogram (legacy clamped only)
 print("\n--- title-match quality (top unmatched legacy, q<0.90) ---")
 low = sorted([m for m in match_q if m[0] < 0.90], reverse=True)[:0]  # placeholder

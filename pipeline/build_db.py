@@ -6,80 +6,24 @@
 #
 # Output: ../site/ws.sqlite   (the static site loads it in the browser via sql.js)
 #
-# NOTE: the cost logic is intentionally kept identical to build_official_list.py. The model is
-# WIP; when it improves, re-run this to regenerate the DB. (TODO: unify both into cost_model.py.)
-import json, os, re, sqlite3, collections, statistics as st, unicodedata
+# NOTE: the per-ability cost MATH lives in cost_model.py (the single source, shared with
+# build_official_list.py). This file owns only the SQLite I/O around it: schema/emit, the EN matching /
+# exclusion machinery, gzip + cache-bust. The model is WIP; when it improves, re-run this to regen the DB.
+import json, os, re, sqlite3, collections
+from cost_model import (_nk, pb, ra, base_num, gen, r500, mode500, family, ability_type,
+                        gen_en, en_family, build_cost_model, en_cost_model, ENCONF)
 
 D = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(D, "..", "site", "ws.sqlite")
-
-# ---------------- shared helpers (verbatim from build_official_list.py) ----------------
-def _nk(s):
-    return re.sub(r"\s+", "", unicodedata.normalize("NFKC", s or ""))
-def pb(c):
-    t = 1 if "soul" in (c.get("trigger") or []) else 0
-    return 3000 + 2500*c["level"] + 1500*c["cost"] - 1000*t - 1000*(c["soul"]-1)
-def ra(c):
-    return [a for a in c["abilities"] if (a.get("text") or "").strip() not in ("-","ー","－","ｰ","")]
-def base_num(cn):
-    return re.sub(r"(\d)[A-Za-z]+$", r"\1", cn or "")
-ZT = str.maketrans("０１２３４５６７８９＋－", "0123456789+-")
-TRAIT = re.compile(r"《[^》]*》"); NAME = re.compile(r"「[^」]*」")
-def gen(t):
-    t = t.translate(ZT); t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
-    t = re.sub(r"、?《T》(?:[かや・/／、]《T》)+", "《T》", t)
-    return re.sub(r"\s+", " ", t).strip()
-def r500(x): return int(round(x/500.0)*500)
-def mode500(xs): return collections.Counter(r500(x) for x in xs).most_common(1)[0][0]
-
-KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコール":"Encore","経験":"Experience",
-      "記憶":"Memory","絆":"Bond","チェンジ":"Change","加速":"Accelerate","共鳴":"Resonance",
-      "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal","バウンス":"Bounce"}
-FAMPAT = [
-  ("Burn", r"相手に\d+ダメージ"), ("Heal", r"自分のクロック[^。]{0,20}(控え室|ストック|手札|思い出)に置"),
-  ("Clock Kick", r"相手のキャラ[^。]{0,20}(クロック置場|クロックに)置"),
-  ("Bounce", r"相手のキャラ[^。]{0,12}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
-  ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
-  ("Salvage", r"自分の(控え室|思い出)[^。]{0,22}手札に(戻す|加える)"), ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)"),
-  ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"), ("Comeback", r"(控え室|山札)[^。]{0,22}キャラ[^。]{0,14}舞台に置"),
-  ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"), ("Draw", r"引く"),
-  ("Add to Hand", r"手札に(加える|加え|戻す)"), ("Power Pump (board)", r"あなたの[^。]{0,16}キャラすべてに[^。]{0,8}パワーを[＋+]"),
-  ("Power Pump (self)", r"このカードのパワーを[＋+]"), ("Power Pump", r"キャラ[^。]{0,10}パワーを[＋+]"),
-  ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
-  ("Grant Ability", r"』を与える|の能力を得"), ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
-  ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
-  ("Stock Boost", r"ストック置場に置"), ("Choice", r"次の効果から|から\d+つを選"),
-  ("Early Play", r"レベル\d+以下[^。]{0,12}手札からプレイ|レベルを参照しない"),
-  ("Cannot Attack", r"アタックできない|サイドアタックできない"), ("Restriction", r"できない|選べない|受けない"),
-  ("Card Select", r"\d+枚(まで)?選"),
-]
-# CX Combo: an ability HARD-GATED to a specific named climax. Detected on the gen()-normalized text
-# (names already collapsed to 「N」) by the climax-area gate, NOT by the 【CXコンボ】 marker (legacy
-# cards predate it). Two gate shapes + the explicit modern marker:
-#   クライマックス置場に「N」が(ある|あり)  = "if [name] is in your climax area" (the classic combo trigger)
-#   「N」が(クライマックス置場に)?置かれた     = "when [name] is placed (in the climax area)" (on-place flavor)
-#   クライマックスコンボ / ＣＸコンボ / CXコンボ = the explicit tagged marker (kept for the few oddballs)
-# Deliberately NOT matched: あなたのクライマックスが…置かれた ("when ANY/your climax is placed"), which is a
-# generic on-climax trigger, not gated to a specific combo CX -> it must keep its own family.
-CXC_PAT = re.compile(r"クライマックス置場に「N」が(ある|あり)|「N」が(クライマックス置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
-def family(text):
-    if CXC_PAT.search(text): return "CX Combo"   # FIRST: a combo encapsulates whatever sub-effects it mixes
-    for k, v in KW.items():
-        if k in text: return v
-    for name, pat in FAMPAT:
-        if re.search(pat, text): return name
-    return "Other"
-def ability_type(markers):
-    m = "".join(markers or "")
-    if "永" in m: return "CONT"
-    if "自" in m: return "AUTO"
-    if "起" in m: return "ACT"
-    return "OTHER"
 
 # ---------------- load ----------------
 clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
 en_cards = json.load(open(os.path.join(D, "cardlist_en.json"), encoding="utf-8"))
 era = json.load(open(os.path.join(D, "card_era.json"), encoding="utf-8"))
+# expansion_id -> release_date ("YYYY-MM-DD"): per-card release date metadata (no new harvesting; the
+# ingest sub-pipeline already dated every set). A card's c["expansion"] is the expansion_id key.
+_set_dates = json.load(open(os.path.join(D, "ingest", "set_dates.json"), encoding="utf-8"))
+RELEASE_DATE = {s["expansion_id"]: s.get("release_date") for s in _set_dates}
 
 # --- de-duplicate the JP list: alt-art/rarity parallels AND cross-set-code reprints (some sets are
 # listed under two codes, e.g. Frieren SFN/S108 == SFN/S128). A card = same publisher prefix + name +
@@ -267,169 +211,21 @@ CARD_FIX = {
     "VA/WE30-55": {"color": "red"},
 }
 
-# ---------------- cost model: measured -> residual -> estimated (Characters only) ----------
-# REPLAY folding -- a 【リプレイ】 (REPLAY) is NEVER a standalone effect: its text is not AUTO/CONT/ACT,
-# it is the BODY of a CITING ability (an AUTO/CONT/ACT that names it via "〔action〕する / を発動する /
-# を使用する / トリガー"). The replay "develops" wherever it is cited, so its cost belongs to the citer and
-# is counted ONCE. We therefore (a) FOLD the replay's effect text into its citer (the citer's signature /
-# family / cost then reflect the real effect -- a CXC citer stays CX Combo because the climax gate is in
-# its own text; a Charisma citer becomes the board-pump it really is), and (b) set the 【リプレイ】 row
-# itself to cost 0 (method "replay-body", a HIGH-confidence structural zero excluded from family pools).
-# The citer becomes a residual ABSORBER (same regime as a CX-combo sig: it soaks delta - sum(others)),
-# which unifies and SUPERSEDES the prior pure-anchor zeroing: every replay's cost lives on its citer.
-# Matching is robust to multi-word actions ("Nelson Touch", "オールラブ・イズ・マイン !") and to actions
-# that already end in a verb ("煙幕を張る"): we scan a sibling ability for the LONGEST whitespace-bounded
-# prefix of the replay text it contains, optionally followed by an activation verb or a clause boundary.
-REPLAY_MARK = "【リプレイ】"
-_RP_VERB = re.compile(r"^(を発動する|を発動|を使用する|を使用|をトリガー|する)")
-def _rp_action_prefixes(rtext):
-    r = rtext.strip(); cands = []
-    for m in re.finditer(r"[\s　]+", r): cands.append(r[:m.start()])   # raw prefixes (keep internal spaces)
-    cands.append(r)
-    return sorted({x for x in cands if len(x.strip()) >= 2}, key=len, reverse=True)   # longest (most specific) first
-def _rp_find_citer(rtext, abs_, ri):
-    for cand in _rp_action_prefixes(rtext):
-        for j, a in enumerate(abs_):
-            if j == ri or REPLAY_MARK in "".join(a.get("markers") or []): continue
-            ct = a.get("text") or ""; idx = ct.find(cand)
-            while idx != -1:
-                after = ct[idx + len(cand):]
-                if _RP_VERB.match(after) or re.match(r"^[。、，）\)]", after) or after == "":
-                    return j, cand
-                idx = ct.find(cand, idx + 1)
-    return None, None
-RP_SIG_OVERRIDE = {}   # (card_number, ability_idx) -> signature (folded citer text / verbatim replay text)
-REPLAY_SIGS = set(); CITER_SIGS = set(); RP_ORPHANS = []
-for c in clean:
-    if c["type"] != "Character" or c["excluded"]: continue
-    abs_ = ra(c)
-    for ri, a in enumerate(abs_):
-        if REPLAY_MARK not in "".join(a.get("markers") or []): continue
-        rtext = (a.get("text") or "").strip()
-        cj, cand = _rp_find_citer(rtext, abs_, ri)
-        if cj is None:                                   # no citer on this card -> leave the replay untouched
-            RP_ORPHANS.append((c["card_number"], rtext[:40])); continue
-        reff = rtext[len(cand):].lstrip(" 　!！")          # replay EFFECT = replay text minus the leading action
-        cmk = "".join(abs_[cj].get("markers") or []); rmk = "".join(abs_[ri].get("markers") or [])
-        csig = cmk + " :: " + gen((abs_[cj].get("text") or "") + " " + reff)   # fold body into the citer sig
-        rsig = rmk + " :: " + gen(rtext)
-        RP_SIG_OVERRIDE[(c["card_number"], cj)] = csig
-        RP_SIG_OVERRIDE[(c["card_number"], ri)] = rsig
-        CITER_SIGS.add(csig); REPLAY_SIGS.add(rsig)
-if RP_ORPHANS:
-    print(f"replay folding: {len(REPLAY_SIGS)} replays -> {len(CITER_SIGS)} citers | {len(RP_ORPHANS)} orphans (no citer): {RP_ORPHANS[:6]}")
+# ---------------- cost model: the single-source cascade (cost_model.build_cost_model) ----------
+# All the per-ability MATH (replay folding + measured -> residual -> estimated, Characters only) lives in
+# cost_model.py and is shared verbatim with build_official_list.py. Run it over the de-duplicated JP cards
+# and read the results off the returned object; this file only does the SQLite I/O around it.
+M = build_cost_model(clean)
+if M.RP_ORPHANS:
+    print(f"replay folding: {len(M.REPLAY_SIGS)} replays -> {len(M.CITER_SIGS)} citers | {len(M.RP_ORPHANS)} orphans (no citer): {M.RP_ORPHANS[:6]}")
 else:
-    print(f"replay folding: {len(REPLAY_SIGS)} replays -> {len(CITER_SIGS)} citers | 0 orphans")
-variant_occ = collections.defaultdict(list)
-iso = collections.defaultdict(lambda: {"m": [], "l": []})
-variant_text = {}
-char_cards = []
-for c in clean:
-    if c["type"] != "Character" or c["excluded"]: continue
-    if c["power"] is None or c["level"] is None or c["cost"] is None or c["soul"] is None: continue
-    ab = ra(c)
-    if not ab: continue
-    sigs = []
-    for i, a in enumerate(ab):
-        mk = "".join(a.get("markers") or [])
-        sig = RP_SIG_OVERRIDE.get((c["card_number"], i), mk + " :: " + gen(a.get("text", "")))
-        sigs.append(sig)
-        variant_occ[sig].append((c["card_number"], i, mk, a.get("text", "")))
-        variant_text.setdefault(sig, (mk, sig.split(" :: ", 1)[1]))   # gen text from the sig (folded for citers)
-    delta = pb(c) - c["power"]
-    e = era.get(c["card_number"])
-    char_cards.append((c["card_number"], delta, sigs, e))
-    if len(ab) == 1:
-        (iso[sigs[0]]["m"] if e == "modern" else iso[sigs[0]]["l"]).append(delta)
-
-ALLV = set(variant_occ)
-cost = {}; method = {}; nsamp = {}; rng = {}
-CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
-def is_cxc(sig): return family(variant_text[sig][1]) == "CX Combo"
-# A residual ABSORBER soaks a card's leftover delta (delta - sum(others)) instead of being measured/estimated
-# in isolation. Two kinds: CX-combo sigs (gated + pay-to-assemble, hardest to measure directly) AND replay
-# CITER sigs (they carry the folded replay body, counted once on the citer). Both are deferred out of the
-# NON-absorber residual (step 2) and the NON-absorber family estimate (step 3a), then absorbed in step 3b.
-def is_absorber(sig): return is_cxc(sig) or sig in CITER_SIGS
-# STEP 0 replay bodies -> 0. The 【リプレイ】 row is NOT a standalone effect (its body was folded into the
-# citer sig above); fix it at 0 BEFORE step 1 (method "replay-body", HIGH-confidence structural zero).
-for sig in REPLAY_SIGS:
-    if sig in ALLV:
-        cost[sig] = 0; method[sig] = "replay-body"; nsamp[sig] = 0; rng[sig] = (0, 0)
-# STEP 1 measured -- single-ability cards (a single-ability CX-combo card still measures directly)
-for sig, d in iso.items():
-    if sig in cost: continue                       # a zeroed replay body is already fixed at 0
-    use = d["m"] if len(d["m"]) >= 2 else (d["m"] + d["l"])
-    if not use: continue
-    if not d["m"] and len(d["l"]) == 1: continue
-    cost[sig] = mode500(use); method[sig] = "measured"; nsamp[sig] = len(use); rng[sig] = (min(use), max(use))
-neg_fams = {family(variant_text[s][1]) for s, c in cost.items() if c < 0}
-multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in char_cards if len(sg) > 1]
-# STEP 2 NON-absorber residual: solve the lone unknown ONLY when it is NOT an absorber sig (CXC or citer).
-# A still-unknown absorber keeps its card "unresolved" here -> it is deferred to step 3b to soak the delta.
-for _ in range(10):
-    res = collections.defaultdict(list)
-    for cn, dl, sg, e in multi:
-        unk = [s for s in sg if s not in cost]
-        if len(unk) == 1 and not is_absorber(unk[0]):
-            res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
-    new = 0
-    for sig, samples in res.items():
-        if sig in cost: continue
-        val = mode500(samples)
-        if val < 0 and family(variant_text[sig][1]) not in neg_fams: continue
-        cost[sig] = val; method[sig] = "residual"; nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
-    if new == 0: break
-# checkpoint validation: measured+residual only (estimated/unresolved excluded), same basis as before.
-errs = [abs(dl - sum(cost[s] for s in sg)) for cn, dl, sg, e in multi if all(s in cost for s in sg)]
-if errs:
-    print(f"validation |err|<=500 on {sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% (n={len(errs)})")
-# STEP 3a NON-absorber family estimate: give every remaining NON-absorber sig a value NOW, so the only
-# unknown left on an absorber card is its CXC / citer sig (which step 3b then absorbs from the card's delta).
-fam_known = collections.defaultdict(list)
-for sig, cst in cost.items():
-    if sig in REPLAY_SIGS: continue   # structural 0s are not effect costs -> don't bias family medians
-    if not is_absorber(sig): fam_known[family(variant_text[sig][1])].append(cst)
-fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
-for sig in ALLV:
-    if sig in cost or is_absorber(sig): continue
-    cost[sig] = fam_med.get(family(variant_text[sig][1]), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
-# STEP 3b absorber residual ABSORBER: with all non-absorber sigs known, derive each CXC / citer sig from the
-# cards where it is now the lone unknown -> absorber = delta - sum(others). CXC floored at >= 500; a citer
-# floored at >= 0 (the folded replay body never gives power back to the card).
-for _ in range(10):
-    res = collections.defaultdict(list)
-    for cn, dl, sg, e in multi:
-        unk = [s for s in sg if s not in cost]
-        if len(unk) == 1 and is_absorber(unk[0]):
-            res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
-    new = 0
-    for sig, samples in res.items():
-        if sig in cost: continue
-        v = mode500(samples)
-        cost[sig] = max(CXC_FLOOR, v) if is_cxc(sig) else max(0, v); method[sig] = "residual"
-        nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
-    if new == 0: break
-# STEP 3c estimate any leftover sig: CXC -> CXC family median (floored), else its family median.
-cxc_known = [c for s, c in cost.items() if is_cxc(s)]
-cxc_med = max(CXC_FLOOR, r500(st.median(cxc_known))) if cxc_known else CXC_FLOOR
-fam_med["CX Combo"] = cxc_med
-for sig in ALLV:
-    if sig in cost: continue
-    base = cxc_med if is_cxc(sig) else fam_med.get(family(variant_text[sig][1]), 500)
-    cost[sig] = base; method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
-# enforce the CXC floor on EVERY CX-combo sig (incl. a single-ability measured combo below 500)
-for sig in ALLV:
-    if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
-CONF = {"measured": "HIGH", "residual": "MEDIUM", "estimated": "LOW", "replay-body": "HIGH"}
-
-def ab_cost(card_number, idx, markers, text):
-    """cost/method/family for one ability instance (None if not a measurable Character ability).
-    Honors the replay sig override (folded citer / zeroed replay body) keyed by (card_number, idx)."""
-    sig = RP_SIG_OVERRIDE.get((card_number, idx), "".join(markers or "") + " :: " + gen(text or ""))
-    if sig in cost:
-        return cost[sig], method[sig], CONF[method[sig]], family(variant_text.get(sig, ("", gen(text or "")))[1])
-    return None, None, None, family(gen(text or ""))
+    print(f"replay folding: {len(M.REPLAY_SIGS)} replays -> {len(M.CITER_SIGS)} citers | 0 orphans")
+if M.validation_pct is not None:
+    print(f"validation |err|<=500 on {M.validation_pct:.0f}% (n={M.validation_n})")
+fam_med = M.fam_med                 # JP family medians (reused by the EN-exclusive pass below)
+ab_cost = M.ab_cost                 # per-ability cost lookup (honors the replay sig override)
+ab_std = M.ab_std                   # per-ability STANDARD (standard_cost, mode_share, n_samples)
+validation_pct, validation_n = M.validation_pct, M.validation_n   # for the meta row
 
 # ---------------- build SQLite ----------------
 if os.path.exists(OUT): os.remove(OUT)
@@ -443,11 +239,13 @@ CREATE TABLE cards (
   type TEXT, color TEXT, level INTEGER, cost INTEGER, power INTEGER, soul INTEGER,
   trigger TEXT, traits TEXT, rare TEXT, side TEXT, expansion INTEGER, parallel INTEGER, era TEXT,
   power_base INTEGER, budget INTEGER, model_cost_total INTEGER, real_delta INTEGER,
+  residual INTEGER, is_suspect INTEGER, release_date TEXT,
   picture TEXT, image_en TEXT, traits_en TEXT, title_search TEXT, en_exclusive INTEGER, text_en TEXT
 );
 CREATE TABLE abilities (
   card_number TEXT, idx INTEGER, ability_type TEXT, family TEXT,
   jp_text TEXT, en_text TEXT, power_cost INTEGER, method TEXT, confidence TEXT,
+  standard_cost INTEGER, mode_share REAL, n_samples INTEGER,
   PRIMARY KEY (card_number, idx)
 );
 CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT);
@@ -467,6 +265,7 @@ for c in clean:
     budget = (power_base - 500) if power_base is not None else None
     abs_ = ra(c)
     model_total = 0; have_cost = False
+    std_total = 0; have_std = False   # Sum of per-ability STANDARDS -> the card's explained budget
     ab_buf = []
     align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
     sim_ab = sim_for(ABILS_SIM, cn)                        # simulator EN ability texts (JP-only gap filler)
@@ -474,12 +273,19 @@ for c in clean:
     ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: official-EN cache is the wrong card's effect
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, i, a.get("markers"), a.get("text"))
+        std, mshare, nsamp = ab_std(cn, i, a.get("markers"), a.get("text"))   # the package STANDARD + its evidence
         key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
         en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
         if ab_blocked: en = ABTR.get(key, "")              # blocked cards: trust ONLY the LLM translation of their real JP text
         if pc is not None: model_total += pc; have_cost = True
-        ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf))
+        if std is not None: std_total += std; have_std = True
+        ab_buf.append((cn, i, ability_type(a.get("markers")), fam, a.get("text") or "", en, pc, meth, conf,
+                       std, mshare, nsamp))
     real_delta = (power_base - c["power"]) if power_base is not None else None
+    # residual = the designer's UNEXPLAINED adjustment = real budget - sum of standard costs.
+    # is_suspect = the card deviates from the standard price by >= 500 (a cost anomaly worth review).
+    residual = (real_delta - std_total) if (real_delta is not None and have_std) else None
+    is_suspect = 1 if (residual is not None and abs(residual) >= 500) else 0
     name_en = NAME_OVERRIDE.get(cn) or (ec.get("name") if ec else None)   # manual overrides first (regional variants)
     if not name_en and not en_card_blocked(cn):                  # official EN -> simulator (blocked sets skip both, they're renumbered)
         name_en = NAME_OFFICIAL.get(c.get("name")) or NAME_SIM.get(_skey_s(cn))
@@ -503,6 +309,7 @@ for c in clean:
         c.get("power"), c.get("soul"), join(c.get("trigger")), join(c.get("traits")),
         c.get("rare"), side, c.get("expansion"), c.get("parallel"), era.get(cn),
         power_base, budget, (model_total if have_cost else None), real_delta,
+        residual, is_suspect, RELEASE_DATE.get(c.get("expansion")),
         c.get("picture"), (ec.get("image") if ec else None), traits_en, title_search, 0,
         (" ".join(en_abs) if (ec is not None and not align) else None),   # official full EN when the JP/EN ability split differs
     ))
@@ -528,31 +335,8 @@ def _en_type(txt):
 def _i(x):
     try: return int(x)
     except (TypeError, ValueError): return None      # EN cardlist stores stats as strings ("" for n/a)
-# --- cost model for EN-exclusive cards: SAME methodology as JP, applied over the ENGLISH text ---
-def gen_en(t):   # generalize EN ability text (trait/name -> placeholder, KEEP numbers), like JP gen()
-    t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
-    t = re.sub(r"、?《T》(?:[ /／・]《T》)+", "《T》", t)
-    return re.sub(r"\s+", " ", t).strip().lower()
-# (a) raw JP costs per EN-sig (keep ALL samples to combine with EN measurements -> robust mode)
-xs = collections.defaultdict(list)
-for r in arows:                                  # arows so far = JP abilities only
-    if r[5] and r[6] is not None: xs[gen_en(r[5])].append(r[6])
-def en_family(t):   # ordered, precise EN family detection (CX combo / burn / clock-kick BEFORE heal)
-    tl = re.sub(r"\s+", " ", t.lower())
-    if "cxcombo" in tl.replace(" ", "").replace("【", "").replace("】", "") or "cx combo" in tl: return "CX Combo"
-    if re.search(r"deal \d+ damage to your opponent", tl): return "Burn"
-    if "into your opponent's clock" in tl or "into their clock" in tl: return "Clock Kick"  # field disruption
-    if re.search(r"(top card of |a card from )?your clock[^.]{0,40}your waiting room", tl): return "Heal"  # OWN clock only
-    for fam, kw in (("Backup", "backup"), ("Assist", "assist"), ("Brainstorm", "brainstorm"),
-                    ("Encore", "encore"), ("Experience", "experience"), ("Memory", "memory")):
-        if kw in tl: return fam
-    if re.search(r"return[^.]{0,40}opponent[^.]{0,20}(character|hand)", tl): return "Bounce"
-    if re.search(r"(look at|reveal|search)[^.]{0,40}deck", tl): return "Search"
-    if "your waiting room" in tl and " hand" in tl: return "Salvage"
-    if "draw" in tl: return "Draw"
-    if re.search(r"[+\-]\d+ power", tl): return "Power Pump"
-    if re.search(r"[+\-]\d+ soul", tl): return "Soul"
-    return "Other"
+# --- cost model for EN-exclusive cards: SAME methodology as JP (gen_en/en_family/en_cost_model from
+#     cost_model.py), applied over the ENGLISH text. This file owns only the EN-card collection + dedup. ---
 # (b) collect EN-exclusive cards
 ex_cards = []; seen_ex = set(); ex_series = set()
 for e in en_cards:
@@ -577,40 +361,9 @@ for c in ex_cards:
     cur = _exdd.get(k)
     if cur is None or (c["rare"] in BASE_RARE and cur["rare"] not in BASE_RARE): _exdd[k] = c
 ex_cards = list(_exdd.values())
-# (c) base cost per EN-sig = MODE of all samples (JP cross + EN single-ability deltas). The mode
-#     (not one card's delta) avoids outliers and lets the many JP samples dominate -> robust.
-en_direct = collections.defaultdict(list)
-for c in ex_cards:
-    if c["is_char"] and len(c["sigs"]) == 1 and c["delta"] is not None:
-        en_direct[c["sigs"][0][3]].append(c["delta"])
-encost = {}; enmethod = {}
-for s in set(xs) | set(en_direct):
-    encost[s] = mode500(xs.get(s, []) + en_direct.get(s, []))
-    enmethod[s] = "measured" if s in en_direct else "matched"
-# (d) residual on multi-ability EN cards (fill the one unknown from delta - sum(known))
-multi = [c for c in ex_cards if c["is_char"] and len(c["sigs"]) > 1 and c["delta"] is not None]
-for _ in range(10):
-    res = collections.defaultdict(list); new = 0
-    for c in multi:
-        unk = [s for (_, _, _, s) in c["sigs"] if s not in encost]
-        if len(unk) == 1:
-            res[unk[0]].append(c["delta"] - sum(encost[s] for (_, _, _, s) in c["sigs"] if s in encost))
-    for s, vals in res.items():
-        if s in encost: continue
-        encost[s] = mode500(vals); enmethod[s] = "residual"; new += 1
-    if new == 0: break
-# (e) estimate the rest by family median (reuse the JP family medians) -- Characters only
-for c in ex_cards:
-    if not c["is_char"]: continue
-    for (_, _, txt, s) in c["sigs"]:
-        if s not in encost: encost[s] = fam_med.get(en_family(txt), 500); enmethod[s] = "estimated"
-# (f) CX-combo / hard-gate floor: such an ability is worth >= 500 (you pay by assembling the combo)
-for c in ex_cards:
-    if not c["is_char"]: continue
-    for (_, _, txt, s) in c["sigs"]:
-        if en_family(txt) == "CX Combo" and encost.get(s, 0) < 500:
-            encost[s] = 500; enmethod[s] = "estimated"
-ENCONF = {"measured": "HIGH", "matched": "MEDIUM", "residual": "MEDIUM", "estimated": "LOW"}
+# (c) the EN-EXCLUSIVE cost cascade (measured -> matched -> residual -> estimated, CX floor) is the MATH;
+#     run it from cost_model. arows so far = JP abilities only (each tuple [5]=en_text, [6]=power_cost).
+encost, enmethod = en_cost_model(arows, ex_cards, fam_med)
 # (f) emit rows
 for c in ex_cards:
     e = c["e"]; code = c["code"]; title = EX_TITLE.get(c["series"], c["series"])
@@ -619,13 +372,18 @@ for c in ex_cards:
         pc = encost.get(s) if c["is_char"] else None         # cost model is Characters only
         meth = enmethod.get(s) if pc is not None else None
         if pc is not None: model_total += pc; have = True
-        ab_buf.append((code, i, atype, en_family(txt), "", txt, pc, meth, ENCONF.get(meth)))
+        # EN-exclusive: the EN cascade value IS the standard (no pooled JP mode -> mode_share None, n 0)
+        ab_buf.append((code, i, atype, en_family(txt), "", txt, pc, meth, ENCONF.get(meth), pc, None, 0))
+    # residual / suspect on the same basis as JP cards (std_total == model_total here)
+    residual = (c["delta"] - model_total) if (c["delta"] is not None and have) else None
+    is_suspect = 1 if (residual is not None and abs(residual) >= 500) else 0
     crows.append((
         code, base_num(code), c["series"], e.get("name"), e.get("name"), "", title, e.get("type"),
         (e.get("color") or "").lower(), c["lv"], c["co"], c["pw"], c["so"], " / ".join(c["trig"]),
         " / ".join(c["attrs"]), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
         None, 0, None, c["pbase"], (c["pbase"] - 500 if c["pbase"] is not None else None),
-        (model_total if have else None), c["delta"], "", e.get("image"), " / ".join(c["attrs"]), title.lower(), 1,
+        (model_total if have else None), c["delta"], residual, is_suspect, None,
+        "", e.get("image"), " / ".join(c["attrs"]), title.lower(), 1,
         None,   # text_en (EN-exclusive abilities are already per-ability)
     ))
     arows.extend(ab_buf)
@@ -657,20 +415,23 @@ for code in NK_VARIANTS:
         else:
             pc, meth = None, None
         if pc is not None: model_total += pc; have = True
-        ab_buf.append((code, i, _en_type(a), en_family(a), "", a, pc, meth, ENCONF.get(meth)))
+        ab_buf.append((code, i, _en_type(a), en_family(a), "", a, pc, meth, ENCONF.get(meth), pc, None, 0))
+    delta = (pbase - pw) if pbase is not None else None
+    residual = (delta - model_total) if (delta is not None and have) else None
+    is_suspect = 1 if (residual is not None and abs(residual) >= 500) else 0
     crows.append((
         code, base_num(code), "NK", e.get("name"), e.get("name"), "", _nkneo, e.get("type"),
         (e.get("color") or "").lower(), lv, co, pw, so, " / ".join(trig),
         " / ".join(attrs), e.get("rarity"), {"W": "Weiss", "S": "Schwarz"}.get(e.get("side"), e.get("side")),
         None, 0, None, pbase, (pbase - 500 if pbase is not None else None),
-        (model_total if have else None), (pbase - pw if pbase is not None else None), "", e.get("image"),
-        " / ".join(attrs), NK_TS, 1, None,
+        (model_total if have else None), delta, residual, is_suspect, None,
+        "", e.get("image"), " / ".join(attrs), NK_TS, 1, None,
     ))
     arows.extend(ab_buf)
 print(f"NK/W30 EN-variant cards added: {nk_added}")
 
-db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*30), crows)
-db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*9), arows)
+db.executemany("INSERT INTO cards VALUES (%s)" % ",".join("?"*33), crows)
+db.executemany("INSERT INTO abilities VALUES (%s)" % ",".join("?"*12), arows)
 db.executescript("""
 CREATE INDEX i_color ON cards(color);
 CREATE INDEX i_level ON cards(level);
@@ -683,12 +444,31 @@ CREATE INDEX i_ab_card ON abilities(card_number);
 CREATE INDEX i_ab_cost ON abilities(power_cost);
 CREATE INDEX i_ab_fam ON abilities(family);
 """)
+# --- Explained% : the acceptance metric (replaces the near-tautological consistency %) ---------
+# Among valid COSTED Character cards (a non-null residual = the model standardized every ability), the
+# share whose residual is within +/-500 = the designer's unexplained adjustment is small. This is a real
+# OUT-OF-SAMPLE check (per-card actual vs the package STANDARDS), not the residual cascade re-summing
+# itself. Crows columns: type=7, residual=24, is_suspect=25.
+_costed = [r for r in crows if r[7] == "Character" and r[24] is not None]
+_explained = sum(1 for r in _costed if abs(r[24]) <= 500)
+explained_pct = (100.0 * _explained / len(_costed)) if _costed else None
+suspect_count = sum(1 for r in crows if r[25] == 1)
+if explained_pct is not None:
+    print(f"Explained%: {explained_pct:.1f}% of costed Character cards on-budget (|residual|<=500) "
+          f"(n={len(_costed)}) | suspects (|residual|>=500): {suspect_count}")
+    assert explained_pct >= 94.0, f"Explained% {explained_pct:.1f}% below the 94% acceptance baseline"
 meta = [
     ("schema", "1"),
     ("cards", str(len(crows))),
     ("abilities", str(len(arows))),
-    ("validation", (f"{sum(1 for x in errs if x<=500)/len(errs)*100:.0f}% |err|<=500 (n={len(errs)})" if errs else "n/a")),
-    ("note", "Power cost per ability is WIP. Confidence: HIGH=measured, MEDIUM=residual, LOW=estimated."),
+    ("explained_pct", (f"{explained_pct:.1f}" if explained_pct is not None else "n/a")),
+    ("explained_n", str(len(_costed))),
+    ("suspects", str(suspect_count)),
+    ("validation", (f"{explained_pct:.0f}% explained (|residual|<=500, n={len(_costed)})"
+                    if explained_pct is not None else "n/a")),
+    ("note", "Per-card residual = real budget - sum of ability STANDARD costs; is_suspect = |residual|>=500. "
+             "Confidence reflects the standard's evidence: HIGH=measured & n>=3 & mode_share>=60, "
+             "MEDIUM=residual or weak measured, LOW=estimated."),
 ]
 db.executemany("INSERT INTO meta VALUES (?,?)", meta)
 # neo-standards (official deck-construction groups): each is a SEPARATE standard with its own
