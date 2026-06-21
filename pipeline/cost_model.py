@@ -447,6 +447,27 @@ def build_cost_model(clean):
             cost[sig] = max(CXC_FLOOR, v) if is_cxc(sig) else max(0, v); method[sig] = "residual"
             nsamp[sig] = len(samples); rng[sig] = (min(samples), max(samples)); new += 1
         if new == 0: break
+    # STEP 3b2 ESTIMATED upgrade: a NON-absorber sig that only ever co-occurred with an unresolved absorber
+    # (CXC / citer) was "trapped" at step 2 -> it fell to a family-median GUESS in 3a. Now that every absorber
+    # has a value (3b), that sig may be the lone unknown on its card and can be solved from the card's OWN
+    # delta instead of the guess. Same mode + drawback (negative) guard as step 2; only sigs still flagged
+    # "estimated" are replaced, and ONLY when every OTHER sig on the card is non-estimated (so the residual
+    # equation uses trusted terms). Iterated, since one upgrade can unlock another.
+    for _ in range(10):
+        res = collections.defaultdict(list)
+        for cn, dl, sg, e in multi:
+            unk = [s for s in sg if method.get(s) == "estimated"]
+            # solvable iff every OTHER sig is RESOLVED (in cost) and TRUSTED (not itself a 3a guess)
+            if len(unk) == 1 and all(s in cost and method.get(s) != "estimated" for s in sg if s != unk[0]):
+                res[unk[0]].append(dl - sum(cost[s] for s in sg if s != unk[0]))
+        new = 0
+        for sig, samples in res.items():
+            if method.get(sig) != "estimated": continue
+            val = mode500(samples)
+            if val < 0 and fam_of(sig) not in neg_fams: continue   # beneficial sig can't be a drawback (as step 2)
+            cost[sig] = val; method[sig] = "residual"; nsamp[sig] = len(samples)
+            rng[sig] = (min(samples), max(samples)); new += 1
+        if new == 0: break
     # STEP 3c estimate any leftover sig: CXC -> CXC family median (floored), else its family median.
     cxc_known = [c for s, c in cost.items() if is_cxc(s)]
     cxc_med = max(CXC_FLOOR, r500(st.median(cxc_known))) if cxc_known else CXC_FLOOR
