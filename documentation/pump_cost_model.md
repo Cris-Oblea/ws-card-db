@@ -61,11 +61,14 @@ worse than round-nearest in reproduction (49.7% vs 53.8% exact). This is unresol
 choice is masked by modifier-detection errors — it can't be validated until `k` is parsed reliably.
 
 ## Open questions (need DATA investigation — the owner cannot specify these from design)
-1. **Payment factors (`［…］` leading cost bracket):** how much a stock payment / hand-discard buys down the
-   power-cost. The owner suspects it's multiplicative (never flat) but there is no clear method yet. The
-   granularity matters: `［discard any card］` vs `［discard a 《trait》 character］` (stricter ⇒ bigger
-   discount). Existing `payment_credits.csv` (matched-pairs) is thin and noisy — only `discard_hand` gives
-   a signal.
+1. **Payment factors (`［…］` leading activation-cost bracket):** how much the activation cost buys down the
+   power-cost. The bracket is a WHOLE FAMILY of costs, **not just stock/discard** — it can be: pay stock,
+   discard card(s) (generic vs `《trait》`-restricted vs named — stricter ⇒ bigger discount), **sacrifice /
+   send other characters** (to waiting room / clock / memory), **take damage to yourself**, rest this card,
+   return a card to hand/deck, reveal/exile, etc. Each is plausibly a multiplicative factor (the owner is
+   sure it is never flat) but there is no clear method to isolate them yet. `cost_standardize.py`'s
+   `payment_tags` already enumerates the type set; the matched-pairs credit data (`payment_credits.csv`) is
+   thin and noisy — only `discard_hand` gives a usable signal so far.
 2. **"Hard" condition strength:** very restrictive gates (`ストック7枚以上`, opponent-relative) showed ~×0.25
    in the data, i.e. possibly a stronger discount than the standard ×0.5 — unconfirmed.
 3. **Cross-family bases:** quantify the family base values (Power Debuff > Power Pump self, etc.).
