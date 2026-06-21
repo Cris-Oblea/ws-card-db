@@ -115,10 +115,16 @@ ONREV_PAT = [
     ("AutoKickToBottom", re.compile(r"【リバース】した時.*このカードを山札の下に置く")),
     ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出にする")),
 ]
+# Modal effect = "choose 1 of the next N effects" — cost the CHOICE as its own family, NOT by whichever
+# sub-effect happens to match first (a "look-3 OR heal-1" must NOT pollute the Heal family — that's how a
+# family never converges). Requires the CHOOSING (…のうち…選 / 次の効果から…選), so a "do both" bundle
+# (次の2つの効果を…行う) is deliberately NOT a modal.
+MODAL_PAT = re.compile(r"(次の[\dＸ０-９]+つの効果のうち|次の効果から)[^。]{0,16}選")
 def family(text, markers=""):
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
+    if MODAL_PAT.search(text): return "Modal"   # a "choose 1 of N" modal — its own family, not a sub-effect
     for name, pat in ONREV_PAT:
         if pat.search(text): return name
     for k, v in KW.items():
