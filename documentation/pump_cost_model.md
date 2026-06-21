@@ -61,14 +61,19 @@ worse than round-nearest in reproduction (49.7% vs 53.8% exact). This is unresol
 choice is masked by modifier-detection errors — it can't be validated until `k` is parsed reliably.
 
 ## Open questions (need DATA investigation — the owner cannot specify these from design)
-1. **Payment factors (`［…］` leading activation-cost bracket):** how much the activation cost buys down the
-   power-cost. The bracket is a WHOLE FAMILY of costs, **not just stock/discard** — it can be: pay stock,
-   discard card(s) (generic vs `《trait》`-restricted vs named — stricter ⇒ bigger discount), **sacrifice /
-   send other characters** (to waiting room / clock / memory), **take damage to yourself**, rest this card,
-   return a card to hand/deck, reveal/exile, etc. Each is plausibly a multiplicative factor (the owner is
-   sure it is never flat) but there is no clear method to isolate them yet. `cost_standardize.py`'s
-   `payment_tags` already enumerates the type set; the matched-pairs credit data (`payment_credits.csv`) is
-   thin and noisy — only `discard_hand` gives a usable signal so far.
+1. **Payment factors (`［…］` leading activation-cost bracket) — INVESTIGATED 2026-06-21, NOT separable.**
+   The bracket is a large, open-ended family of costs (the owner stresses there are MANY, only some named):
+   pay stock, discard card(s) (generic vs `《trait》`-restricted vs named), sacrifice / send other characters
+   (to waiting room / clock / memory), take damage, rest this card, **send THIS card to the waiting room**,
+   **move a waiting-room card to the BOTTOM OF YOUR OWN CLOCK** (`控え室→自分のクロックの下`), return a card,
+   etc. **Matched-pairs result:** the clean test (same effect body, FREE vs exactly one payment) yields
+   ~ZERO pairs — designers do not print the same effect both free and paid; a paid version almost always
+   does MORE, so the payment buys a STRONGER effect, it is not a discount on a fixed one. The looser test
+   (add one payment to an already-paid body, n=349 pairs) shows a **MODE of 0** change (only `rest_self`
+   moved, +500, likely confounded). **Conclusion: payment cannot be isolated as a multiplicative factor
+   from this data, and the owner cannot specify it a priori either.** Payment stays BAKED INTO the
+   measured/residual signature (the package is costed whole) and is NOT applied as a separate estimation
+   factor. The many cost types only fragment the data further, making isolation harder, not easier.
 2. **"Hard" condition strength:** very restrictive gates (`ストック7枚以上`, opponent-relative) showed ~×0.25
    in the data, i.e. possibly a stronger discount than the standard ×0.5 — unconfirmed.
 3. **Cross-family bases:** quantify the family base values (Power Debuff > Power Pump self, etc.).
