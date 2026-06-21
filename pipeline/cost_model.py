@@ -95,10 +95,22 @@ FAMPAT = [
 # Deliberately NOT matched: あなたのクライマックスが…置かれた ("when ANY/your climax is placed"), which is a
 # generic on-climax trigger, not gated to a specific combo CX -> it must keep its own family.
 CXC_PAT = re.compile(r"(クライマックス|CX|ＣＸ)置場に「N」が(ある|あり)|「N」が((クライマックス|CX|ＣＸ)置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
+# On-reverse families (user taxonomy): when THIS card is reversed, a specific revenge / self effect. Checked
+# BEFORE the generic families because "そのキャラを【リバース】" / "山札の下に置く" / "思い出にする" would otherwise
+# fall to Other. RedBomb* = trade the opponent away; AutoKick* = the card removes ITSELF on reverse.
+ONREV_PAT = [
+    ("RedBombLevelX",    re.compile(r"【リバース】した時.*公開.*バトル相手のレベルが[ＸX]以下.*【リバース】してよい")),
+    ("AntiEarlyRedBomb", re.compile(r"【リバース】した時.*バトル相手のレベルが相手のレベルより高い.*【リバース】してよい")),
+    ("RedBombLevel0",    re.compile(r"【リバース】した時.*バトル相手のレベルが0以下.*【リバース】してよい")),
+    ("AutoKickToBottom", re.compile(r"【リバース】した時.*このカードを山札の下に置く")),
+    ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出にする")),
+]
 def family(text, markers=""):
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
+    for name, pat in ONREV_PAT:
+        if pat.search(text): return name
     for k, v in KW.items():
         if k in text: return v
     for name, pat in FAMPAT:
