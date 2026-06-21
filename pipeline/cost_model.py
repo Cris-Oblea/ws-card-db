@@ -89,7 +89,15 @@ FAMPAT = [
   ("Clock Kick", r"相手のキャラ[^。]{0,20}(クロック置場|クロックに)置"),
   ("Bounce", r"相手のキャラ[^。]{0,12}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
   ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
-  ("Salvage", r"自分の(控え室|思い出)[^。]{0,22}手札に(戻|加え)"), ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)"),
+  # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
+  # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
+  # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
+  ("RevealTopSalvage", r"山札[^。]{0,10}公開[^。]{0,50}控え室[^。]{0,34}手札に(戻|加え)"),
+  ("Salvage", r"自分の(控え室|思い出)[^。]{0,34}手札に(戻|加え)"), ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)"),
+  # Look & Reorder = look at top N then put them back in ANY order (好きな順番) — a scry/setup, distinct from a
+  # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
+  # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
+  ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"), ("Comeback", r"(控え室|山札)[^。]{0,22}キャラ[^。]{0,14}舞台に置"),
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"), ("Draw", r"引く"),
   ("Add to Hand", r"手札に(加える|加え|戻す)"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
