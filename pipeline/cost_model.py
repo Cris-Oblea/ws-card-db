@@ -30,14 +30,12 @@ import re, collections, statistics as st, unicodedata
 # ---------------- shared helpers ----------------
 def _nk(s):  # normalize encoding noise (full/half-width, quote styles, ALL spacing); does NOT change meaning
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", s or ""))
-def pb(c):   # vanilla (ability-less) base power.
-    # The linear fit is validated on L0-L2 vanillas (delta 0 for all). But there are NO L3 vanillas to
-    # anchor the +2500/level term, and measured effect costs run a systematic +500 higher at L3 than the
-    # SAME effect at L1 (Card Select/Encore/Search/Stand-Rest all +500) -> the extrapolation over-rates L3
-    # by 500. Trim it so effect costs stay level-independent (a heal-1 is 1000 at L1 AND L3, not 1500).
+def pb(c):   # vanilla (ability-less) base power. A reverse-engineered linear fit, validated to delta 0 on
+    # ALL L0-L2 vanillas. No L3 vanilla is ever printed, but the extrapolation is sound (a theoretical L3
+    # cost2/soul1 vanilla = 11500) — do NOT trim it. Over-high L3 deltas come from UNRELIABLE cards
+    # (demo/trial/promo, intentionally under-statted) contaminating the samples, NOT from a formula bias.
     t = 1 if "soul" in (c.get("trigger") or []) else 0
-    base = 3000 + 2500*c["level"] + 1500*c["cost"] - 1000*t - 1000*(c["soul"]-1)
-    return base - 500 if c["level"] >= 3 else base
+    return 3000 + 2500*c["level"] + 1500*c["cost"] - 1000*t - 1000*(c["soul"]-1)
 _REMINDER = re.compile(r"[（(].*[）)]", re.S)   # text wholly wrapped in parens = reminder / flavor text
 def ra(c):   # real abilities = non-empty rows; drop dash placeholders AND markerless parenthetical reminders
     out = []
