@@ -114,7 +114,15 @@ FAMPAT = [
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
-  ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"), ("Comeback", r"(控え室|山札)[^。]{0,22}キャラ[^。]{0,14}舞台に置"),
+  ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"),
+  # Comeback = recruit YOUR OWN character from waiting room/deck straight onto the STAGE (not to hand — that's
+  # Salvage/Search). Was DEAD (0 matches): its "舞台に置" required the literal 4-char run, but real cards say
+  # "舞台の好きな枠に置く" / "舞台の別々の枠に置く" (a placement-slot descriptor breaks the literal substring), so
+  # every card fell through to the generic Card Select/Stand-Rest/Move grab-bags instead. Widened to accept the
+  # "舞台の…枠に" phrasing too. Scoped to 自分の (own zone) with a (?!相手) guard through every gap so an "either
+  # your own char to stock OR the OPPONENT's WR char to stage" compound (a different, more aggressive steal
+  # mechanic) can't bridge across the "か、相手の…" clause and false-match on the opponent branch.
+  ("Comeback", r"自分の(控え室|山札)(?:(?!相手)[^。]){0,22}キャラ(?:(?!相手)[^。]){0,14}舞台(に|の(?:(?!相手)[^。]){0,6}枠に)置"),
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
