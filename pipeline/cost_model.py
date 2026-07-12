@@ -99,9 +99,13 @@ FAMPAT = [
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"), ("Comeback", r"(控え室|山札)[^。]{0,22}キャラ[^。]{0,14}舞台に置"),
-  ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"), ("Draw", r"引く"),
+  ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"),
   ("Add to Hand", r"手札に(加える|加え|戻す)"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
-  ("Power Pump (self)", r"このカードのパワーを[＋+]"), ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]"),
+  # Draw = 引く/引き. Placed AFTER the pump families on purpose: a "draw N and pump" combo (引き…パワーを＋) is a
+  # combat trick whose meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so
+  # pump wins; only a pure draw (typically draw-then-discard "loot") falls through to Draw. 引き = continuative
+  # (the sentence keeps going, e.g. 引き、…控え室に置く) — the bare 引く missed it, leaking loot to Card Select.
+  ("Power Pump (self)", r"このカードのパワーを[＋+]"), ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]"), ("Draw", r"引[くき]"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
