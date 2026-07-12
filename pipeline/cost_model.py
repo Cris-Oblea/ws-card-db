@@ -131,6 +131,10 @@ FAMPAT = [
   # Stand/Rest. Requiring the 選 keeps a CONDITIONAL キャラ ("…が《T》のキャラなら…パワーを＋" = self-pump) from matching.
   ("Power Pump (self)", r"このカードのパワーを[＋+]"),
   ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]"), ("Draw", r"引[くき]"),
+  # Early Play (in hand): lowering THIS card's level WHILE IN HAND (手札の…レベルを－N) makes it playable before you
+  # reach that level — functionally Early Play. Checked BEFORE the generic Level (レベルを±), which would else grab it.
+  # Scoped to 手札の so an on-STAGE level-down (舞台の…レベルを－, a stat mod often paired with a pump) is NOT caught.
+  ("Early Play", r"手札の[^。]{0,8}レベルを[－\-]"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
