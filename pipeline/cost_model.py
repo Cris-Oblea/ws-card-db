@@ -75,8 +75,15 @@ def mode500_share(xs):
     return mode, round(100.0 * mode_n / len(rounded), 1), len(rounded)
 
 # ---------------- taxonomy: family + ability type ----------------
-KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコール":"Encore","経験":"Experience",
-      "記憶":"Memory","絆":"Bond","チェンジ":"Change","加速":"Accelerate","共鳴":"Resonance",
+# KW = keyword mechanics that ARE the effect (the keyword names what the ability DOES), so they legitimately
+# pre-empt the FAMPAT effect-text match. DELIBERATELY EXCLUDED are the CONDITION/state keywords 記憶 (Memory:
+# "if you have a card in memory"), 経験 (Experience: "if your level-zone level-sum >= N") and 共鳴 (Resonance:
+# "［reveal a named card from hand］"): these merely GATE a separate effect, so the ability must be filed by what
+# it actually does (…このカードのパワーを＋N -> Power Pump (self), a search -> Search, …), NOT diverted to a keyword
+# family. Their effects scatter across every family — a keyword family for a condition never converges, and it
+# hid pumps/searches from the multiplicative estimate (the memory/experience "…なら" then reads as a ÷2 condition).
+KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコール":"Encore",
+      "絆":"Bond","チェンジ":"Change","加速":"Accelerate",
       "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal","バウンス":"Bounce"}
 FAMPAT = [
   ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
