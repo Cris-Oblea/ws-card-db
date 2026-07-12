@@ -99,6 +99,12 @@ FAMPAT = [
   # Add to Hand (戻す) / Card Select (選) grab-bags. Distance to 手札に戻 kept tight so a "when opp char reverses,
   # return THIS card to hand" (self-return) does NOT match.
   ("Bounce", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
+  # Disruption: proactively remove an opponent's STAGE character straight to their waiting room (a kill, not a
+  # reverse/bounce/clock-kick — those have their own families above). Usually a main-phase on-enter play, e.g.
+  # picking off a low-cost/low-level front-row character before the battle phase even starts. Distinct from
+  # Opp Disrupt below, which targets the opponent's RESOURCE ZONES (hand/stock/deck/memory/clock), not a
+  # character. User taxonomy (name "Disruption").
+  ("Disruption", r"相手の[^。]{0,16}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置"),
   ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
