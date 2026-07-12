@@ -118,7 +118,12 @@ FAMPAT = [
   # combat trick whose meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so
   # pump wins; only a pure draw (typically draw-then-discard "loot") falls through to Draw. 引き = continuative
   # (the sentence keeps going, e.g. 引き、…控え室に置く) — the bare 引く missed it, leaking loot to Card Select.
-  ("Power Pump (self)", r"このカードのパワーを[＋+]"), ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]"), ("Draw", r"引[くき]"),
+  # Power Pump: the plain キャラ…パワー branch stays at distance 16. The second branch anchors on a SELECTED
+  # target (キャラを…選) and allows a longer gap to パワー, so a "select a char, 次の相手のターンの終わりまで, パワーを＋"
+  # (the long "until next opponent turn" duration ~21 chars) is caught instead of leaking to Card Select /
+  # Stand/Rest. Requiring the 選 keeps a CONDITIONAL キャラ ("…が《T》のキャラなら…パワーを＋" = self-pump) from matching.
+  ("Power Pump (self)", r"このカードのパワーを[＋+]"),
+  ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]"), ("Draw", r"引[くき]"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
