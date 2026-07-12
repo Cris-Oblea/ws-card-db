@@ -230,7 +230,12 @@ def family(text, markers=""):
     for name, pat in ONREV_PAT:
         if pat.search(text): return name
     for k, v in KW.items():
-        if k in text: return v
+        if k not in text: continue
+        # "アンコールステップ" (the Encore STEP, a phase/timing reference — "at the start of the Encore step…") CONTAINS
+        # the keyword アンコール but is NOT the Encore keyword MECHANIC. Only divert to Encore if アンコール appears
+        # OUTSIDE that phrase; otherwise it's a timing-gated effect that must file by what it actually does.
+        if k == "アンコール" and "アンコール" not in text.replace("アンコールステップ", ""): continue
+        return v
     for name, pat in FAMPAT:
         if re.search(pat, text): return name
     return "Other"
