@@ -154,11 +154,14 @@ FAMPAT = [
 CXC_PAT = re.compile(r"(クライマックス|CX|ＣＸ)置場に「N」が(ある|あり)|「N」が((クライマックス|CX|ＣＸ)置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
 # On-reverse families (user taxonomy): when THIS card is reversed, a specific revenge / self effect. Checked
 # BEFORE the generic families because "そのキャラを【リバース】" / "山札の下に置く" / "思い出にする" would otherwise
-# fall to Other. RedBomb* = trade the opponent away; AutoKick* = the card removes ITSELF on reverse.
+# fall to Other. RedBomb* = trade the opponent away (either by RE-REVERSING them, which keeps them alive but
+# taps them again, OR by sending them straight to the CLOCK/STOCK area, which denies waiting-room recursion —
+# same tactic, two execution styles, same family). AutoKick* = the card removes ITSELF on reverse.
+_REDBOMB_ACTION = r"(【リバース】してよい|そのキャラを(クロック置場|ストック置場)に置)"
 ONREV_PAT = [
-    ("RedBombLevelX",    re.compile(r"【リバース】した時.*公開.*バトル相手のレベルが[ＸX]以下.*【リバース】してよい")),
-    ("AntiEarlyRedBomb", re.compile(r"【リバース】した時.*バトル相手のレベルが相手のレベルより高い.*【リバース】してよい")),
-    ("RedBombLevel0",    re.compile(r"【リバース】した時.*バトル相手のレベルが0以下.*【リバース】してよい")),
+    ("RedBombLevelX",    re.compile(r"【リバース】した時.*公開.*バトル相手のレベルが[ＸX]以下.*" + _REDBOMB_ACTION)),
+    ("AntiEarlyRedBomb", re.compile(r"【リバース】した時.*バトル相手のレベルが相手のレベルより高い.*" + _REDBOMB_ACTION)),
+    ("RedBombLevel0",    re.compile(r"【リバース】した時.*バトル相手のレベルが0以下.*" + _REDBOMB_ACTION)),
     ("AutoKickToBottom", re.compile(r"【リバース】した時.*このカードを山札の下に置く")),
     ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出にする")),
 ]
