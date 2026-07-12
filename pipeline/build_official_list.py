@@ -131,7 +131,7 @@ for i in range(0, len(to_translate), CH):
 print(f"variants={len(ALLV)} | without EN (to translate)={len(to_translate)} | chunks={nch}")
 
 # ---------- Excel formato OFICIAL ----------
-ORDER = {"replay-body": 0, "measured": 0, "residual": 1, "estimated": 2}
+ORDER = {"replay-body": 0, "noop": 0, "measured": 0, "residual": 1, "estimated": 2}
 wb = Workbook()
 HEAD = PatternFill("solid", fgColor="2F5597"); HF = Font(bold=True, color="FFFFFF")
 SUBHEAD = PatternFill("solid", fgColor="D6DCE4")
