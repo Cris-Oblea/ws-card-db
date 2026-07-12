@@ -109,7 +109,11 @@ FAMPAT = [
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"), ("Comeback", r"(控え室|山札)[^。]{0,22}キャラ[^。]{0,14}舞台に置"),
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"),
-  ("Add to Hand", r"手札に(加える|加え|戻す)"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
+  # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
+  # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
+  # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
+  # fall through to Power Pump / Soul / Draw. (Returning an OTHER own char — そのキャラ/「N」を…手札に戻す — still matches.)
+  ("Add to Hand", r"手札に(加える|加え)|(?<!このカードを)手札に戻す"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
   # Draw = 引く/引き. Placed AFTER the pump families on purpose: a "draw N and pump" combo (引き…パワーを＋) is a
   # combat trick whose meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so
   # pump wins; only a pure draw (typically draw-then-discard "loot") falls through to Draw. 引き = continuative
