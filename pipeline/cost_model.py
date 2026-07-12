@@ -87,7 +87,11 @@ FAMPAT = [
   # pattern missed them).
   ("Heal", r"自分のクロック[^。]{0,18}(控え室に置|ストック置場に置|手札に(戻|加)|思い出|山札の下に置)"),
   ("Clock Kick", r"相手のキャラ[^。]{0,20}(クロック置場|クロックに)置"),
-  ("Bounce", r"相手のキャラ[^。]{0,12}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
+  # Bounce = return an OPPONENT character to hand. 相手の…キャラ allows a qualifier (前列の / 後列の / レベルN以下の)
+  # between 相手の and キャラ, so "相手の前列のキャラを1枚選び、手札に戻す" is caught here instead of leaking to the
+  # Add to Hand (戻す) / Card Select (選) grab-bags. Distance to 手札に戻 kept tight so a "when opp char reverses,
+  # return THIS card to hand" (self-return) does NOT match.
+  ("Bounce", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
   ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
