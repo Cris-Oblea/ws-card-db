@@ -79,7 +79,7 @@ KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコー
       "記憶":"Memory","絆":"Bond","チェンジ":"Change","加速":"Accelerate","共鳴":"Resonance",
       "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal","バウンス":"Bounce"}
 FAMPAT = [
-  ("Burn", r"相手に\d+ダメージ"),
+  ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
   # A heal = move from the TOP OF YOUR CLOCK to ANY zone (waiting / stock / hand / memory / bottom-deck).
   # ALL heal types are ONE family — they all cost ~1000 power (to a resource zone you pay an extra cost,
   # e.g. discard/kill, so it nets neutral). Detected BEFORE the generic Stock Boost / Add to Hand / Card
