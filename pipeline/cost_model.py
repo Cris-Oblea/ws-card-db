@@ -93,7 +93,12 @@ FAMPAT = [
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
   ("RevealTopSalvage", r"山札[^。]{0,10}公開[^。]{0,50}控え室[^。]{0,34}手札に(戻|加え)"),
-  ("Salvage", r"自分の(控え室|思い出)[^。]{0,34}手札に(戻|加え)"), ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)"),
+  ("Salvage", r"自分の(控え室|思い出)[^。]{0,34}手札に(戻|加え)"),
+  # Search = look at your DECK and take a card to HAND. Two phrasings: 見る (look) and 公開 (reveal the top,
+  # then conditionally add). The reveal-top dig crosses a sentence break (…公開する。…なら手札に加え), so its
+  # branch uses . (not [^。]) to bridge it; 山札…公開 anchors it to own-deck reveal, 手札に加え to taking to hand.
+  # RevealTopSalvage (reveal -> salvage from 控え室) is checked earlier, so only the plain deck-dig lands here.
+  ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)|山札[^。]{0,10}公開.{0,90}手札に加え"),
   # Look & Reorder = look at top N then put them back in ANY order (好きな順番) — a scry/setup, distinct from a
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
