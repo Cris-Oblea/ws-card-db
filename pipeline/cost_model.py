@@ -99,6 +99,12 @@ FAMPAT = [
   # Add to Hand (戻す) / Card Select (選) grab-bags. Distance to 手札に戻 kept tight so a "when opp char reverses,
   # return THIS card to hand" (self-return) does NOT match.
   ("Bounce", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
+  # Retreat (own-stage-char branch): choosing one of YOUR OWN characters currently ON THE STAGE and returning
+  # it to hand (a self-bounce/withdrawal). Checked here, BEFORE Add to Hand, because Add to Hand's own negative
+  # lookbehind only excludes "このカードを手札に戻す" (see below) -- it does NOT exclude "自分の舞台の…選び…手札に
+  #戻す", so without this earlier branch it would win first and steal the label. The "このカードを手札に戻す"
+  # (this card retreats itself) branch stays lower in the list, right after Mill (self) -- see that comment.
+  ("Retreat", r"自分の舞台(の|にいる)[^。]{0,14}(キャラ|「N」)[^。]{0,10}選び[^。]{0,10}手札に戻"),
   # Disruption: proactively remove an opponent's STAGE character straight to their waiting room (a kill, not a
   # reverse/bounce/clock-kick — those have their own families above). Usually a main-phase on-enter play, e.g.
   # picking off a low-cost/low-level front-row character before the battle phase even starts. Distinct from
@@ -151,6 +157,19 @@ FAMPAT = [
   ("Early Play", r"手札の[^。]{0,8}レベルを[－\-]"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
+  # Retreat: THIS card (or another of your own STAGE characters) returns to hand -- a self-bounce/withdrawal,
+  # not Salvage (that's WAITING ROOM -> hand) and not Bounce (that's the OPPONENT's character -> hand). The
+  # "このカードを手札に戻す" branch excludes a trailing ］ so it only fires as a standalone EFFECT, not when that
+  # same phrase is the leading ［…］ PAYMENT bracket for a different ability (Power Pump/Soul/Draw/etc. already
+  # correctly keep those -- same cost-bracket-steals-family issue as the earlier Add to Hand fix). Checked
+  # AFTER Mill (self) so a "mill self, then MAY retreat" dual effect keeps its self-mill as the primary family
+  # (its defining action; the retreat is a conditional payoff), matching how other dual-nature abilities this
+  # session (Backup/Brainstorm/CX Combo payoffs) were left on their real mechanic. KNOWN GAP (not caught): a
+  # reactive "そのキャラ/カードを手札に戻す" referring back to an own character mentioned earlier in the same
+  # clause (e.g. P3/S01-090) -- skipped because そのカード/キャラ sometimes refers to the OPPONENT's character
+  # instead (~4% of a broad そのキャラ/カード…手札に戻す sample), and safely resolving the pronoun needs more
+  # than a fixed-distance regex; left for a future pass.
+  ("Retreat", r"このカードを手札に戻(す|してよい)(?!］)"),
   ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
   ("Stock Boost", r"ストック置場に置"), ("Choice", r"次の効果から|から\d+つを選"),
   ("Early Play", r"レベル\d+以下[^。]{0,12}手札からプレイ|レベルを参照しない"),
