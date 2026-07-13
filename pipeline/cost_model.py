@@ -165,6 +165,11 @@ FAMPAT = [
   # BEFORE Draw so it doesn't hide in the generic 引く family. The cost bracket must contain 手札→キャラ→控え室に置
   # (all within one ［…］), and a 引く must follow it. (User taxonomy.)
   ("DiscardCharacterToDraw", r"［[^］]*手札[^］]*キャラ[^］]*控え室に置[^］]*］.*引[くき]"),
+  # DrawDiscard: draw N then discard M cards from HAND to the waiting room (…引き、自分の手札を…選び、控え室に置く).
+  # A hand-FIX / quality filter (net card gain is only N−M, often 0), distinct from a pure Draw (+N advantage) —
+  # split out BEFORE Draw so the two don't share a blended cost median. After DiscardCharacterToDraw so a card
+  # that BOTH discards a char as cost AND draw-discards keeps the more specific payment-shaped label.
+  ("DrawDiscard", r"引[くき].{0,20}手札を[\dＸ]+枚.{0,4}選.{0,6}控え室に置"),
   ("Draw", r"引[くき]"),
   # Early Play (in hand): lowering THIS card's level WHILE IN HAND (手札の…レベルを－N) makes it playable before you
   # reach that level — functionally Early Play. Checked BEFORE the generic Level (レベルを±), which would else grab it.
