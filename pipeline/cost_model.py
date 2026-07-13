@@ -159,7 +159,13 @@ FAMPAT = [
   # (the long "until next opponent turn" duration ~21 chars) is caught instead of leaking to Card Select /
   # Stand/Rest. Requiring the 選 keeps a CONDITIONAL キャラ ("…が《T》のキャラなら…パワーを＋" = self-pump) from matching.
   ("Power Pump (self)", r"このカードのパワーを[＋+]"),
-  ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]"), ("Draw", r"引[くき]"),
+  ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]"),
+  # DiscardCharacterToDraw: pay by DISCARDING A CHARACTER from hand (［…手札の…キャラ…控え室に置…］ cost bracket),
+  # then draw. A specific payment-shaped draw (you spend a card to dig), distinct from a bare Draw — split out
+  # BEFORE Draw so it doesn't hide in the generic 引く family. The cost bracket must contain 手札→キャラ→控え室に置
+  # (all within one ［…］), and a 引く must follow it. (User taxonomy.)
+  ("DiscardCharacterToDraw", r"［[^］]*手札[^］]*キャラ[^］]*控え室に置[^］]*］.*引[くき]"),
+  ("Draw", r"引[くき]"),
   # Early Play (in hand): lowering THIS card's level WHILE IN HAND (手札の…レベルを－N) makes it playable before you
   # reach that level — functionally Early Play. Checked BEFORE the generic Level (レベルを±), which would else grab it.
   # Scoped to 手札の so an on-STAGE level-down (舞台の…レベルを－, a stat mod often paired with a pump) is NOT caught.
