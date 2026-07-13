@@ -140,6 +140,15 @@ FAMPAT = [
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
   # fall through to Power Pump / Soul / Draw. (Returning an OTHER own char — そのキャラ/「N」を…手札に戻す — still matches.)
+  # Retreat (reactive pronoun branch): a reactive "そのキャラ/カードを…手札に戻す" that refers back to one of YOUR
+  # OWN characters mentioned earlier (e.g. "他のあなたのキャラが…控え室に置かれた時…そうしたら、そのカードを手札に戻す")
+  # is a self-bounce, not Add to Hand. Resolve the pronoun's scope: an own-POSSESSIVE (自分の|あなたの — an OWNED
+  # character, not the bare actor あなたは) must precede その…手札に戻 with NO opponent reference in between — the
+  # (?!相手|このカードとバトル) guard runs through every char (. to cross sentence breaks). 相手 catches 相手の/バトル相手;
+  # このカードとバトル catches "このカードとバトルしているキャラ" (= the OPPONENT's battler, referenced without the word
+  # 相手 — a reverse-trigger bounce that would else false-match). Keeps 相手はそのカードを手札に戻す (opponent's forced
+  # return) OUT. Placed right before Add to Hand so higher-priority families (Grant/CXC/Salvage/…) claim theirs first.
+  ("Retreat", r"(自分の|あなたの)(?:(?!相手|このカードとバトル).)*?その(カード|キャラ)を[^。]{0,8}手札に戻"),
   ("Add to Hand", r"手札に(加える|加え)|(?<!このカードを)手札に戻す"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
   # Draw = 引く/引き. Placed AFTER the pump families on purpose: a "draw N and pump" combo (引き…パワーを＋) is a
   # combat trick whose meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so
