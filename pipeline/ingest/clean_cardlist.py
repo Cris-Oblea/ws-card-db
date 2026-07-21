@@ -57,14 +57,16 @@ CODE2TITLES = _load_neo()
 NON_TOURNAMENT_MARK = "大会では使用できません"
 
 def exclude_reason(card):
+    # Return the FIRST reason this card can't be used to measure power objectively, else None. Cards are
+    # FLAGGED (excluded=True), never deleted — so audits stay complete and the DB can still list them.
     lv, soul, pw = card["level"], card["soul"], card["power"]
-    if lv is not None and not (0 <= lv <= 3):
+    if lv is not None and not (0 <= lv <= 3):                    # stats outside the legal WS range = joke/promo
         return "level_out_of_range"
     if not (0 <= soul <= 3):
         return "soul_out_of_range"
-    if card["type"] == "Character" and (pw is None or pw % 500 != 0):
+    if card["type"] == "Character" and (pw is None or pw % 500 != 0):   # real power is always a multiple of 500
         return "power_not_mult_500"
-    if card["text_raw"] and NON_TOURNAMENT_MARK in card["text_raw"]:
+    if card["text_raw"] and NON_TOURNAMENT_MARK in card["text_raw"]:    # Bushiroad's own "not tournament legal" tag
         return "non_tournament_official"
     return None
 
@@ -116,12 +118,13 @@ def clean_card(c):
         "name_kana":   c.get("card_name_kana"),
         "type":        CARD_KIND.get(str(c.get("card_kind")), "?:" + str(c.get("card_kind"))),
         "card_kind_raw": c.get("card_kind"),
+        # color is usually a [[red.gif]] icon -> extract the name; if it's a raw kanji instead, map it
         "color":       color_g[0] if color_g else COLOR_FALLBACK.get((c.get("color") or "").strip(), (c.get("color") or None)),
         "level":       to_int(c.get("level")),
         "cost":        to_int(c.get("cost")),
         "power":       to_int(c.get("power")),
-        "soul":        len(gifs(c.get("soul"))),
-        "trigger":     gifs(c.get("card_trigger")),
+        "soul":        len(gifs(c.get("soul"))),          # soul = COUNT of soul icons (one [[soul.gif]] each)
+        "trigger":     gifs(c.get("card_trigger")),       # trigger = list of icon names (may be empty)
         "traits":      traits,
         "rare":        c.get("rare"),
         "side_raw":    c.get("side"),

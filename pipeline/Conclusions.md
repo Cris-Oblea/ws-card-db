@@ -1,5 +1,9 @@
 # Conclusions — Ability cost in Weiss Schwarz (2026-06-14)
 
+> **Canonical model reference:** the up-to-date, detailed explanation of the cost model lives in
+> **`documentation/COST_MODEL.md`**. This file is the original narrative/decision log; where the two differ,
+> `COST_MODEL.md` wins. In particular, the era claim below has been **superseded** — see §2.
+
 ## 1. What was delivered
 **`Complete_Abilities_List.xlsx`** — the **15,889 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`Ability_Cost_Guide`** for costing effects that do NOT exist on any card.
 
@@ -9,7 +13,7 @@ It serves what you wanted: **look up "this effect → costs X"** and **draw insp
 The power that is SUBTRACTED from a card for having an ability **≈ the net resource/tempo advantage that ability provides.**
 - **Resource economy** (the deep reason): bringing a card to **hand or stock = +1 resource ≈ +1000**; sending it to waiting = losing a resource. That's why a heal to the hand *always* carries a cost: the cost **pays** for the resource, it does not discount it.
 - **Ease of execution**: an on-play effect with no cost or condition is EXPENSIVE; gated (cost, condition, unreliable trigger) is cheaper. Since most come gated, **the mode of the costs falls in 500–1000**.
-- **Era**: legacy cards (<2017) cost ~2× what the same effect would cost today (powercreep). You should design with **modern** values.
+- **Era**: ~~legacy cards (<2017) cost ~2× what the same effect would cost today (powercreep)~~ — **SUPERSEDED.** Era/date is **descriptive metadata only, NOT a cost driver.** There is **no power-creep at the package level**: for every tight, well-sampled package the per-era mode is flat across all six format eras (verified in `cost_standardize.py`). The apparent creep was **effect-mix shift + dispersion**, not a real price change. Standards are the MODE pooled across ALL years — do NOT apply an era multiplier. (See `documentation/COST_MODEL.md` §10.)
 - **Composition**: bundle (do everything) = **SUM**; modal (choose 1 of N) = the **best option**, not the sum; multi-trigger = value × number of triggers.
 - **CX-combo / hard-gate**: floor of ~500 regardless of power (the cost is paid in assembling the combo, not in power).
 - **Different families, different regimes**: burn is costed by *ease*, heal by *destination*, board-buff by *quantity×2*. They are not unified.
@@ -28,7 +32,7 @@ The power that is SUBTRACTED from a card for having an ability **≈ the net res
 
 ## 5. How to use it for custom cards
 1. **Effect that already exists** → look it up in the list (filter by Family), check the Cost and the Method/Confidence.
-2. **New effect** → use the GUIDE: decompose into primitives, apply modifiers (cost, condition×reliability, era, breadth), compose (sum/modal/multi-trigger), round to 500.
+2. **New effect** → use the GUIDE: decompose into primitives, apply modifiers (cost, condition×reliability, breadth — **no era factor**), compose (sum/modal/multi-trigger), round to 500.
 3. **Rule of thumb**: think in resources. Does the ability give you a card (hand/stock)? ≈ +1000. Is it easy to trigger? more expensive. Does it depend on a climax? floor 500.
 
 ## 6. If you want to continue (optional)

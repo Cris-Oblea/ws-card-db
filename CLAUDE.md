@@ -49,6 +49,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - **Era / date:** descriptive **metadata only** (NOT a cost driver). `release_date` (YYYY-MM-DD) is stored per card; the format-era label (Genesis/Bounty/Gate/Standby/Choice/Horizon, bounded by climax trigger-icon debuts) is optional flavor.
 - **Dedup:** keep the base rarity, discard alt-art/parallels.
 - **Encoding:** UTF-8 + NFKC normalization (full/half-width Japanese).
+- **Code comments (permanent policy):** ALL code — existing and new — carries inline comments explaining HOW each non-trivial piece of logic works, not only WHY. This is a deliberate project rule (the repo must stay operable by hand, without AI assistance) and OVERRIDES the default "no comments unless the WHY is non-obvious" guidance. Comments in English; update them when the code changes (a change with stale comments is not finished).
 
 ## What NOT to touch
 - `pipeline/sources/` and `reference/` — reference material, not code.

@@ -32,6 +32,9 @@ fo = jload("filter_options.json")
 exps = {e["id"]: e for e in fo["expansions"]}
 
 # ---------- expansion -> set_code, series, card_count (from cards) ----------
+# The expansion record has no set code; derive it by looking at the cards. For each expansion we TALLY
+# the (alpha, number) parsed from every card number and the series, then take the most common one (dom)
+# — robust to a few misfiled cards. exp_cards = the card count per expansion (used in the era report).
 cards = jload("../cardlist_clean.json")   # canonical lives one level up (consumed by the builders)
 exp_setcode = defaultdict(Counter)
 exp_series  = defaultdict(Counter)
@@ -39,12 +42,12 @@ exp_cards   = Counter()
 for c in cards:
     ex = c.get("expansion")
     exp_cards[ex] += 1
-    m = re.search(r"/([A-Za-z]+)(\d+)", c.get("card_number", ""))
+    m = re.search(r"/([A-Za-z]+)(\d+)", c.get("card_number", ""))   # e.g. "SFN/S108-001" -> ("S", 108)
     if m:
         exp_setcode[ex][(m.group(1), int(m.group(2)))] += 1
     exp_series[ex][c.get("series", "")] += 1
 
-def dom(counter):
+def dom(counter):   # the most common value in a Counter (the "dominant" set code / series), or None
     return counter.most_common(1)[0][0] if counter else None
 
 # ---------- normalization for title matching ----------
@@ -73,14 +76,17 @@ for p in products:
 
 import difflib
 def best_product(ename, era_max_year):
-    """Find best archive product for an expansion name, preferring exact-ish, within era window."""
+    """Find best archive product for an expansion name, preferring exact-ish, within era window.
+
+    Returns (product, quality 0..1). The era_max_year window rejects products released well after the
+    expansion (a title string can repeat across generations; the date bounds disambiguate)."""
     n = norm(ename)
     if not n: return None, 0.0
-    # 1) exact normalized equality
+    # 1) exact normalized equality -> quality 1.0; if several match, take the EARLIEST (original printing)
     cands = [p for p in prod_by_norm.get(n, []) if p["year"] <= era_max_year + 1]
     if cands:
         return min(cands, key=lambda p: p["date"]), 1.0
-    # 2) containment (expansion name contains product title or vice versa)
+    # 2) no exact hit: score every in-window product. Substring containment ~0.92, else fuzzy ratio.
     best, bestr = None, 0.0
     for p in products:
         if p["year"] > era_max_year + 1:
@@ -89,10 +95,10 @@ def best_product(ename, era_max_year):
         if not pn: continue
         if n == pn:
             r = 1.0
-        elif n in pn or pn in n:
+        elif n in pn or pn in n:                     # one title is a substring of the other
             r = 0.92
         else:
-            r = difflib.SequenceMatcher(None, n, pn).ratio()
+            r = difflib.SequenceMatcher(None, n, pn).ratio()   # character-level similarity 0..1
         if r > bestr:
             best, bestr = p, r
     return best, bestr
@@ -118,12 +124,16 @@ for eid, e in exps.items():
         "match_title": None, "match_q": None,
     })
 
-# pass 1: create_date for non-clamped
+# pass 1: create_date for non-clamped. A create_date NOT stuck at the 2018 migration date is a real,
+# reliable release date (modern sets), so use it directly.
 for r in recs:
     if not r["clamped"] and r["create_date"]:
         r["release_date"] = r["create_date"]; r["source"] = "create_date"
 
 # pass 2: archive title match (refines/overrides; needed for clamped legacy)
+# Legacy sets are clamped (no real create_date), so match their name against the products archive to
+# recover the true 発売日. A strong match (q>=0.90) wins outright for clamped sets; for modern sets it
+# only fills a still-missing date (create_date already won in pass 1).
 match_q = []
 for r in recs:
     era_max = 2017 if r["clamped"] else (int(r["create_date"][:4]) if r["create_date"] else 2026)
@@ -139,31 +149,37 @@ for r in recs:
             r["release_date"] = p["date"]; r["source"] = "archive"
 
 # pass 3: monotonic curve per track (alpha+ within track) for still-missing
-def to_ord(d):
+# Any set still undated is interpolated from its neighbours. Within a set-code alpha (W01, W02, … or
+# S01, S02, …) the set NUMBER increases monotonically with release date, so a set's number maps to a
+# date by linear interpolation between the dated sets around it (extrapolating past the ends).
+def to_ord(d):   # "YYYY-MM-DD" -> integer day count (so we can interpolate dates arithmetically)
     y, m, dd = (int(x) for x in d.split("-")); return datetime.date(y, m, dd).toordinal()
-def from_ord(o): return datetime.date.fromordinal(o).isoformat()
+def from_ord(o): return datetime.date.fromordinal(o).isoformat()   # back to "YYYY-MM-DD"
 
 # group anchors by set_alpha (W01.., S01.., WE.., SE..) since numbering resets per alpha
-anchors = defaultdict(list)   # alpha -> sorted [(set_num, ord)]
+anchors = defaultdict(list)   # alpha -> sorted [(set_num, ordinal_date)]  = the known points to interpolate between
 for r in recs:
     if r["release_date"] and r["set_alpha"] and r["set_num"] is not None:
         anchors[r["set_alpha"]].append((r["set_num"], to_ord(r["release_date"])))
 for a in anchors:
-    anchors[a] = sorted(anchors[a])
+    anchors[a] = sorted(anchors[a])   # sort by set number so xs is ascending (required by the search below)
 
 def interp(alpha, num):
+    # Estimate the release ordinal for set `num` in track `alpha` by piecewise-linear interpolation on
+    # its dated neighbours. Below the first / above the last known number, extrapolate along the nearest
+    # segment's slope. Needs >=2 anchors; guards against a zero-width segment (same x twice).
     arr = anchors.get(alpha)
     if not arr or len(arr) < 2: return None
     xs = [x for x, _ in arr]; ys = [y for _, y in arr]
     if num <= xs[0]:  # extrapolate low using first segment slope
         if xs[1] == xs[0]: return ys[0]
         slope = (ys[1]-ys[0])/(xs[1]-xs[0]); return int(ys[0]+slope*(num-xs[0]))
-    if num >= xs[-1]:
+    if num >= xs[-1]:  # extrapolate high using last segment slope
         if xs[-1] == xs[-2]: return ys[-1]
         slope = (ys[-1]-ys[-2])/(xs[-1]-xs[-2]); return int(ys[-1]+slope*(num-xs[-1]))
-    i = bisect.bisect_left(xs, num)
-    if xs[i] == num: return ys[i]
-    x0, x1, y0, y1 = xs[i-1], xs[i], ys[i-1], ys[i]
+    i = bisect.bisect_left(xs, num)   # first anchor index with xs[i] >= num
+    if xs[i] == num: return ys[i]      # exact anchor hit
+    x0, x1, y0, y1 = xs[i-1], xs[i], ys[i-1], ys[i]   # interpolate within the bracketing segment
     return int(y0 + (y1-y0)*(num-x0)/(x1-x0))
 
 for r in recs:

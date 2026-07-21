@@ -362,14 +362,18 @@ single_tag_deltas = collections.defaultdict(list)   # tag -> [credit samples]
 MIN_VARIANT_N = 2   # a payment-variant needs >=2 cards for its mode to enter a pair
                     # (body+payment matching is already very strict; >=2 keeps real pairs only)
 for key, variants in body_groups.items():
+    # One stable cost per payment-variant of this body = the mode of that variant's pooled card actuals.
     modes = {tk: mode500(vals) for tk, vals in variants.items() if len(vals) >= MIN_VARIANT_N}
+    # Compare every ordered pair of variants (A, B) of the SAME effect body. tk is a sorted tuple of tags;
+    # set(tk_a) - set(tk_b) = the tags A has that B lacks; the reverse = tags B has that A lacks.
     for tk_a, m_a in modes.items():
         sa = set(tk_a)
         for tk_b, m_b in modes.items():
             sb = set(tk_b)
-            extra = sa - sb
-            missing = sb - sa
-            # A has exactly one extra tag over B, nothing removed; ignore 'none/free'
+            extra = sa - sb        # what A pays that B doesn't
+            missing = sb - sa      # what B pays that A doesn't
+            # Clean isolation: A pays EXACTLY one extra tag and drops nothing (missing is empty) -> the whole
+            # cost gap A_mode - B_mode is attributable to that single tag t. Skip the 'none/free' pseudo-tag.
             if len(extra) == 1 and not missing:
                 t = next(iter(extra))
                 if t == "none/free":
@@ -432,27 +436,32 @@ print(f"payment_credits.csv written ({sum(1 for t in ALL_TAGS if single_tag_delt
 # Returns, per package, the per-era-bucket mode; flat across buckets => no creep.
 # ---------------------------------------------------------------------------
 def per_year_modes(samples, min_bucket=3):
+    """Split one package's samples by era bucket and return {era: mode_cost} for each era that has at least
+    min_bucket cards. If a package's cost were creeping over time, these per-era modes would DIFFER; a flat
+    set of identical modes across eras is direct evidence the standard is fixed (era is not a cost driver)."""
     by = collections.defaultdict(list)
     for _, actual, yb in samples:
-        by[yb].append(r500(actual))
+        by[yb].append(r500(actual))          # group each sample's rounded actual under its era bucket
     out = {}
     for yb, vals in by.items():
-        if len(vals) >= min_bucket:
-            out[yb] = collections.Counter(vals).most_common(1)[0][0]
+        if len(vals) >= min_bucket:          # ignore thin buckets (a 1-2 card mode is noise)
+            out[yb] = collections.Counter(vals).most_common(1)[0][0]   # this era's modal cost for the package
     return out
 
 
 creep_report = []   # (sig, n, overall_mode, {bucket: mode}, is_flat)
 ERA_ORDER = [e[0] for e in [("Genesis",), ("Bounty",), ("Gate",), ("Standby",), ("Choice",), ("Horizon",)]]
+# Only well-sampled packages (n>=30) that actually SPAN >=2 era buckets can testify about creep; for each,
+# is_flat is True when every era's mode is the same value (one distinct mode) = a fixed price across time.
 for sig, samples in iso_samples.items():
     n = len(samples)
     if n < 30:
         continue
     pym = per_year_modes(samples)
-    if len(pym) < 2:
+    if len(pym) < 2:                          # needs at least two eras to compare
         continue
     overall = standards[sig][1]
-    is_flat = len(set(pym.values())) == 1
+    is_flat = len(set(pym.values())) == 1     # all era modes identical -> no creep for this package
     creep_report.append((sig, n, overall, pym, is_flat))
 creep_report.sort(key=lambda x: -x[1])
 

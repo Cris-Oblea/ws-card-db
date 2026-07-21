@@ -90,18 +90,21 @@ if os.environ.get("DBG_CARD") or os.environ.get("DBG_SIG"):
     raise SystemExit
 
 # ---------- per variant: type, examples, real JP, EN ----------
+# One output row per distinct ability signature. For its display text/EN we pick a representative
+# occurrence: PREFER one that has a verified official-EN string (free, authoritative); otherwise fall
+# back to the first occurrence and look its JP text up in the permanent translation cache.
 to_translate = []
 rows_by_type = collections.defaultdict(list)
 for sig in ALLV:
-    occ = variant_occ[sig]
-    off = next((o for o in occ if (o[0], o[1]) in EN_AB), None)
+    occ = variant_occ[sig]                            # every (card_number, idx, markers, text) with this sig
+    off = next((o for o in occ if (o[0], o[1]) in EN_AB), None)   # first occurrence with an official-EN match
     if off:
         primary = off; jp_real = (primary[2] + " " + primary[3]).strip()
         en = EN_AB[(off[0], off[1])]                 # official EN exists -> free, no translation needed
     else:
         primary = occ[0]; jp_real = (primary[2] + " " + primary[3]).strip()
         en = CACHE.get(_nk(jp_real), "")             # normalized lookup; only blanks go to to_translate
-    # examples up to 3 (primary first)
+    # examples up to 3 distinct cards, primary first (skip duplicates of the same card_number)
     seen = set(); ex = []
     for o in [primary] + occ:
         if o[0] not in seen:

@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""WSAI portfolio MCP server — cross-repo status, translation gap, card search."""
+"""WSAI portfolio MCP server — cross-repo status, translation gap, card search.
+
+Exposes a handful of read-only tools (over the Model Context Protocol, via FastMCP) so an AI client can
+inspect the three WSAI repos and query this repo's card database. Each @mcp.tool() function below becomes
+one callable tool; its docstring is what the client sees. Run with `python tools/ws-mcp/server.py`
+(mcp.run() speaks MCP over stdio). Repo locations are overridable via env vars so it works regardless of
+where the sibling repos are checked out."""
 
 from __future__ import annotations
 
@@ -11,6 +17,8 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+# Repo roots: default to siblings under the user's home, but each is overridable via an env var so the
+# server runs unchanged on any machine / layout.
 HOME = Path(os.environ.get("USERPROFILE", Path.home()))
 CARD_DB = Path(os.environ.get("WS_CARD_DB", HOME / "ws-card-db"))
 SIM_LOGGER = Path(os.environ.get("WS_SIM_LOGGER", HOME / "ws-sim-logger"))
@@ -22,7 +30,7 @@ REPOS = {
     "ws-sim-ai": SIM_AI,
 }
 
-mcp = FastMCP("ws-tools")
+mcp = FastMCP("ws-tools")   # the tool registry; the @mcp.tool() decorator registers each function below
 
 
 def _read_status(repo_path: Path) -> str:
@@ -58,6 +66,7 @@ def get_translation_gap() -> str:
     by_kind: dict[str, dict[str, int]] = {}
     missing: list[str] = []
 
+    # A batch is "done" once its .out.json exists on disk; tally done/total + string counts per kind.
     for entry in batches:
         kind = entry.get("kind", "?")
         out_path = Path(entry["out"])
@@ -99,6 +108,8 @@ def get_logger_version() -> str:
 
 
 def _db_path() -> Path | None:
+    # Locate the queryable DB. Only the UNCOMPRESSED ws.sqlite is usable here (sqlite3 can't open the
+    # shipped .gz); the .gz is listed just to document the intent. Returns None if it hasn't been built.
     for candidate in (
         CARD_DB / "site" / "ws.sqlite",
         CARD_DB / "site" / "ws.sqlite.gz",
@@ -117,11 +128,13 @@ def search_cards(query: str, limit: int = 10) -> str:
             "site/ws.sqlite not found. Build it first:\n"
             "  cd ws-card-db && python pipeline/build_db.py"
         )
-    limit = max(1, min(limit, 50))
-    q = f"%{query.strip()}%"
+    limit = max(1, min(limit, 50))          # clamp so a caller can't request an unbounded scan
+    q = f"%{query.strip()}%"                 # substring match on both sides (parameterized -> no SQL injection)
     conn = sqlite3.connect(db_file)
-    conn.row_factory = sqlite3.Row
+    conn.row_factory = sqlite3.Row           # index columns by name instead of position
     try:
+        # Match the term against card number / JP name / EN name, OR any of the card's ability texts
+        # (the EXISTS subquery avoids duplicating a card once per matching ability).
         rows = conn.execute(
             """
             SELECT c.card_number, c.name, c.name_en, c.type, c.level, c.cost, c.power, c.soul

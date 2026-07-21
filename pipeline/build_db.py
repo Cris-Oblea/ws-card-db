@@ -30,12 +30,20 @@ RELEASE_DATE = {s["expansion_id"]: s.get("release_date") for s in _set_dates}
 # stats + EXACT effects (cards that differ in effect keep their own row). The representative prefers
 # a printing that HAS an official EN match (so we keep its English), then a base rarity. ---
 def _skey(code):   # publisher + set + normalized card id. Handles EN's inserted 'E' (E001/TE08/PE01)
+    # Split "PUB/SET-SUFFIX" (e.g. "DAL/W131-E012SP"). The suffix is then normalized so JP and EN forms
+    # of the SAME card collapse to one key:
+    #   inner re.sub  ^([A-Za-z]*)E(\d) -> \1\2 : drop the 'E' the EN codes insert before the number
+    #                                             (TE08 -> T08, E012 -> 012), keeping any trial/promo letter
+    #   outer re.sub  (\d)[A-Za-z]+$    -> \1    : strip a parallel/rarity suffix (012SP -> 012)
     m = re.match(r"([^/]+)/([A-Za-z]+\d+)-(.+)$", code or "")   # and trial(T)/promo(P) prefixes + parallels
     if not m: return None
     suf = re.sub(r"(\d)[A-Za-z]+$", r"\1", re.sub(r"^([A-Za-z]*)E(\d)", r"\1\2", m.group(3).upper(), count=1))
     return (m.group(1).upper(), m.group(2).upper(), suf)
-EN_STRICT = {_skey(e.get("code", "")) for e in en_cards}; EN_STRICT.discard(None)
+EN_STRICT = {_skey(e.get("code", "")) for e in en_cards}; EN_STRICT.discard(None)   # keys that HAVE an EN printing
 def _ckey(c):
+    # Identity of a physical card for de-dup: publisher prefix + normalized name + full stat line +
+    # the EXACT list of (type, normalized text) abilities. Two printings collapse ONLY if all of this
+    # matches, so a same-name card with a different effect (e.g. a regional variant) keeps its own row.
     return ((c.get("card_number", "") or "").split("/")[0], _nk(c.get("name")), c.get("power"),
             c.get("level"), c.get("cost"), c.get("soul"),
             tuple((a.get("type"), _nk(a.get("text"))) for a in ra(c)))

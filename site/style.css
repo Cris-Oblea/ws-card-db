@@ -1,15 +1,21 @@
+/* Dark-theme design tokens. Every color in the sheet references one of these vars, so the whole
+   palette can be retuned from this one block. Naming: --bg/--panel/--panel2 = surfaces (darkest to
+   lightest), --line = borders, --text/--dim = foreground, --accent* = highlights, --hi/--med/--lo =
+   confidence badges (HIGH/MEDIUM/LOW), --yellow/green/red/blue = the four card-color dots. */
 :root{
   --bg:#0f1117; --panel:#171a23; --panel2:#1e2230; --line:#2a2f40;
   --text:#e6e8ef; --dim:#9aa0b4; --accent:#6ea8fe; --accent2:#ffd166;
   --hi:#2ecc71; --med:#f1c40f; --lo:#8a8f9e;
   --yellow:#e0c64a; --green:#4caf72; --red:#e05a5a; --blue:#5a8fe0;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box}   /* padding/border count inside declared widths — makes the grid math predictable */
 /* the [hidden] attribute must win over .detail{display:flex} / #app{display:grid},
    otherwise the hidden detail overlay covers the page and eats all clicks */
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--text);
-  font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}   /* system font stack = no web-font fetch */
+/* sticky header stays pinned while the results scroll; z-index:5 keeps it above the table's own
+   sticky header row (z-index:1) and the result bar (z-index:2). */
 header{display:flex;align-items:baseline;gap:16px;padding:12px 18px;
   border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5}
 h1{font-size:18px;margin:0;font-weight:700}
@@ -17,9 +23,11 @@ h1 .sub{font-size:13px;color:var(--dim);font-weight:400;margin-left:6px}
 .status{color:var(--dim);font-size:13px}
 .status.err{color:var(--red)}
 
+/* Two-column app shell: fixed 300px filter sidebar + fluid results column. The height is the viewport
+   minus the ~49px sticky header, so the two columns scroll INDEPENDENTLY (each has overflow:auto). */
 #app{display:grid;grid-template-columns:300px 1fr;gap:0;height:calc(100vh - 49px)}
 #filters{background:var(--panel);border-right:1px solid var(--line);
-  padding:12px;overflow:auto}
+  padding:12px;overflow:auto}   /* the sidebar scrolls on its own when the filter list is tall */
 .search-row input{width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--line);
   background:var(--panel2);color:var(--text);font-size:14px}
 details{border-top:1px solid var(--line);padding:10px 0}
@@ -32,7 +40,8 @@ select,input[type=text],input[type=number],input[type=search]{width:100%;margin-
   padding:6px 8px;border-radius:6px;border:1px solid var(--line);
   background:var(--panel2);color:var(--text);font-size:13px}
 select[multiple]{padding:2px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}   /* two equal columns (e.g. Level/Cost/Soul) */
+/* the ✕ clear button floats to the right edge of each filter's <label>; turns red on hover. */
 .clr{float:right;background:none;border:none;color:var(--dim);cursor:pointer;
   font-size:11px;line-height:1;padding:0 3px;border-radius:4px}
 .clr:hover{color:var(--red);background:var(--panel)}
@@ -40,7 +49,9 @@ select[multiple]{padding:2px}
   background:var(--panel2);color:var(--text);cursor:pointer}
 #reset:hover{border-color:var(--accent)}
 
-main{overflow:auto;padding:0 14px 40px}
+main{overflow:auto;padding:0 14px 40px}   /* the results column; scrolls independently of the sidebar */
+/* result bar sticks to the top of the scrolling results column (top:0 within <main>); z-index:2 keeps
+   it above the table header (z-index:1). space-between pushes the count left, the pager right. */
 .resultbar{position:sticky;top:0;background:var(--bg);padding:10px 2px;color:var(--dim);
   font-size:13px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .pager{display:flex;align-items:center;gap:8px}
@@ -52,63 +63,75 @@ main{overflow:auto;padding:0 14px 40px}
 .pager button:not(:disabled):hover{border-color:var(--accent)}
 #pageinfo{min-width:84px;text-align:center}
 table{width:100%;border-collapse:collapse}
+/* nowrap on cells keeps rows to one line; the Name cell overrides this below to wrap EN+JP. */
 th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+/* header row sticks at top:38px so it sits just below the sticky result bar as the table scrolls. */
 th{position:sticky;top:38px;background:var(--bg);color:var(--dim);font-weight:600;font-size:12px;z-index:1}
-tbody tr{cursor:pointer}
+tbody tr{cursor:pointer}   /* rows are clickable -> open the detail modal (wired in run()) */
 tbody tr:hover{background:var(--panel2)}
-td.name{white-space:normal;min-width:200px}
+td.name{white-space:normal;min-width:200px}   /* Name is the one wrapping column (EN over JP) */
 td.name .en{color:var(--text)} td.name .jp{color:var(--dim);font-size:12px}
+/* the small circular card-color swatch; its fill comes from a .c-<color> class chosen in run(). */
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin-right:5px}
 .c-yellow{background:var(--yellow)} .c-green{background:var(--green)}
 .c-red{background:var(--red)} .c-blue{background:var(--blue)}
-.cost-cell{font-variant-numeric:tabular-nums;font-weight:600}
+.cost-cell{font-variant-numeric:tabular-nums;font-weight:600}   /* tabular figures keep cost columns aligned */
 .more{padding:14px;color:var(--dim);text-align:center}
 
-/* detail */
+/* detail modal. .detail = the full-viewport dark backdrop (inset:0 = top/right/bottom/left 0); a click
+   directly on it closes the modal (see initFilters). z-index:20 floats it above everything else.
+   Its display:flex is overridden by [hidden] when closed (see the [hidden] rule at the top). */
 .detail{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;
   align-items:flex-start;justify-content:center;padding:30px 16px;overflow:auto;z-index:20}
 .detail-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-  max-width:820px;width:100%;padding:20px;position:relative}
+  max-width:820px;width:100%;padding:20px;position:relative}   /* position:relative anchors the × close button */
 .close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--dim);
   font-size:26px;cursor:pointer;line-height:1}
 .close:hover{color:var(--text)}
-.d-head{display:flex;gap:18px}
+.d-head{display:flex;gap:18px}   /* image on the left, title+stats on the right */
+/* card image: fixed 200px column (flex:0 0 200px = don't grow/shrink), portrait 5:7 like a real card. */
 .d-img{width:200px;flex:0 0 200px;border-radius:8px;background:var(--panel2);
   border:1px solid var(--line);aspect-ratio:5/7;object-fit:cover}
-/* climax cards are landscape -> show them wide and uncropped */
+/* climax cards are landscape -> show them wide and uncropped (contain, not cover) */
 .d-img.climax{width:300px;flex-basis:300px;aspect-ratio:7/5;object-fit:contain}
 .d-img.placeholder{display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:12px;text-align:center;padding:8px}
 .d-title{font-size:19px;font-weight:700;margin:0 0 2px}
 .d-sub{color:var(--dim);margin:0 0 10px}
-.statline{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.statline{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}   /* rows of stat pills that wrap as needed */
 .chip{background:var(--panel2);border:1px solid var(--line);border-radius:999px;
-  padding:3px 10px;font-size:12px;color:var(--text)}
+  padding:3px 10px;font-size:12px;color:var(--text)}   /* border-radius:999px = pill shape */
+/* the power-budget breakdown box. Semantic colors: --accent2 (yellow) for the power figures,
+   --accent (blue) for the residual, --hi (green) ok / --med (amber) warn for the verdict line. */
 .budget{margin:14px 0;padding:10px 12px;background:var(--panel2);border-radius:8px;
   border:1px solid var(--line);font-size:13px;line-height:1.6}
 .budget b{color:var(--accent2)}
 .budget b.residual{color:var(--accent)}
 .budget .ok{color:var(--hi)} .budget .warn{color:var(--med)}
+/* the red "SUSPECT" pill shown when |residual| >= 500 (a card priced off the standard rate). */
 .badge-suspect{display:inline-block;background:rgba(224,90,90,.18);color:var(--red);
   border:1px solid var(--red);border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;
   letter-spacing:.05em;margin-right:4px;vertical-align:1px}
 .text-en{margin:12px 0;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.55}
 .text-en b{color:var(--accent2)}
+/* per-ability cards in the detail modal. .ab-top = type/family on the left, cost+confidence on the right. */
 .abilities{margin-top:10px}
 .ab{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0;background:var(--panel2)}
 .ab-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .ab-type{font-size:11px;font-weight:700;letter-spacing:.04em;padding:2px 7px;border-radius:5px;
-  background:#2b3147;color:var(--accent)}
+  background:#2b3147;color:var(--accent)}   /* the AUTO/ACT/CONT type tag */
 .ab-cost{font-weight:700;font-variant-numeric:tabular-nums}
+/* confidence badge — class HIGH/MEDIUM/LOW is set from abilities.confidence; each tints itself. */
 .conf{font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px;margin-left:6px}
 .conf.HIGH{background:rgba(46,204,113,.18);color:var(--hi)}
 .conf.MEDIUM{background:rgba(241,196,15,.18);color:var(--med)}
 .conf.LOW{background:rgba(138,143,158,.22);color:var(--lo)}
-.ab .fam{color:var(--dim);font-size:12px;margin:2px 0}
-.ab-cost[title]{cursor:help}
-.ab-evidence{color:var(--dim);font-size:11px;margin-top:3px}
-.ab .txt{margin:6px 0 0}
-.ab .jp{color:var(--dim);font-size:12px;margin-top:5px}
-.na{color:var(--dim);font-style:italic}
+.ab .fam{color:var(--dim);font-size:12px;margin:2px 0}   /* the cost-model family label */
+.ab-cost[title]{cursor:help}   /* help cursor signals the evidence tooltip on hover */
+.ab-evidence{color:var(--dim);font-size:11px;margin-top:3px}   /* the "N samples · X% mode · method" line */
+.ab .txt{margin:6px 0 0}   /* English ability text */
+.ab .jp{color:var(--dim);font-size:12px;margin-top:5px}   /* original JP text, dimmed */
+.na{color:var(--dim);font-style:italic}   /* "not available" placeholders (no cost / no text) */
 a.cardlink{color:var(--accent);text-decoration:none}
+/* narrow screens: collapse the two-column shell to a single stacked column, sidebar on top. */
 @media(max-width:760px){#app{grid-template-columns:1fr;height:auto}
   #filters{border-right:none;border-bottom:1px solid var(--line)}}
