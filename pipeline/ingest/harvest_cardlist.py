@@ -35,6 +35,8 @@ def log(msg):
         f.write(line + "\n")
 
 def fetch_page(page, retries=4):
+    # GET one results page with retry + exponential backoff (1s, 2s, 4s, 8s). Re-raises the last error
+    # if all attempts fail, so the caller can record the page as failed and move on.
     last = None
     for attempt in range(retries):
         try:
@@ -47,6 +49,8 @@ def fetch_page(page, retries=4):
     raise last
 
 def load_state():
+    # Resume point. last_page = highest page already written to the JSONL; a fresh run starts at 0 so
+    # the loop begins at page 1. failed_pages lets a later run see which pages need re-fetching.
     if os.path.exists(STATE):
         with io.open(STATE, encoding="utf-8") as f:
             return json.load(f)
@@ -66,30 +70,30 @@ def main():
     log("catalog total=%s page_count=%s | resuming after page %s"
         % (total, page_count, state["last_page"]))
 
-    start = state["last_page"] + 1
+    start = state["last_page"] + 1                 # continue right after the last page we persisted
     # append mode keeps prior pages if resuming
     jf = io.open(JSONL, "a", encoding="utf-8")
     failed = set(state.get("failed_pages", []))
 
     for page in range(start, page_count + 1):
         try:
-            data = first if page == 1 else fetch_page(page)
+            data = first if page == 1 else fetch_page(page)   # reuse the page-1 fetch we already did
         except Exception as e:
             log("PAGE %d FAILED after retries: %s" % (page, e))
-            failed.add(page)
+            failed.add(page)                       # don't abort the whole harvest for one bad page
             state["failed_pages"] = sorted(failed)
             save_state(state)
             continue
         items = data.get("items", []) or []
         for c in items:
-            jf.write(json.dumps(c, ensure_ascii=False) + "\n")
-        jf.flush(); os.fsync(jf.fileno())
+            jf.write(json.dumps(c, ensure_ascii=False) + "\n")   # one card per line (JSONL)
+        jf.flush(); os.fsync(jf.fileno())          # force to disk so a crash never loses a written page
         state["last_page"] = page
-        if page % 25 == 0 or page == page_count:
+        if page % 25 == 0 or page == page_count:   # checkpoint the resume state every 25 pages
             state["failed_pages"] = sorted(failed)
             save_state(state)
             log("page %d/%d done (%d cards on page)" % (page, page_count, len(items)))
-        time.sleep(THROTTLE)
+        time.sleep(THROTTLE)                        # polite delay between requests
 
     jf.close()
     state["failed_pages"] = sorted(failed)

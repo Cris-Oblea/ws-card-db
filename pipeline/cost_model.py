@@ -304,20 +304,29 @@ def en_family(t):   # ordered, precise EN family detection (CX combo / burn / cl
 REPLAY_MARK = "【リプレイ】"
 _RP_VERB = re.compile(r"^(を発動する|を発動|を使用する|を使用|をトリガー|する)")
 def _rp_action_prefixes(rtext):
+    # A replay row reads "〔ACTION NAME〕　〔effect body〕" (e.g. "全力全開！　このカードを…"). The citing
+    # ability refers back to the replay by that ACTION NAME ("…「全力全開！」を発動する"). We don't know where
+    # the name ends, so generate every candidate name = the text up to each whitespace boundary, plus the
+    # whole string, then try them LONGEST-first (the most specific name that still matches wins).
     r = rtext.strip(); cands = []
-    for m in re.finditer(r"[\s　]+", r): cands.append(r[:m.start()])   # raw prefixes (keep internal spaces)
-    cands.append(r)
+    for m in re.finditer(r"[\s　]+", r): cands.append(r[:m.start()])   # prefix ending at each space (name candidates)
+    cands.append(r)                                                   # also try the entire replay text as the name
     return sorted({x for x in cands if len(x.strip()) >= 2}, key=len, reverse=True)   # longest (most specific) first
 def _rp_find_citer(rtext, abs_, ri):
+    # Locate the ability on THIS card that invokes the replay at index ri. Walk the candidate action-names
+    # (longest first); for each, scan every OTHER non-replay ability; find the name as a substring; accept it
+    # ONLY when what immediately follows is an activation verb (を発動する / を使用する / をトリガー / する) or a
+    # clause break (。、，）) or end-of-text -- i.e. the ability genuinely "uses" that named action, rather than
+    # just happening to contain those characters mid-sentence. Returns (citer_index, matched_name) or (None,None).
     for cand in _rp_action_prefixes(rtext):
         for j, a in enumerate(abs_):
-            if j == ri or REPLAY_MARK in "".join(a.get("markers") or []): continue
+            if j == ri or REPLAY_MARK in "".join(a.get("markers") or []): continue   # skip self + other replays
             ct = a.get("text") or ""; idx = ct.find(cand)
-            while idx != -1:
-                after = ct[idx + len(cand):]
+            while idx != -1:                                     # a name can appear more than once; check each hit
+                after = ct[idx + len(cand):]                     # the text right after the candidate name
                 if _RP_VERB.match(after) or re.match(r"^[。、，）\)]", after) or after == "":
-                    return j, cand
-                idx = ct.find(cand, idx + 1)
+                    return j, cand                               # verb/boundary follows -> a real invocation
+                idx = ct.find(cand, idx + 1)                     # otherwise keep looking for the next occurrence
     return None, None
 
 # Method -> base confidence. Kept as a plain dict so the Excel builder (build_official_list.py) can still
@@ -448,6 +457,10 @@ def _fold_replays(clean):
             cmk = "".join(abs_[cj].get("markers") or []); rmk = "".join(abs_[ri].get("markers") or [])
             csig = cmk + " :: " + gen((abs_[cj].get("text") or "") + " " + reff)   # fold body into the citer sig
             rsig = rmk + " :: " + gen(rtext)
+            # The override map = (card_number, ability_index) -> the signature that ability MUST be counted under.
+            # Downstream, the citer (index cj) is measured as if its text already included the replay body, and
+            # the replay row itself (index ri) is measured under its own sig -- which STEP 0 then fixes at cost 0,
+            # so the replay body's cost is counted exactly once (on the citer) and never double-counted.
             rp_sig_override[(c["card_number"], cj)] = csig
             rp_sig_override[(c["card_number"], ri)] = rsig
             citer_sigs.add(csig); replay_sigs.add(rsig)
@@ -526,12 +539,18 @@ def build_cost_model(clean):
     multi = [(cn, dl, sg, e) for (cn, dl, sg, e) in char_cards if len(sg) > 1]
     # STEP 2 NON-absorber residual: solve the lone unknown ONLY when it is NOT an absorber sig (CXC or
     # citer). A still-unknown absorber keeps its card "unresolved" here -> deferred to step 3b.
+    # HOW (residual by subtraction): on a multi-ability card whose per-card delta = sum of ALL its ability
+    # costs, if every ability but one already has a cost, the missing one MUST equal delta - sum(known). We
+    # pool that inferred value across every card where the same sig is the lone unknown, then take the mode
+    # (rounded 500) as its cost. FIXPOINT: solving one sig can turn a 2-unknown card into a 1-unknown card,
+    # so we repeat the whole sweep; `new` counts sigs resolved this pass and we stop as soon as a pass
+    # resolves nothing. range(10) is just a hard cap so a pathological graph can't loop forever.
     for _ in range(10):
         res = collections.defaultdict(list)
         for cn, dl, sg, e in multi:
-            unk = [s for s in sg if s not in cost]
-            if len(unk) == 1 and not is_absorber(unk[0]):
-                res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))
+            unk = [s for s in sg if s not in cost]                 # sigs on this card still lacking a cost
+            if len(unk) == 1 and not is_absorber(unk[0]):         # exactly one unknown, and it's directly solvable
+                res[unk[0]].append(dl - sum(cost[s] for s in sg if s in cost))   # inferred cost from this card
         new = 0
         for sig, samples in res.items():
             if sig in cost: continue
@@ -547,6 +566,8 @@ def build_cost_model(clean):
     validation_n = len(errs)
     # STEP 3a NON-absorber family estimate: give every remaining NON-absorber sig a value NOW, so the only
     # unknown left on an absorber card is its CXC / citer sig (step 3b then absorbs it from the delta).
+    # Build a per-family median from every sig already priced by measurement/residual (grouping by the sig's
+    # family), then hand any still-unknown non-absorber sig that family's median as a fallback GUESS.
     fam_known = collections.defaultdict(list)
     for sig, cst in cost.items():
         if sig in replay_sigs or sig in noop_sigs: continue   # structural 0s are not effect costs -> don't bias family medians
@@ -554,7 +575,7 @@ def build_cost_model(clean):
     fam_med = {f: r500(st.median(v)) for f, v in fam_known.items()}
     for sig in ALLV:
         if sig in cost or is_absorber(sig): continue
-        cost[sig] = fam_med.get(fam_of(sig), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
+        cost[sig] = fam_med.get(fam_of(sig), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)   # 500 if the family has no data at all
     # STEP 3b absorber residual ABSORBER: with all non-absorber sigs known, derive each CXC / citer sig
     # from the cards where it is now the lone unknown -> absorber = delta - sum(others). CXC floored at
     # >= 500; a citer floored at >= 0 (the folded replay body never gives power back to the card).

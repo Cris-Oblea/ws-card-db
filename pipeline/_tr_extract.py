@@ -58,6 +58,9 @@ for c in clean:
 json.dump(AB_OFFICIAL_EN, open(os.path.join(D, "abilities_official_en.json"), "w", encoding="utf-8"), ensure_ascii=False)
 AB_OFF = {_nk(k) for k in AB_OFFICIAL_EN}
 
+# Collect what STILL needs an agent translation: an ability/name/trait goes into the *_need set only if
+# it isn't already covered by (a) the permanent cache, (b) an official-EN match, or (c) a prior agent
+# pass. Sets de-dup automatically, so each distinct string is emitted for translation at most once.
 ab_need, name_need, trait_need = set(), set(), set()
 for c in clean:
     if c.get("excluded"): continue

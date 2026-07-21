@@ -22,11 +22,13 @@
 import os, re, json, time, html, sys, unicodedata, urllib.request
 
 D = os.path.dirname(os.path.abspath(__file__))
-INDEX = "https://www.heartofthecards.com/code/cardlist.html?pagetype=ws"
-SET   = "https://www.heartofthecards.com/code/cardlist.html?pagetype=ws&cardset=%s"
+INDEX = "https://www.heartofthecards.com/code/cardlist.html?pagetype=ws"        # the set-listing index page
+SET   = "https://www.heartofthecards.com/code/cardlist.html?pagetype=ws&cardset=%s"  # one set's card table
 UA    = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ws-card-db personal research"}
+# Each card row in a set page renders as two <a> cells: the card link, then a cell whose <a> holds the
+# ENGLISH name and the JP name separated by <br>. This regex captures (english, japanese) from that pair.
 ROW   = re.compile(r'card=WS_[^"]+">[^<]*</a></td><td[^>]*><a[^>]*>([^<]+)<br>([^<]+)</a>')
-STUB  = 2000   # real set pages are 50k-110k bytes; throttle stubs are ~400
+STUB  = 2000   # size threshold: real set pages are 50k-110k bytes; a rate-limit throttle stub is only ~400
 
 def fetch(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:

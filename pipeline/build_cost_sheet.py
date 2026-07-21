@@ -4,19 +4,21 @@ import os
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
 
-def round500(x): return int(round(x/500.0)*500)
+def round500(x): return int(round(x/500.0)*500)          # snap to the game's 500-power granularity
 
 # ---------- (3) CALCULATOR (executable model, approximate; LLM judgment refines) ----------
-COND_MULT = {"soft": 0.5, "strict": 0.25, "unreliable": 0.4}
+# A runnable version of the design rules: start from an effect's base value and apply multiplicative
+# discounts for each modifier, then round to 500. Used to sanity-check the rules against known cards.
+COND_MULT = {"soft": 0.5, "strict": 0.25, "unreliable": 0.4}   # each condition multiplies the cost down
 def cost_effect(base, *, conds=(), costed=False, gives_resource=False, era="modern", breadth="universal"):
     v = float(base)
-    for c in conds: v *= COND_MULT.get(c, 0.5)
-    if costed and not gives_resource: v *= 0.5          # cost lowers effects that do NOT give a resource
-    if breadth == "restricted": v *= 0.5
-    if era == "legacy": v *= 2.0
+    for c in conds: v *= COND_MULT.get(c, 0.5)           # stack condition discounts multiplicatively
+    if costed and not gives_resource: v *= 0.5          # a paid cost lowers effects that do NOT give a resource
+    if breadth == "restricted": v *= 0.5                 # trait/name-limited targets cost half of universal
+    if era == "legacy": v *= 2.0                         # legacy pricing ran ~2x (historical, not the live model)
     return round500(v)
-# quick auto-test (must yield the known values):
-assert cost_effect(1500) == 1500                         # easy burn
+# quick auto-test: the formula must reproduce known measured values (runs on import; asserts on drift).
+assert cost_effect(1500) == 1500                         # easy burn (no discounts) = 1500
 assert cost_effect(1500, costed=True) == 1000 or cost_effect(1500,costed=True)==500  # costed burn lowers
 
 # ---------- data: PRIMITIVES (effect, base cost 500s, sub-types, confidence) ----------

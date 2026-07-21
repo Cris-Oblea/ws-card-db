@@ -1,19 +1,24 @@
 # Ability Cost Guide — Weiss Schwarz (for CUSTOM cards)
 *Balance reference: "I want this effect → it costs X power". Cost = how much power is SUBTRACTED from the card (power_real = power_base − cost). **Everything in multiples of 500.** Built by measurement (mode) + game model. v1 — 2026-06-14.*
 
+> **Canonical model reference:** for the full, up-to-date explanation of how costs are computed, see
+> **`documentation/COST_MODEL.md`**. This guide is the practical cheat-sheet for costing *novel* effects;
+> `COST_MODEL.md` is the authority on the model itself. The **era factor below has been removed** — era is
+> metadata, not a cost driver (see the note in §0 and §2).
+
 ---
 ## 0. HOW TO THINK ABOUT COST (the model)
 **The power-cost ≈ the NET ADVANTAGE in resources/tempo that the effect provides.** Mental formula:
 
-> **cost ≈ (base value of the effect) × (ease of execution) × (era factor) → round to 500**
+> **cost ≈ (base value of the effect) × (ease of execution) → round to 500**
 
 - **Resource economy:** card to **hand or stock = +1 resource ≈ +1000**; card to **waiting = you lose a resource**. An effect that GIVES you a resource must carry a cost that balances it.
 - **Ease:** easy (on-play, no cost, no condition) = expensive; with cost / condition / unreliable trigger = cheaper. MOST effects come "gated" → that's why most fall low (500-1000).
-- **Era:** legacy (<2017) ≈ **2×** the modern cost (powercreep). Design with MODERN values.
+- **Era:** ~~legacy (<2017) ≈ 2× the modern cost (powercreep)~~ — **NOT a factor.** Era/date is descriptive metadata only; there is no per-package power-creep (the apparent creep was effect-mix shift + dispersion, verified empirically). Cost a novel effect the **same** regardless of era.
 - **Rounding:** always to 500 (cards move in those increments). Use the **MODE**, not the mean.
 
 ---
-## 1. PRIMITIVES — BASE value of each effect (clean, mode, 500s, MODERN)
+## 1. PRIMITIVES — BASE value of each effect (clean, mode, 500s, pooled across ALL years)
 *These are "easy" atomic effects (on-play, no cost). The gates (section 2) lower them.*
 
 | Effect | Base cost | Notes / sub-types |
@@ -29,7 +34,7 @@
 | **Self power-pump** | **CIP one-shot (that turn) = X/3** · **CONT my-turn = X/2** · **CONT always ≈ 2X** | the "always" also defends, hence more expensive. |
 | **Board-buff** "+X to ALL your other 《T》" | **2×X** | level-tiered (L0/1→+500, L2→+1000, L3→+1500); **at L3 the +1500 collapses to ~500**. |
 | **Clock-kick** (reverse opponent char → their clock) | **≈ burn (~500-1000)** | uncancelable (premium) BUT the "reverse" trigger is unreliable → it compensates. |
-| **Backup (助太刀) X** (keyword) | **2×X** | +1500 legacy = 4000 (grandfather). |
+| **Backup (助太刀) X** (keyword) | **2×X** | the +1500 backup measures **4000** (not 2×1500=3000) — a fixed per-value exception, confirmed as an all-years standard, not an era effect. |
 | **Assist (応援) +X** (to those in front) | generic **3×X** / with trait **X** | |
 | **Brainstorm** (集中) mill N | mill4=**1000**, mill5=**2000** | |
 | **CIP +X power** already covered above (self-pump CIP = X/3) | | |
@@ -42,7 +47,7 @@
   - strict (specific FULL name) = **×¼**
   - **unreliable** (depends on opponent's board: "reverse", "the opponent has X") = discounts **more** (it may not be usable).
   - OR of conditions discounts less than AND. They stack multiplicatively.
-- **× ERA:** legacy ≈ **2×** modern.
+- **× ERA:** ~~legacy ≈ 2× modern~~ — **REMOVED.** Era is not a cost modifier (metadata only; no per-package creep — see §0).
 - **SELECTION BREADTH:** universal (any card) >> restricted to a trait (≈ ½).
 - **CANCELABLE vs UNCANCELABLE:** damage that passes through the trigger-check is canceled by a climax; that which moves cards (clock-kick, refresh) is NOT → premium, but weigh it against the trigger's reliability.
 
@@ -61,7 +66,7 @@ An ability that **MANDATORILY depends on a specific climax** (in CX zone, or a p
 ## 5. HOW TO COST A NOVEL EFFECT (step by step)
 1. **Decompose** into atomic effects (section 1) + identify the composition operator (section 3).
 2. **Hard-gate / CX-combo?** → floor ~500, done.
-3. For each effect: **base value** (section 1) × **modifiers** (section 2: cost, condition×reliability, era, breadth).
+3. For each effect: **base value** (section 1) × **modifiers** (section 2: cost, condition×reliability, breadth — no era factor).
 4. **Compose** (sum / modal=best-option / multi-trigger×n).
 5. **Does it give a resource (card to hand/stock)?** add ~1000 if it does NOT carry a cost that balances it.
 6. **Round to 500.**

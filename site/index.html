@@ -1,23 +1,41 @@
 <!DOCTYPE html>
+<!--
+  Weiss Schwarz Card DB — the single page of the static lookup site (no backend).
+  All behavior lives in app.js; all styling in style.css; the data is fetched as ws.sqlite.gz.
+  This file is just the skeleton + the mount points (element IDs) that app.js queries by.
+  See documentation/WEBAPP.md for the end-to-end architecture.
+
+  CACHE-BUSTING: the "?v=N" on style.css / app.js below are MANUAL version stamps — bump them by
+  hand whenever you edit those files so browsers don't serve a cached old copy. (The ws.sqlite.gz
+  "?v=" inside app.js is different: build_db.py stamps it automatically with a content hash.)
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Weiss Schwarz — Card DB &amp; power cost per ability</title>
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=19"><!-- bump ?v when style.css changes -->
 </head>
 <body>
 <header>
   <h1>Weiss Schwarz <span class="sub">card DB &amp; power cost per ability</span></h1>
+  <!-- #status: app.js writes "Loading…"/"Decompressing…", then the card counts, or an error here. -->
   <div id="status" class="status">Loading database…</div>
 </header>
 
+<!-- #app starts HIDDEN; boot() in app.js unhides it only once the DB is loaded and the UI is wired. -->
 <div id="app" hidden>
+  <!-- #filters: the left sidebar. Every control's id is read by app.js (buildWhere reads their values;
+       initFilters populates the <select>s and attaches listeners). The empty <select>s below are
+       filled at runtime from the DB's distinct values, NOT hardcoded. -->
   <aside id="filters">
     <div class="search-row">
+      <!-- #q: free-text search — matches name/title blob (accent-insensitive) OR ability text. -->
       <input id="q" type="search" placeholder="Search name, title, card no. or effect text…" autocomplete="off">
     </div>
 
+    <!-- Each .clr button's data-clear = the id of the control it resets (handled by the delegated
+         click listener in initFilters). <details open> = a collapsible section, expanded by default. -->
     <details open><summary>Card</summary>
       <label>Type <button class="clr" data-clear="f-type" type="button" title="clear">✕</button>
         <select id="f-type" multiple size="3"></select></label>
@@ -47,12 +65,16 @@
     <details open><summary>Text</summary>
       <label>Trait <button class="clr" data-clear="f-trait" type="button" title="clear">✕</button>
         <input id="f-trait" type="text" placeholder="e.g. 魔法 / Magic"></label>
+      <!-- #f-neo gets a runtime-built <datalist> for autocomplete; typing an exact neo name (either
+           language) filters by that franchise's precise set codes. See initFilters() + buildWhere(). -->
       <label>Title (Neo-Standard) <button class="clr" data-clear="f-neo" type="button" title="clear">✕</button>
         <input id="f-neo" type="text" placeholder="e.g. Date a Live / デート・ア・ライブ"></label>
       <label>Series <button class="clr" data-clear="f-series" type="button" title="clear">✕</button>
         <input id="f-series" type="text" placeholder="e.g. P3"></label>
     </details>
 
+    <!-- Ability power cost: filters cards by the cost of their EFFECTS (not printed power). Confidence
+         values (HIGH/MEDIUM/LOW) map to the abilities.confidence column. -->
     <details open><summary>Ability power cost <span class="hint">(how much an effect lowers power)</span></summary>
       <div class="grid2">
         <label>Cost ≥ <button class="clr" data-clear="f-ac-min" type="button" title="clear">✕</button>
@@ -72,9 +94,11 @@
     <button id="reset" type="button">Reset all filters</button>
   </aside>
 
+  <!-- #main: the results area. run() in app.js fills #count/#pageinfo, toggles the pager buttons,
+       and rewrites the table's <tbody>. The value="0" page-size option means "all on one page". -->
   <main>
     <div id="resultbar" class="resultbar">
-      <span id="count"></span>
+      <span id="count"></span><!-- "N cards" -->
       <span class="pager">
         <label>per page
           <select id="page-size">
@@ -85,10 +109,12 @@
             <option value="0">all</option>
           </select></label>
         <button id="prev" type="button" title="previous">‹</button>
-        <span id="pageinfo"></span>
+        <span id="pageinfo"></span><!-- "page X / Y" -->
         <button id="next" type="button" title="next">›</button>
       </span>
     </div>
+    <!-- Results table. <tbody> is empty here and populated by run(); the header order matches the
+         SELECT column order in run(). "Effects cost" = the card's total model cost (fmtCost). -->
     <table id="results"><thead><tr>
       <th>No.</th><th>Name</th><th>Type</th><th>Color</th>
       <th>Lv</th><th>Co</th><th>Pow</th><th>So</th><th>Effects cost</th>
@@ -96,6 +122,8 @@
   </main>
 </div>
 
+<!-- #detail: the card modal overlay. Hidden by default; showDetail() fills #detail-body and unhides
+     it. Closes via the × button, a backdrop click, or Escape (all wired in initFilters). -->
 <div id="detail" class="detail" hidden>
   <div class="detail-card" role="dialog" aria-modal="true">
     <button id="detail-close" class="close" aria-label="Close">×</button>
@@ -103,9 +131,15 @@
   </div>
 </div>
 
-<!-- sql.js (SQLite in the browser) + pako (gunzip) from CDN -->
+<!-- CDN dependencies, loaded BEFORE app.js so its globals (pako, initSqlJs) exist when boot() runs:
+       pako 2.1.0    — gunzips ws.sqlite.gz in the browser (exposes window.pako).
+       sql.js 1.10.3 — SQLite compiled to WebAssembly (exposes window.initSqlJs; also fetches a
+                       matching sql-wasm.wasm from the SAME versioned CDN path — see app.js locateFile).
+     OFFLINE/AVAILABILITY RISK: if cdnjs is unreachable, the app cannot load at all. To harden this you
+     would vendor these files locally into site/ and point these src= (and locateFile) at them — see
+     documentation/WEBAPP.md. Keep the sql.js version here in lockstep with the one in app.js. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="app.js?v=21"></script>
+<script src="app.js?v=22"></script><!-- bump ?v when app.js changes -->
 </body>
 </html>

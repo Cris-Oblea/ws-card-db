@@ -41,4 +41,12 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 Pipeline validated at 98%; web in production (~40k cards). In progress: bilingual JP→EN translation (10/16 batches) + accuracy improvement ("suspects" detection + golden costs).
 
 ## To go deeper
-`pipeline/README.md` · `pipeline/Ability_Cost_Guide.md` · `pipeline/Conclusions.md` (the model in detail) · `documentation/en-name-matching.md` (how official EN is attached + legacy disparity exclusions) · `STATUS.md` (live status).
+The detailed docs in `documentation/`:
+- **[`STACK.md`](STACK.md)** — languages, runtimes, exact dependency versions, from-scratch setup, external data sources + scraping etiquette.
+- **[`ARCHITECTURE.md`](ARCHITECTURE.md)** — the two products, repo map, the full data-flow diagram, the JSON artifact catalogue (writer/reader/tracked-or-regenerable), and the module graph with `cost_model.py` as the single source of cost math.
+- **[`RUNBOOK.md`](RUNBOOK.md)** — hands-on, no-AI, step-by-step: full rebuild in stage order, regenerating just the DB / Excel, running the site, deploying to Pages, the MCP server, and change recipes (new set, new cost family, debugging a suspect, EN exclusions).
+- **[`COST_MODEL.md`](COST_MODEL.md)** — the power-cost math end to end (the detail behind `pipeline/cost_model.py`).
+- **[`WEBAPP.md`](WEBAPP.md)** — the static lookup site (`site/`): how it loads and queries the SQLite in the browser.
+- **[`en-name-matching.md`](en-name-matching.md)** — how official EN is attached + the legacy-disparity exclusions.
+
+Also: `pipeline/README.md` (pipeline quick reference) · `pipeline/Ability_Cost_Guide.md` · `pipeline/Conclusions.md` · `STATUS.md` (live status).

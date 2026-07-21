@@ -55,6 +55,9 @@ def commit(cur):
     if tl:           traits[k] = tl
     if cur["texts"]: abilities[k] = cur["texts"]
 
+# CardData.txt is a flat, line-oriented format: a "Character: CODE" line opens a card, then Name/Trait*/
+# Text* lines describe it, until "EndCard" (or the next card header). We parse it as a small state machine:
+# `cur` is the card being accumulated; committing a card resets it.
 for root, _, fs in os.walk(SIM_DIR):
     if "CardData.txt" not in fs:
         continue
@@ -64,18 +67,18 @@ for root, _, fs in os.walk(SIM_DIR):
         for line in fh:
             s = line.rstrip("\n"); t = s.strip()
             m = CARD.match(t)
-            if m:
+            if m:                                        # new card header -> commit the previous, start fresh
                 commit(cur); entries += 1
                 cur = {"key": skey_str(m.group(1)), "name": None, "traits": [], "texts": []}
             elif cur is None:
-                continue
+                continue                                 # lines before the first card header -> ignore
             elif s.startswith("Name "):    cur["name"] = s[5:].strip()
-            elif s[:5] == "Trait" and s[5:6].isdigit():   # Trait1 / Trait2 / Trait3 (in file order)
+            elif s[:5] == "Trait" and s[5:6].isdigit():   # Trait1 / Trait2 / Trait3 (kept in file order)
                 p = s.split(None, 1)
                 if len(p) > 1: cur["traits"].append(p[1].strip())
-            elif t.startswith("Text "):    cur["texts"].append(t[5:].strip())
-            elif t == "EndCard":           commit(cur); cur = None
-    commit(cur)   # last card in the file
+            elif t.startswith("Text "):    cur["texts"].append(t[5:].strip())   # one ability line each
+            elif t == "EndCard":           commit(cur); cur = None              # explicit card terminator
+    commit(cur)   # last card in the file (no trailing EndCard/header to trigger the commit)
 
 for fn, obj in (("name_sim.json", names), ("traits_sim.json", traits), ("abilities_sim.json", abilities)):
     with open(os.path.join(D, fn), "w", encoding="utf-8") as f:
