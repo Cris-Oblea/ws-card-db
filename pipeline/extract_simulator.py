@@ -210,11 +210,22 @@ def commit(cur):
 # CardData.txt is a flat, line-oriented format: a "Character: CODE" line opens a card, then Name/Trait*/
 # Text* lines describe it, until "EndCard" (or the next card header). We parse it as a small state machine:
 # `cur` is the card being accumulated; committing a card resets it.
+#
+# GainEffect { ... } is a nested construct: a temporary ability the OUTER ability grants to a card
+# (e.g. a CX-combo that grants a battle-triggered effect "until end of turn"). It has its OWN inner
+# "Text " line describing just that granted sub-ability -- but in cardlist_clean.json that granted
+# effect is embedded as a quoted clause INSIDE the outer ability's single JP text, not a separate
+# ability. So an inner GainEffect's Text line must be SUPPRESSED, or the ability count inflates by 1
+# per granted-effect card and build_db.py's alignment check (sim count == JP count) then rejects the
+# WHOLE card's simulator text, not just the extra one. Tracked via brace depth: gain_stack records
+# the depth at which each GainEffect opened; while non-empty, "Text " lines are dropped, not counted.
 for root, _, fs in os.walk(SIM_DIR):
     if "CardData.txt" not in fs:
         continue
     files += 1
     cur = None
+    depth = 0
+    gain_stack = []
     with open(os.path.join(root, "CardData.txt"), encoding="utf-8", errors="replace") as fh:
         for line in fh:
             s = line.rstrip("\n"); t = s.strip()
@@ -222,26 +233,40 @@ for root, _, fs in os.walk(SIM_DIR):
             if m:                                        # new card header -> commit the previous, start fresh
                 commit(cur); entries += 1
                 cur = {"key": skey_str(m.group(1)), "name": None, "traits": [], "texts": []}
+                depth = 0; gain_stack = []
             elif cur is None:
                 continue                                 # lines before the first card header -> ignore
             elif s.startswith("Name "):    cur["name"] = s[5:].strip()
             elif s[:5] == "Trait" and s[5:6].isdigit():   # Trait1 / Trait2 / Trait3 (kept in file order)
                 p = s.split(None, 1)
                 if len(p) > 1: cur["traits"].append(p[1].strip())
-            elif t.startswith("Text "):    cur["texts"].append(t[5:].strip())   # one ability line each
+            elif t == "GainEffect":        gain_stack.append(depth)   # remember the depth it opened at
+            elif t.startswith("Text "):
+                if not gain_stack:          # only a TOP-LEVEL Text line is one ability; a nested
+                    cur["texts"].append(t[5:].strip())   # GainEffect's own Text describes a clause
+                                                          # already embedded in the outer ability's JP text
             elif t == "EndCard":           commit(cur); cur = None              # explicit card terminator
             else:
                 mm = MACRO_LINE.match(t)
                 # A macro line IS one ability slot, same as a "Text " line -- appended here, in the
                 # same left-to-right scan, so it lands in the correct position relative to any Text
                 # lines around it (macros and Text-ending blocks never describe the same ability).
-                if mm:
+                if mm and not gain_stack:
                     synth = synthesize_macro(mm.group(1), mm.group(2))
                     if synth:
                         cur["texts"].append(synth); macro_hits += 1
                     else:
                         macro_misses += 1
                         unresolved_macros[mm.group(1)] = unresolved_macros.get(mm.group(1), 0) + 1
+            if cur is not None:
+                depth_before = depth
+                depth += t.count("{") - t.count("}")
+                # Only check for a closed GainEffect on a line that actually CLOSED a brace -- doing
+                # this unconditionally would immediately pop right after the push above, since the
+                # "GainEffect" line itself has no braces yet (its own "{" is still the NEXT line).
+                if depth < depth_before:
+                    while gain_stack and depth <= gain_stack[-1]:
+                        gain_stack.pop()      # this GainEffect block just closed
     commit(cur)   # last card in the file (no trailing EndCard/header to trigger the commit)
 
 for fn, obj in (("name_sim.json", names), ("traits_sim.json", traits), ("abilities_sim.json", abilities)):

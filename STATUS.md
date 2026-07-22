@@ -86,10 +86,23 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   in their OWN declared order (e.g. `OnPlayMillGainPowerForEach(NUMBER,POWER,TRAITLIST)` — NUMBER
   before POWER, contradicting the fixed-priority guess the tsv-only fallback has to make), so it's
   authoritative where present; `macros.tsv` remains the fallback for macros CE doesn't define a
-  `Text` line for. **Final result: 30,081 of 30,150 macro lines resolved (99.8%)**; site-wide
-  ability EN coverage **98.4%** (65,752/66,817). The ~69 still unresolved have NO English
-  description anywhere in either source (internal sub-routines like `CountSoulTriggers`) — nothing
-  left to extract without inventing prose. Rebuilt `site/`: unchanged 40,393 cards/66,817 abilities,
+  `Text` line for. 30,081 of 30,150 macro lines resolve (99.8%). The ~69 still unresolved have NO
+  English description anywhere in either source (internal sub-routines like `CountSoulTriggers`) —
+  nothing left to extract without inventing prose.
+- ✅ **Third bug found the same day (user again — spotted `BRD/W139-004` still blank): nested
+  `GainEffect { ... }` blocks were double-counted as an extra ability.** A CX-combo-style ability
+  that temporarily GRANTS a whole extra ability to a card is written as an outer block containing a
+  `GainEffect { ... }` sub-block with its OWN `Text` line for the granted effect — but in
+  `cardlist_clean.json` that granted effect is just a quoted clause INSIDE the outer ability's single
+  JP text, not a separate ability. The parser was counting both, inflating that card's ability count
+  by 1 and breaking build_db.py's positional-alignment check for the WHOLE card (all its abilities
+  went blank, not just the extra one). Fixed via brace-depth tracking that suppresses a nested
+  `GainEffect`'s own `Text`/macro lines. (First attempt at this had a self-defeating bug — checked
+  for the block closing on the SAME line it opened, before its own `{` had even been seen — fixed by
+  only checking on a line that actually closed a brace.) **Final site-wide ability EN coverage:
+  98.9% (66,069/66,817)**, up from 98.4%. New-set coverage after this fix: GBF 85.7% (was 73.6%),
+  BRD 87.0%, GA Bunko ~90%, RZ/IMC already ~98% (older franchises, more mature simulator data).
+  Rebuilt `site/`: unchanged 40,393 cards/66,817 abilities,
   Explained% 95.6%, suspects 3544 (EN text doesn't feed the cost model, so no regression risk there
   by construction).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
