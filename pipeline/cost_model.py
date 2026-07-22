@@ -375,10 +375,41 @@ _PUMP_SELF_N = re.compile(r"このカードのパワーを[＋+](\d+)")
 _PUMP_TEMP   = re.compile(r"ターン中|ターンの終わりまで|そのターン")
 _PUMP_COND   = re.compile(r"なら|場合|いれば")
 _PUMP_SCALE  = re.compile(r"につき|枚数")
+# ---- scaling-pump sub-case: "+500 PER matching card" or "X = count x N" (base is a per-unit RATE, not a
+# flat number) -- the printed rate alone isn't the cost; the model reads it as rate x an ASSUMED count of
+# matching cards, since the parser can't know the real board state. Assumed count depends on WHAT is being
+# counted (verified against 644 isolated single-ability measured samples, 2026-07-22):
+#   - a SPECIFIC NAMED card ("「N」1枚につき") -- rare to have even 1 extra copy in play -> assume 0.5
+#   - a small just-revealed/milled sample ("それらのカード", e.g. mill 2 then count matches among them,
+#     not your whole board) -> assume 1
+#   - the OPPONENT's characters ("相手のキャラの枚数") -- typically a fuller/less controllable board than
+#     your own -> assume 4
+#   - anything else (a generic trait/character count on YOUR board) -> assume 2
+_PUMP_RATE1 = re.compile(r"1枚につき、このカードのパワーを[＋+](\d+)")
+_PUMP_RATE2 = re.compile(r"枚数[×x](\d+)に等しい")
+_PUMP_NAMED_CT = re.compile(r"「N」1枚につき")
+_PUMP_SMALL_CT = re.compile(r"それらのカード")
+_PUMP_OPP_CT   = re.compile(r"相手のキャラの枚数")
+_PUMP_POS_RESTRICT = re.compile(r"後列|前列")
+def _pump_scale_estimate(gen_text):
+    mt = _PUMP_RATE1.search(gen_text) or _PUMP_RATE2.search(gen_text)
+    if not mt: return None
+    rate = int(mt.group(1))
+    if rate <= 0: return None
+    if _PUMP_NAMED_CT.search(gen_text): count = 0.5
+    elif _PUMP_SMALL_CT.search(gen_text): count = 1
+    elif _PUMP_OPP_CT.search(gen_text): count = 4
+    else: count = 2
+    factor = count
+    if _PUMP_TEMP.search(gen_text): factor *= 0.5
+    if _PUMP_POS_RESTRICT.search(gen_text): factor *= 0.5
+    return max(500, r500(rate * factor))
 def pump_self_estimate(gen_text):
-    """Multiplicative estimate for a Power Pump (self) gen sig; None if N is unreadable or the pump SCALES
-    per-unit (base is not a flat N). Floored at 500 (a real pump effect costs at least 500)."""
-    if _PUMP_SCALE.search(gen_text): return None
+    """Multiplicative estimate for a Power Pump (self) gen sig: a flat printed +N (base N x
+    ½^(temporal + #conditions)), or -- if the pump SCALES per-unit -- rate x an assumed matching-card
+    count (see _pump_scale_estimate). None if neither pattern is readable. Floored at 500."""
+    if _PUMP_SCALE.search(gen_text):
+        return _pump_scale_estimate(gen_text)
     mt = _PUMP_SELF_N.search(gen_text)
     if not mt: return None
     n = int(mt.group(1))
