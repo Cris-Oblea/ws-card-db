@@ -222,8 +222,8 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     family_catalog.txt` regenerated (69 families, up from 61). `documentation/COST_MODEL.md` §6 updated.
   - **Remaining:** `Card Select`'s long tail (139 sigs, mostly n≤2 one-offs) is unaudited, future work.
 - ✅ **Family-taxonomy audit, round 3 (2026-07-22, same session) — `Card Select` eliminated completely.**
-  User: "necesito reducir card select a 0, y luego continuar con otros efectos que aún no tengan familia."
-  Worked through the remaining 99 → 34 → 10 signatures in three passes, widening gap/verb tolerances on
+  User asked to get Card Select all the way to zero, then move on to auditing other effects still lacking
+  a family. Worked through the remaining 99 → 34 → 10 signatures in three passes, widening gap/verb tolerances on
   existing families and adding new ones for genuine recurring patterns:
   - **New families:** `CX Exchange` (swap a climax card between two zones, matched by trigger icon — a
     combo-assembly tool), `Stock Search` (look at your own stock, take a card to hand), `Clock/Hand
@@ -265,17 +265,17 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     audit the `Other` family itself (516 signatures) the same way — it's the function's honest fallback, but
     likely still contains recurring patterns that deserve a real name, same as Card Select did. Not started
     yet this session.
-- ✅ **`Other` audit, round 1 (2026-07-22, same session).** User: "necesito reducir card select a 0, y luego
-  continuar con otros efectos que aún no tengan familia" → after Card Select hit 0, moved straight to
-  `Other` (3804 occurrences / 505 sigs).
+- ✅ **`Other` audit, round 1 (2026-07-22, same session).** After Card Select hit 0, moved straight to
+  `Other` (3804 occurrences / 505 sigs) per the user's earlier request to continue with other un-familied
+  effects.
   - **User-reported bug: `SAO/S47-107` (a plain, non-CX-combo Clock Kick) was in `Other`.** Root cause: a
     THIRD way real cards refer to "the opponent's character" (relative to the already-established
     相手の…キャラ / このカードの正面のキャラ) — `そのバトル相手`/`このカードのバトル相手` (a noun) or a bare `そのキャラ`
     pronoun whose antecedent lives in an earlier TRIGGER clause. Fixed across Clock Kick and every
     Removal (...) destination that actually has real corpus occurrences of the shape.
-  - **Retroactive Bomb-taxonomy fix (user-driven, significant).** The user: "ojito con los efectos bomb...
-    en función son lo mismo, pero el coste de habilidad es diferente por nivel y por color también" — every
-    level/cost threshold AND every color needs its own distinct family, never merged. The PRE-EXISTING
+  - **Retroactive Bomb-taxonomy fix (user-driven, significant).** The user flagged that while every Bomb
+    variant shares the same underlying function, the ability's real cost differs by BOTH level/cost
+    threshold AND color — every combination needs its own distinct family, never merged. The PRE-EXISTING
     RedBombLevel0/RedBombLevelX/AntiEarlyRedBomb entries (from a prior session) wrongly lumped THREE
     different destinations (re-reverse/clock/stock) under one "Red" name — replaced with a dynamically-
     computed name (`_dynamic_bomb_name`) covering every combination: `RedBombLevel0`, `RedBombLevel1`,
@@ -297,16 +297,16 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     trait-strip, self-discard-on-front-attack variants, hand-size/cost-reduction statics, marker-color
     self-grant) — presented to the user, not yet confirmed/implemented as of this writing.
 - ✅ **Both open questions resolved + `Other` audit round 2 (2026-07-22, same session).**
-  - Memory destination is NOT a 5th color — user: "es un antiearly normalmente perteneciente al rojo, a
-    veces rojo puede ser reverse o memory... más que un 5to color es un efecto nuevo de esta era." Folded
-    into Red alongside re-reverse (both are "soft"/temporary removals).
+  - Memory destination is NOT a 5th color — per the user, it's normally an AntiEarly effect that belongs
+    to red, and red itself can be either re-reverse or Memory (a newer-era variant of the same color, both
+    "soft"/temporary removals). Folded into Red alongside re-reverse.
   - Green Bomb confirmed via real cards (`AZL/S102-P02`/`T48`): heal the OPPONENT's clock (their top clock
     card → their own waiting room — the same "Heal" mechanic already established, just applied to the
     opponent's clock) as an enabler, then bury the just-reversed opponent into that freed clock slot. Was
     previously misclassified as "Opp Disrupt". User then confirmed the dynamic structure already handles
     ANY color × ANY condition automatically (verified `AntiEarlyGreenBomb`/`GreenBombLevelX` both resolve
-    correctly with zero extra code) — "la gracia de tener la estructura es poder hacerlo con todos los
-    colores, niveles, coste o valor x."
+    correctly with zero extra code) — that's the whole point of building it as a dynamic color×condition
+    matrix instead of static per-combination strings.
   - Round 2 found the same opponent-reference gap class again: Bomb conditions only recognized "バトル相手の",
     not "このカードとバトルしている/バトル中のキャラの" — fixed via a shared `_BOMB_OPP` fragment. Removal (Deck
     Top) widened for the そのキャラ+earlier-antecedent shape. Self Identity Grant widened for a
@@ -337,6 +337,16 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - Gates flat 95.3%, suspects 3611→3578 (**real improvement**, not just noise). `Other`: 3804 → 606
     occurrences (505 → 237 signatures) across the full 3-round audit. `pipeline/analysis/
     family_catalog.txt`: 113 families (was 74 at the start of the Other audit).
+- ✅ **`Cannot Attack` narrowed, real content moved to `Drawback` (2026-07-22, same session).** Reviewing
+  `PD/S29-105`'s full ability list surfaced a bigger issue: the user clarified `Cannot Attack` should mean
+  an effect inflicted ON THE OPPONENT (a disruption tool), but 523/527 real occurrences of the old broad
+  pattern were SELF-referential (this card restricting its own attacking) — a `Drawback` by the same rule
+  just confirmed above, not a disruption. Narrowed `Cannot Attack` to require an explicit opponent
+  reference (0 real matches currently, left as the correctly-scoped home for if/when one is found) and
+  moved the self-referential shape to `Drawback` (56 sigs / 799 occurrences now). Gates flat 95.3%,
+  suspects 3578 unchanged. **Also: fixed 3 stray direct Spanish quotes accidentally left in code comments
+  and docs during this session's family-taxonomy write-ups — the repo is English-only, no exceptions for
+  quoting the user verbatim.**
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

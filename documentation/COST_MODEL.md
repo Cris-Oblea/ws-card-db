@@ -324,8 +324,8 @@ family). First pass so far:
   …`) — widened `Clock Kick`, `Removal (Deck Bottom)`, `Removal (Stock)`, and `Removal (Memory)` to catch
   this pronoun-with-earlier-antecedent shape (crossing the clause gap with `.` instead of `[^。]`).
 - `Other`: 3804 → 606 occurrences (505 → 237 signatures) across three follow-up rounds, all resolved:
-  - **Memory folds into Red** (not a 5th color) — user: "a veces rojo puede ser reverse o memory... es un
-    efecto nuevo de esta era." Both re-reverse and Memory are "soft"/temporary removals.
+  - **Memory folds into Red** (not a 5th color) — per the user, Memory is a newer-era variant of red, not
+    a distinct color. Both re-reverse and Memory are "soft"/temporary removals.
   - **Green Bomb confirmed** via real cards (`AZL/S102-P02`/`T48`): heal the OPPONENT's clock (their top
     clock card → their own waiting room — the same `Heal` mechanic, applied to the opponent's clock) as an
     enabler, then bury the just-reversed opponent into that freed clock slot. The dynamic color×condition
@@ -350,6 +350,16 @@ family). First pass so far:
   - Gates flat 95.3% throughout; suspects improved 3611→3578 (a real gain, not just noise) once Drawback's
     broadened definition correctly captured several previously-misclassified cards. 113 families total
     (was 74 when the `Other` audit started).
+  - **`Cannot Attack` narrowed, its real content moved to `Drawback`.** Reviewing one card's full ability
+    list (`PD/S29-105`) surfaced a bigger issue: the user clarified `Cannot Attack` should mean an effect
+    YOU inflict ON THE OPPONENT so THEIR character can't attack — a disruption tool. Checking the actual
+    corpus, 523 of 527 real occurrences of the old broad pattern were SELF-referential (`このカード`
+    restricting its OWN attacking, unconditionally or gated on any game state), which is a `Drawback` by
+    the same rule confirmed above, not a disruption of the opponent. `Cannot Attack` is narrowed to require
+    an explicit opponent reference (currently 0 real matches — no card in the corpus does this yet, left in
+    place as the correctly-scoped home if one is found) and the self-referential shape moved to `Drawback`,
+    positioned right before the generic `Restriction` catch-all (which would otherwise swallow "…できない"
+    first).
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

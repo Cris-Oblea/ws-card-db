@@ -118,10 +118,11 @@ FAMPAT = [
   # — but a distinct specific mechanic) — conditionally IMMUNE to becoming reversed at all when the character
   # it's battling is cost 0 or lower. A defensive tech common in "Standby"-format decks per the user.
   ("Reverse Immunity (Cost 0)", r"このカードの正面のキャラのコストが0以下なら、このカードは【リバース】しない"),
-  # Reverse Immunity generalized (user: "generalizar como se hizo con bomb" -- every distinct CONDITION
-  # gates a genuinely different real cost, so each gets its own explicit name rather than one broad
-  # "Reverse Immunity" bucket). This variant: immune while your hand is large AND you're playing solo (no
-  # other own characters) -- a completely different condition from Cost 0, same destination/purpose.
+  # Reverse Immunity generalized the same way as the Bomb family below (user's explicit instruction) --
+  # every distinct CONDITION gates a genuinely different real cost, so each gets its own explicit name
+  # rather than one broad "Reverse Immunity" bucket. This variant: immune while your hand is large AND
+  # you're playing solo (no other own characters) -- a completely different condition from Cost 0, same
+  # destination/purpose.
   ("Reverse Immunity (Hand4/Solo)", r"あなたの手札が\d+枚以上で、他のあなたのキャラがいないなら、このカードは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
@@ -505,7 +506,21 @@ FAMPAT = [
   # Anchored on the game's exact templated phrasing for this mechanic (30 cards share it verbatim). User
   # taxonomy.
   ("Free Play (Alt Cost)", r"手札のこのカードをプレイするにあたり.{0,60}コスト0でプレイできる"),
-  ("Cannot Attack", r"アタックできない|サイドアタックできない"),
+  # Cannot Attack, NARROWED (2026-07-22, Other-audit): the user clarified the concept behind this name is an
+  # effect YOU inflict ON THE OPPONENT so THEIR character can't attack -- a disruption tool. Checking the
+  # real corpus, every single occurrence of the old broad pattern (523/527) was actually SELF-referential
+  # (このカード…できない, this card restricting its OWN attacking), which is a Drawback, not a disruption of
+  # the opponent -- moved below. Narrowed to require 相手の explicitly; currently 0 real matches (no card in
+  # the corpus does this yet), left in place as the correctly-scoped home if/when one is found, rather than
+  # deleting the family outright.
+  ("Cannot Attack", r"相手の[^。]{0,20}キャラは[^。]{0,10}(アタックできない|サイドアタックできない|フロントアタックできない|ダイレクトアタックできない)"),
+  # Drawback: THIS card cannot attack (unconditionally OR gated on any game-state condition — a missing
+  # ally, low stock/clock, an opponent's board state, etc.). User's rule: ANY effect that adds power to a
+  # card is a drawback -- when YOUR OWN cards come with can't-attack effects, conditional or not, they're
+  # still drawbacks. Checked here, immediately after the narrowed Cannot Attack and BEFORE the generic
+  # Restriction catch-all below (which would otherwise
+  # swallow "…できない" first, since Restriction's own pattern is a bare "できない").
+  ("Drawback", r"このカード[^。]{0,20}(アタックできない|サイドアタックできない|フロントアタックできない|ダイレクトアタックできない)"),
   ("Restriction", r"できない|選べない|受けない|動かせない"),
   # Self Sacrifice: the card's OWN ability sacrifices ANOTHER of your own characters to the waiting room, as
   # a direct mandatory/optional part of its effect (not a bracketed ［…］ payment — the "選び" selection verb
@@ -599,9 +614,9 @@ _BOMB_LEVELX = re.compile(_BOMB_OPP + r"レベルが[ＸX]以下")
 _BOMB_ANTIEARLY = re.compile(_BOMB_OPP + r"レベルが相手のレベルより高い")
 _BOMB_ACTION = {
     # Accepts both そのキャラ and そのバトル相手 as the pronoun -- real prints use either. Red covers BOTH
-    # re-reverse AND Memory (user: "a veces rojo puede ser reverse o memory... más que un 5to color es un
-    # efecto nuevo de esta era" -- a newer-era variant of red, not a distinct color, since both are
-    # "soft"/temporary removals as opposed to Blue's permanent deck-bottom or Yellow's economic stock-denial).
+    # re-reverse AND Memory -- per the user, Memory is a newer-era variant of red, not a distinct 5th color,
+    # since both are "soft"/temporary removals as opposed to Blue's permanent deck-bottom or Yellow's
+    # economic stock-denial.
     "Red":    re.compile(r"あなたは(そのキャラ|そのバトル相手)を【リバース】してよい|(そのキャラ|そのバトル相手)を思い出にし"),
     "Blue":   re.compile(r"(そのキャラ|そのバトル相手)を山札の下に置"),
     "Yellow": re.compile(r"(そのキャラ|そのバトル相手)をストック置場に置"),
