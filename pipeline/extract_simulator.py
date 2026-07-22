@@ -211,21 +211,23 @@ def commit(cur):
 # Text* lines describe it, until "EndCard" (or the next card header). We parse it as a small state machine:
 # `cur` is the card being accumulated; committing a card resets it.
 #
-# GainEffect { ... } is a nested construct: a temporary ability the OUTER ability grants to a card
-# (e.g. a CX-combo that grants a battle-triggered effect "until end of turn"). It has its OWN inner
-# "Text " line describing just that granted sub-ability -- but in cardlist_clean.json that granted
-# effect is embedded as a quoted clause INSIDE the outer ability's single JP text, not a separate
-# ability. So an inner GainEffect's Text line must be SUPPRESSED, or the ability count inflates by 1
-# per granted-effect card and build_db.py's alignment check (sim count == JP count) then rejects the
-# WHOLE card's simulator text, not just the extra one. Tracked via brace depth: gain_stack records
-# the depth at which each GainEffect opened; while non-empty, "Text " lines are dropped, not counted.
+# One ability = one TOP-LEVEL element: either a bare macro line, or a block ("Auto: Event { ... }")
+# whose own "Text " line always ends up back at brace depth 0 once every nested "{...}" inside it has
+# closed (verified against real examples). Any block can internally nest a SUB-ability inside itself
+# -- a macro sub-action inside a conditional/cost block, or a fully separate "GainEffect { ... Text
+# ... }" that temporarily grants another whole ability -- and those inner constructs have their OWN
+# Text/macro lines too. But cardlist_clean.json already embeds that inner description as a clause
+# INSIDE the outer ability's single JP text, so it must NOT be counted as a second ability, or the
+# card's simulator ability count no longer matches JP and build_db.py's alignment check rejects the
+# WHOLE card (every ability goes blank, not just the extra one). So: only count a Text/macro line
+# when depth == 0 (truly outside every block); anything encountered at depth > 0 is internal to
+# whatever ability's block we're currently inside and is silently ignored.
 for root, _, fs in os.walk(SIM_DIR):
     if "CardData.txt" not in fs:
         continue
     files += 1
     cur = None
     depth = 0
-    gain_stack = []
     with open(os.path.join(root, "CardData.txt"), encoding="utf-8", errors="replace") as fh:
         for line in fh:
             s = line.rstrip("\n"); t = s.strip()
@@ -233,25 +235,25 @@ for root, _, fs in os.walk(SIM_DIR):
             if m:                                        # new card header -> commit the previous, start fresh
                 commit(cur); entries += 1
                 cur = {"key": skey_str(m.group(1)), "name": None, "traits": [], "texts": []}
-                depth = 0; gain_stack = []
+                depth = 0
             elif cur is None:
                 continue                                 # lines before the first card header -> ignore
             elif s.startswith("Name "):    cur["name"] = s[5:].strip()
             elif s[:5] == "Trait" and s[5:6].isdigit():   # Trait1 / Trait2 / Trait3 (kept in file order)
                 p = s.split(None, 1)
                 if len(p) > 1: cur["traits"].append(p[1].strip())
-            elif t == "GainEffect":        gain_stack.append(depth)   # remember the depth it opened at
             elif t.startswith("Text "):
-                if not gain_stack:          # only a TOP-LEVEL Text line is one ability; a nested
-                    cur["texts"].append(t[5:].strip())   # GainEffect's own Text describes a clause
+                if depth == 0:                  # only a TOP-LEVEL Text line is its own ability; one
+                    cur["texts"].append(t[5:].strip())   # nested inside a block describes a clause
                                                           # already embedded in the outer ability's JP text
             elif t == "EndCard":           commit(cur); cur = None              # explicit card terminator
             else:
                 mm = MACRO_LINE.match(t)
                 # A macro line IS one ability slot, same as a "Text " line -- appended here, in the
                 # same left-to-right scan, so it lands in the correct position relative to any Text
-                # lines around it (macros and Text-ending blocks never describe the same ability).
-                if mm and not gain_stack:
+                # lines around it -- but again, only when it's a standalone top-level macro (depth 0),
+                # not one nested inside another ability's own block.
+                if mm and depth == 0:
                     synth = synthesize_macro(mm.group(1), mm.group(2))
                     if synth:
                         cur["texts"].append(synth); macro_hits += 1
@@ -259,14 +261,7 @@ for root, _, fs in os.walk(SIM_DIR):
                         macro_misses += 1
                         unresolved_macros[mm.group(1)] = unresolved_macros.get(mm.group(1), 0) + 1
             if cur is not None:
-                depth_before = depth
                 depth += t.count("{") - t.count("}")
-                # Only check for a closed GainEffect on a line that actually CLOSED a brace -- doing
-                # this unconditionally would immediately pop right after the push above, since the
-                # "GainEffect" line itself has no braces yet (its own "{" is still the NEXT line).
-                if depth < depth_before:
-                    while gain_stack and depth <= gain_stack[-1]:
-                        gain_stack.pop()      # this GainEffect block just closed
     commit(cur)   # last card in the file (no trailing EndCard/header to trigger the commit)
 
 for fn, obj in (("name_sim.json", names), ("traits_sim.json", traits), ("abilities_sim.json", abilities)):

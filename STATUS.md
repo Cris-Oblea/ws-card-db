@@ -105,6 +105,26 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   Rebuilt `site/`: unchanged 40,393 cards/66,817 abilities,
   Explained% 95.6%, suspects 3544 (EN text doesn't feed the cost model, so no regression risk there
   by construction).
+- ✅ **Fourth bug, same day (user again — `BRD/W139-003` still blank): the GainEffect fix was too
+  narrow.** The real rule isn't "suppress nested GainEffect specifically" — it's "only a TOP-LEVEL
+  (brace depth 0) Text/macro line is its own ability; ANY nested one (inside a plain conditional/cost
+  block, not just GainEffect) is internal to whatever ability's block it's in." Replaced the
+  GainEffect-specific stack with a plain depth counter gating every Text/macro line on `depth == 0`.
+  **Site-wide ability EN coverage jumped to 99.86% (66,724/66,817)**; new sets: GBF 93.4%, BRD 94.9%,
+  RZ/GA0/GA1/IMC all 98.4-99.0%.
+- ✅ **Systematic audit of the remaining ~93 (user asked to check ALL cards site-wide, not go
+  card-by-card).** Categorized: (1) a real, distinct bug — the printed "Backup" keyword ability
+  (marker 【起】+【カウンター】, text "助太刀N レベルM...") is stored by the simulator as a bare numeric
+  stat field, never as ability Text, so every Backup-having card's simulator count was 1 short of the
+  real JP count, breaking the WHOLE card's alignment even when the simulator had perfectly good text
+  for its OTHER abilities — affects 2,821 cards site-wide. Fixed in `build_db.py` (excludes
+  Backup-keyword abilities from the count comparison, maps sim indices around their slot); modest
+  aggregate gain (+3, most of those 2,821 cards were already covered via official-EN/cache for their
+  other abilities) but fixes the actual reported case (`GBF/S134-015`) correctly. (2) Genuine simulator
+  content gaps (e.g. `BD/W47-T11a`'s 2nd ability isn't in the raw file at all, no bug to fix). (3)
+  Special link-tag-only markers like `RZ/S132-038`'s "王選" (just a keyword name, not prose — would
+  need its own curated tag-translation table, doesn't exist). **Final site-wide coverage: 99.87%
+  (66,727/66,817)** — the remainder is categories 2-3, not fixable without new reference material.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

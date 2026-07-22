@@ -171,6 +171,19 @@ def _skey_s(cn):
     k = strict_key(cn); return "/".join(k) if k else None
 def sim_for(d, cn):
     return None if en_card_blocked(cn) else d.get(_skey_s(cn))
+
+# The printed "Backup" keyword ability (marker 【起】+【カウンター】, text starting "助太刀<power> レベル<N>
+# ［cost］（effect）") is near-universally templated, so it's almost always already resolved by the
+# CACHE.get(key) text match a few lines below -- but the SIMULATOR never stores it as an ability Text
+# line at all (it's just a numeric "Backup <power>" stat field in CardData.txt, since the game engine
+# renders that keyword generically). That made every Backup card's simulator ability COUNT one short of
+# the real JP count, so build_db's positional-alignment check (sim count == JP count) rejected the
+# simulator text for the card's OTHER abilities too -- not just the Backup line itself. Affects 2,821
+# cards site-wide. Fixed by excluding Backup-keyword abilities from the count comparison (see sim_align
+# below) and skipping their slot when indexing into sim_ab.
+def _is_backup_keyword(a):
+    mk = a.get("markers") or []
+    return "【起】" in mk and "【カウンター】" in mk and (a.get("text") or "").startswith("助太刀")
 NAME_OFFICIAL = {}
 for c in clean:
     ec = en_match(c["card_number"])
@@ -301,13 +314,21 @@ for c in clean:
     ab_buf = []
     align = ec is not None and len(en_abs) == len(abs_)   # same card + same ability count -> safe positional EN
     sim_ab = sim_for(ABILS_SIM, cn)                        # simulator EN ability texts (JP-only gap filler)
-    sim_align = (not align) and bool(sim_ab) and len(sim_ab) == len(abs_)
+    # The simulator never emits a Backup-keyword ability as its own Text line (see _is_backup_keyword),
+    # so compare/index against the NON-backup abilities only -- sim_ab holds one entry per abs_ slot
+    # that isn't a Backup-keyword line, in the same relative order.
+    sim_idx = {}
+    _si = 0
+    for _i, _a in enumerate(abs_):
+        if _is_backup_keyword(_a): continue
+        sim_idx[_i] = _si; _si += 1
+    sim_align = (not align) and bool(sim_ab) and len(sim_ab) == _si
     ab_blocked = base_num(cn) in EN_BLOCK_CARD             # permuted/variant card: official-EN cache is the wrong card's effect
     for i, a in enumerate(abs_):
         pc, meth, conf, fam = ab_cost(cn, i, a.get("markers"), a.get("text"))
         std, mshare, nsamp = ab_std(cn, i, a.get("markers"), a.get("text"))   # the package STANDARD + its evidence
         key = _nk((("".join(a.get("markers") or "")) + " " + (a.get("text") or "")).strip())
-        en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[i] if sim_align else ""))   # official -> cache(text) -> sim
+        en = en_abs[i] if align else (CACHE.get(key) or (sim_ab[sim_idx[i]] if sim_align and i in sim_idx else ""))   # official -> cache(text) -> sim
         if ab_blocked: en = ABTR.get(key, "")              # blocked cards: trust ONLY the LLM translation of their real JP text
         if pc is not None: model_total += pc; have_cost = True
         if std is not None: std_total += std; have_std = True
