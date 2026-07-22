@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-  # Python deps declared in requirements.txt (openpyxl, mcp).
+  # Python deps declared in requirements.txt (openpyxl).
   - package-ecosystem: pip
     directory: "/"
     schedule:

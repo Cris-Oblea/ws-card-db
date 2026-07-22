@@ -13,7 +13,7 @@
 
 ```
 python --version                         # must be 3.14+
-python -m pip install -r requirements.txt # installs openpyxl + mcp
+python -m pip install -r requirements.txt # installs openpyxl
 ```
 
 All commands below are run **from the repo root** (`ws-card-db/`) unless stated otherwise.
@@ -116,19 +116,7 @@ version matches the data you shipped.
 
 ---
 
-## 5. Run the MCP server
-
-```
-python tools/ws-mcp/server.py
-```
-Serves read-only tools over MCP (stdio): `get_portfolio_status`, `get_translation_gap`,
-`get_logger_version`, `search_cards`, `get_card`. `search_cards`/`get_card` require `site/ws.sqlite` to
-exist (run `build_db.py` first). Repo locations are overridable via the `WS_CARD_DB` / `WS_SIM_LOGGER` /
-`WS_SIM_AI` environment variables.
-
----
-
-## 6. Common change recipes
+## 5. Common change recipes
 
 ### A. A new card set was released
 1. Re-run the **ingest** stages (§1, stages 1–3) to pull the new JP cards, date the new set, and refresh
@@ -171,7 +159,7 @@ the correct) English rather than a wrong graft. The rationale and mechanism are 
 
 ---
 
-## 7. Safety notes
+## 6. Safety notes
 
 - **Never delete `pipeline/translation_cache.json`** — it is the permanent, hand-built translation store.
   Losing it means re-doing all the by-hand translation work.

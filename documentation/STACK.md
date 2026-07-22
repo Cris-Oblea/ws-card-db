@@ -13,25 +13,22 @@
 | Part | Language / runtime | Version |
 |---|---|---|
 | Pipeline (harvest → clean → date → features → cost → build) | **Python** | **3.14** (developed on 3.14.5) |
-| MCP server (`tools/ws-mcp/`) | Python | 3.14 |
 | Web app (`site/`) | **HTML5 + vanilla JavaScript** (no framework, no build step) | ES2020-era browser |
 | In-browser database | **SQLite** via `sql.js` (SQLite compiled to WebAssembly) | see §3 |
 
-There is **no bundler, transpiler, linter config, or CI**. The pipeline is plain scripts you run by hand;
-the site is three static files you open in a browser. This is intentional — see §5.
+There is **no bundler, transpiler, or linter config**. The pipeline is plain scripts you run by hand; the
+site is three static files you open in a browser. This is intentional — see §5. There IS a minimal GitHub
+Actions **CI** (`.github/workflows/ci.yml`): a Python compile smoke test + a gitleaks secret scan on every
+push/PR — no lint/test suite (see `CLAUDE.md` → "Validation").
 
 ## 2. Python dependencies
 
-The pipeline **core is standard-library only**. The only third-party packages are for Excel output and the
-MCP server. They live in the top-level **`requirements.txt`**:
+The pipeline **core is standard-library only**. The only third-party package is for Excel output. It lives
+in the top-level **`requirements.txt`**:
 
 | Package | Version pin | Used by | Why |
 |---|---|---|---|
 | `openpyxl` | `>=3.1.5` | `pipeline/build_official_list.py`, `build_master_list.py`, `build_cost_sheet.py` | Write the `.xlsx` cost sheets |
-| `mcp` | `>=1.28.0` | `tools/ws-mcp/server.py` | FastMCP server (portfolio status + card search tools) |
-
-> `tools/ws-mcp/requirements.txt` also lists `mcp>=1.0` (a looser pin for running the server standalone).
-> Installing the top-level `requirements.txt` satisfies both.
 
 ### Standard-library modules the pipeline relies on
 No install needed — these ship with CPython 3.14, but listing them makes the dependency surface explicit:
@@ -74,7 +71,7 @@ for how the app loads and queries it, and the offline-risk note on the CDN depen
    ```
    python -m pip install -r requirements.txt
    ```
-   That is the *entire* toolchain for the pipeline and the MCP server.
+   That is the *entire* toolchain for the pipeline.
 4. **Run the site with the standard library** — no npm, no install:
    ```
    cd site && python -m http.server 8000     # -> http://localhost:8000/

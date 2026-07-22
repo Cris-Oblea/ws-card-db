@@ -8,7 +8,7 @@ on:
 
 jobs:
   python-smoke:
-    name: Python — compile smoke (pipeline + tools)
+    name: Python — compile smoke (pipeline)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -21,9 +21,9 @@ jobs:
 
       - name: Compile-check (syntax smoke, no deps needed)
         # compileall byte-compiles every .py recursively and fails on any syntax error.
-        # It does NOT import, so third-party deps (openpyxl, mcp) are not required here.
+        # It does NOT import, so the third-party dep (openpyxl) is not required here.
         # There is no lint/test config yet (see CLAUDE.md "Validation"); add ruff/pytest later.
-        run: python -m compileall -q pipeline tools
+        run: python -m compileall -q pipeline
 
   secret-scan:
     name: gitleaks — secret scan
