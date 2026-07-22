@@ -216,7 +216,8 @@ ones). The order is:
 5. **Keyword mechanics (`KW`)** — the keyword *names* the effect: `Backup`(助太刀) · `Assist`(応援) ·
    `Brainstorm`(集中) · `Encore`(アンコール) · `Bond`(絆) · `Change`(チェンジ) · `Accelerate`(加速) ·
    `Shift`(シフト) · `Great Performance`(大活躍) · `Force`(フォース) · `Heal`(ヒール) ·
-   `Removal (Hand)`(バウンス — the official keyword name for the same effect as the FAMPAT text-pattern below).
+   `Removal (Hand)`(バウンス — the official keyword name for the same effect as the FAMPAT text-pattern below) ·
+   `AddMarker (Self)`(継承 — this card + its own markers transfer onto a newly-played ally).
    *Condition* keywords (記憶 Memory, 経験 Experience, 共鳴 Resonance) are **deliberately excluded** — they
    only *gate* a separate effect, so the ability must file by what it actually does. A **general guard**
    skips the KW shortcut whenever the matched keyword is cited as `『keyword』を持つ` ("[a card] that HAS
@@ -230,12 +231,13 @@ ones). The order is:
    `Removal (Deck Bottom)`, `Removal (Deck Top)`, `Removal (Memory)`, `Removal (Swap)`, `ReviveOpponent`,
    `Reverse Opp`, `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Stock Search`, `CX Exchange`,
    `Memory Bank`, `Search`, `Deck Thin`, `Look & Reorder`, `Look Deck`, `Summon`, `Change`,
-   `Clock/WR Exchange`, `Clock/Hand Exchange`, `Return to Deck (Own)`, `Stock Gen`, `AddMarkerWaitingRoom`,
+   `Clock/WR Exchange`, `Clock/Hand Exchange`, `Return to Deck (Own)`, `Stock Gen`,
+   `AddMarker (Deck Top)`, `AddMarker (Deck Search)`, `AddMarker (Waiting Room)`,
    `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`, `Power Pump (self)`, `Power Pump`,
    `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`, `Grant Trait`, `Power Debuff`, `Soul`,
    `Level`, `Mill (self)`, `Retreat` (this card), `Attack Redirect`, `Move (Opponent)`, `Move (Own)`,
    `Stand/Rest`, `Stock Boost`, `Choice`, `Early Play` (level-gate), `Free Play (Alt Cost)`,
-   `Cannot Attack`, `Restriction`, `Self Sacrifice`, `Drawback`.
+   `Restriction`, `Self Sacrifice`, `Drawback`. `Cannot Attack` was deleted (see below).
 7. **`Other`** — nothing matched. As of the 2026-07-22 family-taxonomy audit, this is the ONLY generic
    fallback — the old `Card Select` catch-all (`\d+枚選`) was deliberately deleted (see below), so `Other`
    now also catches the tiny remainder of genuinely bespoke, one-off card designs that don't represent a
@@ -350,16 +352,39 @@ family). First pass so far:
   - Gates flat 95.3% throughout; suspects improved 3611→3578 (a real gain, not just noise) once Drawback's
     broadened definition correctly captured several previously-misclassified cards. 113 families total
     (was 74 when the `Other` audit started).
-  - **`Cannot Attack` narrowed, its real content moved to `Drawback`.** Reviewing one card's full ability
-    list (`PD/S29-105`) surfaced a bigger issue: the user clarified `Cannot Attack` should mean an effect
-    YOU inflict ON THE OPPONENT so THEIR character can't attack — a disruption tool. Checking the actual
-    corpus, 523 of 527 real occurrences of the old broad pattern were SELF-referential (`このカード`
-    restricting its OWN attacking, unconditionally or gated on any game state), which is a `Drawback` by
-    the same rule confirmed above, not a disruption of the opponent. `Cannot Attack` is narrowed to require
-    an explicit opponent reference (currently 0 real matches — no card in the corpus does this yet, left in
-    place as the correctly-scoped home if one is found) and the self-referential shape moved to `Drawback`,
-    positioned right before the generic `Restriction` catch-all (which would otherwise swallow "…できない"
-    first).
+  - **`Cannot Attack` deleted outright.** Reviewing one card's full ability list (`PD/S29-105`) surfaced a
+    bigger issue: the user clarified `Cannot Attack` should mean an effect YOU inflict ON THE OPPONENT so
+    THEIR character can't attack — a disruption tool. Checking the actual corpus, 523 of 527 real
+    occurrences of the old broad pattern were SELF-referential (`このカード` restricting its OWN attacking,
+    unconditionally or gated on any game state), which is a `Drawback` by the same rule confirmed above, not
+    a disruption of the opponent — moved there, positioned right before the generic `Restriction` catch-all
+    (which would otherwise swallow "…できない" first). After narrowing to require an explicit opponent
+    reference, `Cannot Attack` sat at 0 real matches; investigating why turned up the reason: every genuine
+    "opponent's character can't attack" case in the corpus is delivered via a Grant (temporarily give that
+    specific character the restriction, e.g. `ALL/S90-072`), which already resolves correctly to
+    `Grant Ability` (grants are checked before FAMPAT, and the granted text never decides the family) — there
+    was no standalone case left for the name to catch, so it was deleted, same "delete once confirmed
+    genuinely empty" treatment as the old generic `Card Select` catch-all.
+  - **A 4th CX Combo gate shape**: paying the cost by discarding a SPECIFIC NAMED CLIMAX from hand (found via
+    `CHA/W40-077`, which was showing `Grant Ability` instead). Can't be detected on the already-generalized
+    text the other 3 gate shapes use, since `gen()` collapses every name (character/event/climax) to the
+    same placeholder — needs the raw name cross-referenced against the actual climax card list.
+    `build_cost_model` populates a module-level `_CLIMAX_NAMES` set from its `clean` parameter (no new file
+    I/O), and `Model.ab_cost()` checks the RAW per-occurrence text against it, overriding the family to
+    `CX Combo` when it matches — scoped to the per-occurrence label only, not the pooled per-signature
+    standard cost, since two cards sharing a signature could differ on whether their discarded card happens
+    to be a climax.
+  - **The `AddMarker (...)` group, renamed and split by source ZONE** (user: "para los marker la familia
+    generica es AddMarker (ZONE), para saber desde donde se pone el marker" — markers can come from ANY
+    zone, not just the waiting room the old flat name implied). Found via `ALL/S90-072`, whose marker
+    sourced from the DECK TOP, not the waiting room as the old name assumed. Split into
+    `AddMarker (Deck Top)` (a revealed/checked top-of-deck card), `AddMarker (Deck Search)` (a real search
+    of the whole deck, not a blind top peek), `AddMarker (Waiting Room)` (the dominant remaining source),
+    and `AddMarker (Self)` (this card + its own markers transfer onto a newly-played ally — the official
+    継承 keyword, added to the `KW` dict).
+  - Explained% 95.3% → **95.5%**, suspects 3578 → **3520** (both real gains — the CX Combo fix in particular
+    routes those cards through the residual-absorber math correctly instead of a flat Grant-Ability
+    estimate).
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
@@ -373,33 +398,15 @@ opponent's character to a zone: its real purpose is dealing *uncancellable damag
 climax-reveal cancel a normal Burn allows), using the clock placement as the delivery mechanism, not board
 control. `ReviveOpponent` is the mirror-image family (an opponent's own waiting-room character placed onto
 their own stage, to give one of your own reverse-requiring finishers a legal target). `AllMemoryCleanse`
-(a symmetric "every player trims Memory" housekeeping effect), `AddMarkerWaitingRoom` (bank a card as a
-marker under this one, to retrieve later — also catches the RETRIEVAL half of the same mechanic, markers
-coming back out onto the stage), and `Drawback` (the opponent acts against the card's own controller's
-zones — the negative-polarity counterpart of Disruption/Opp Disrupt) were split out of the `Card Select`
-grab-bag the same pass. `Opp Disrupt` was widened to cover the opponent's waiting room too, including the
-REFLEXIVE construction `相手は自分の…` (the opponent, acting on THEIR OWN zone — most real prints phrase it
-this way, not the possessive `相手の…`). User taxonomy throughout (methodology: classify by the ability's
-final effect only — never by cost, trigger, or requirements, which belong to the cost math, not the name).
-`Card Select` went from the original 1547 signatures down to 139 across the two audit passes.
-
-**The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
-is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
-destination changes the character's cost to the game (a bounce to hand lets the opponent replay it
-immediately; a permanent removal to the bottom of the deck denies recursion entirely) — `Removal (Hand)`
-(formerly `Bounce`), `Removal (Waiting Room)` (formerly `Disruption`), `Removal (Deck Bottom)`,
-`Removal (Deck Top)`, `Removal (Memory)` (usually temporary — returns to the stage at the next Encore
-step), `Removal (Swap)` (the opponent must replace it with a weaker character pulled from their own
-waiting room). `Clock Kick` is **deliberately excluded** from this group even though it also relocates an
-opponent's character to a zone: its real purpose is dealing *uncancellable damage* (bypassing the
-climax-reveal cancel a normal Burn allows), using the clock placement as the delivery mechanism, not board
-control. `ReviveOpponent` is the mirror-image family (an opponent's own waiting-room character placed onto
-their own stage, to give one of your own reverse-requiring finishers a legal target). `AllMemoryCleanse`
-(a symmetric "every player trims Memory" housekeeping effect), `AddMarkerWaitingRoom` (bank a card as a
-marker under this one, to retrieve later), and `Drawback` (the opponent acts against the card's own
-controller's zones — the negative-polarity counterpart of Disruption/Opp Disrupt) were split out of the
-`Card Select` grab-bag the same pass. User taxonomy throughout (methodology: classify by the ability's
-final effect only — never by cost, trigger, or requirements, which belong to the cost math, not the name).
+(a symmetric "every player trims Memory" housekeeping effect), the `AddMarker (...)` group (bank a card as
+a marker under this one, split by source zone — see below — and also catching the RETRIEVAL half of the
+same mechanic, markers coming back out onto the stage), and `Drawback` (the opponent acts against the
+card's own controller's zones — the negative-polarity counterpart of Disruption/Opp Disrupt) were split out
+of the `Card Select` grab-bag the same pass. `Opp Disrupt` was widened to cover the opponent's waiting room
+too, including the REFLEXIVE construction `相手は自分の…` (the opponent, acting on THEIR OWN zone — most real
+prints phrase it this way, not the possessive `相手の…`). User taxonomy throughout (methodology: classify by
+the ability's final effect only — never by cost, trigger, or requirements, which belong to the cost math,
+not the name). `Card Select` went from the original 1547 signatures down to 0 across three audit passes.
 
 The family label serves two jobs: it groups abilities for the lookup site, and it supplies the **family
 median** used to estimate signatures with no measurement (STEP 3a/3c). A family that never converges (because

@@ -289,7 +289,7 @@ FORMS = [
  ("Removal (Memory)", "opponent's stage character -> Memory", "≈1000", "Usually TEMPORARY (returns to stage at the next Encore step)."),
  ("Removal (Swap)", "opponent's stage character forced out, replaced by a weaker one from their own waiting room", "≈1000", "Still nets a Removal even though they get a replacement."),
  ("ReviveOpponent", "opponent's OWN waiting-room character -> their OWN stage", "≈500", "The reverse of Removal — sets up a target for your own reverse-requiring finisher."),
- ("AddMarkerWaitingRoom", "park a card face-up/down as a marker under this card, to retrieve later", "≈1000", "A banked resource, not an immediate effect."),
+ ("AddMarker (Waiting Room)", "park a WR card face-up/down as a marker under this card, to retrieve later", "≈1000", "A banked resource, not an immediate effect. Siblings: AddMarker (Deck Top), (Deck Search), (Self) -- named by source ZONE, since markers can come from any of them."),
  ("AllMemoryCleanse", "every player trims their Memory down to a kept amount", "0", "Symmetric board housekeeping, benefits both players equally."),
  ("Drawback", "the OPPONENT acts against the card's OWN controller's zones", "≈500", "A self-inflicted downside the controller accepts as part of the card's own effect."),
  ("Summon", "own character, ANY zone (waiting room/deck/hand/Memory/clock) -> straight onto the stage", "≈1000", "Formerly 'Comeback' (renamed -- collided with the official Comeback trigger icon). Bypasses cost/level entirely."),

@@ -347,6 +347,29 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   suspects 3578 unchanged. **Also: fixed 3 stray direct Spanish quotes accidentally left in code comments
   and docs during this session's family-taxonomy write-ups — the repo is English-only, no exceptions for
   quoting the user verbatim.**
+- ✅ **CX Combo discard-gate + delete Cannot Attack + AddMarker split by zone (2026-07-22, same session).**
+  Three separate findings from reviewing specific real cards.
+  - **`CHA/W40-077`** was showing `Grant Ability` instead of `CX Combo` — its cost bracket discards a
+    SPECIFIC NAMED CLIMAX (a 4th CX Combo gate shape, distinct from the 3 already detected on
+    gen()-normalized text). Can't be caught the same way since `gen()` collapses every name to the same
+    generic placeholder, losing the information needed to tell "a named climax" from "a named character."
+    Fixed with a name→card-type lookup: `build_cost_model` populates a module-level `_CLIMAX_NAMES` set from
+    its `clean` parameter (no new file I/O — the data was already there), and `Model.ab_cost()` checks the
+    RAW per-occurrence text against it, overriding to `CX Combo`. Scoped to the per-occurrence family label
+    only, not the pooled per-signature standard cost (two cards sharing a signature could differ on whether
+    their discarded card happens to be a climax).
+  - **`Cannot Attack` deleted outright** (not just narrowed, as done earlier this session) — every real
+    "make the opponent's character unable to attack" case in the corpus is delivered via a Grant (already
+    correctly resolving to `Grant Ability`, confirmed via `ALL/S90-072`), so there was nothing left for the
+    name to catch.
+  - **The `AddMarker (...)` group renamed and split by source ZONE**, per the user's explicit convention
+    ("AddMarker (ZONE)") — found via `ALL/S90-072`'s marker sourcing from the DECK TOP, not the waiting room
+    the old flat name assumed. Split into `AddMarker (Deck Top)`, `AddMarker (Deck Search)` (a real search,
+    not a blind top peek), `AddMarker (Waiting Room)` (the dominant remaining source), and
+    `AddMarker (Self)` (this card + its own markers transfer onto a newly-played ally — the official 継承
+    keyword, added to the `KW` dict).
+  - Explained% 95.3% → **95.5%**, suspects 3578 → **3520** (both real gains). `pipeline/analysis/
+    family_catalog.txt`: 115 families.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
