@@ -200,8 +200,19 @@ ones). The order is:
    family, or a "look-3 OR heal-1" would pollute Heal.
 3. **Grant Ability / Pump & Grant** — the ability grants/gains an auto/cont/act ability (`GRANT_PAT`).
    *Pump & Grant* is the dual case where a pump lives in the citing text *outside* the granted `『…』` quote.
-4. **On-reverse families** — when THIS card is reversed: `RedBombLevelX`, `AntiEarlyRedBomb`,
-   `RedBombLevel0`, `AutoKickToBottom`, `AutoKickToMemory`.
+4. **On-reverse families** — when THIS card is reversed: `AutoKickToBottom`, `AutoKickToMemory`,
+   `AutoKickToClock` (this card relocates ITSELF — no opponent involved), plus the **dynamically-computed
+   Bomb family** (`_dynamic_bomb_name`, 2026-07-22 audit) — "punish the opponent after THIS card wins its
+   own battle." Every combination of **level/cost threshold × color/destination** gets its own distinct
+   name, computed rather than listed as ~20 near-duplicate static strings: `RedBombLevel0`,
+   `RedBombLevel1`, `RedBombLevel2`, … `RedBombLevelX` (variable), `AntiEarlyRedBomb` (opponent's level >
+   the controlling player's own game-level — a rush-punish) for **red** (re-reverse the opponent); the same
+   Level/Cost/X/AntiEarly suffixes under `BlueBomb*` (opponent → bottom of their own deck) and
+   `YellowBomb*` (opponent → their own stock, usually paired with a bonus "-1 opponent stock" clause) —
+   **green** (heal + clock, per the user) has not yet been found in this exact self-reverse-trigger shape
+   in the corpus, so it's not implemented. **Retroactively split (2026-07-22) from a prior-session design**
+   that lumped re-reverse/clock/stock all under one "Red" name — the user clarified each color has a
+   genuinely different cost, not just a different flavor.
 5. **Keyword mechanics (`KW`)** — the keyword *names* the effect: `Backup`(助太刀) · `Assist`(応援) ·
    `Brainstorm`(集中) · `Encore`(アンコール) · `Bond`(絆) · `Change`(チェンジ) · `Accelerate`(加速) ·
    `Shift`(シフト) · `Great Performance`(大活躍) · `Force`(フォース) · `Heal`(ヒール) ·
@@ -287,6 +298,37 @@ session** — its original `(クロック置場|クロックに)置` alternation
 it could never match the real phrasing `クロック置場に置く`. A latent bug, not something this session
 introduced; caught only because auditing Card Select's remainder required checking why those cards weren't
 landing in Clock Kick already.
+
+**Auditing `Other` (started 2026-07-22, in progress).** Once `Card Select` hit zero, the user asked to
+continue the same treatment on `Other` — the function's honest fallback for "nothing matched," which had
+quietly accumulated 3804 occurrences / 505 signatures (some genuinely bespoke, many just missing a real
+family). First pass so far:
+- **Retroactively split the Bomb taxonomy by color** (see "On-reverse families" above) — the user caught
+  that the pre-existing RedBomb entries wrongly lumped 3 different destinations under one name.
+- **New families:** `Multi Trigger Check` (check for a trigger N times during an attack — generalized to
+  any N rather than hardcoding "Double"), `Deck Copy Limit` (a deckbuilding permission, not a gameplay
+  ability — near-zero cost), `Color Bypass` (a passive CONT permission to ignore the color requirement when
+  playing this card/your events/your climaxes — distinct from `Summon`, which is an ACTIVE effect putting a
+  DIFFERENT character into play), `Hexproof` (the user's own term — "cannot be chosen by opponent's
+  effects"), `Reverse Immunity (Cost 0)` (a DIFFERENT, more specific protection — common in Standby-format
+  decks per the user — immune to becoming reversed when facing a cost-0 character), `Level/WR Exchange`
+  (sibling of `Clock/WR Exchange`, swapping a level-zone card for a waiting-room card instead of a clock
+  card), `Free Refresh` (the user's own term — return your ENTIRE waiting room to your deck at once, no
+  selection, without the normal 1-damage refresh penalty), `Self Identity Grant` (this card gains a trait,
+  an alternate name, or a trigger icon — three different "identity slots," same purpose: extend what THIS
+  card counts as; distinct from `Grant Trait`, which targets an external chosen character).
+- Same class of gap found repeatedly: real cards refer to "the character THIS card just fought" several
+  different ways depending on which side of the battle triggered the ability — `そのバトル相手` /
+  `このカードのバトル相手` (a noun, used directly), or `そのキャラ` (a bare pronoun whose antecedent was
+  established earlier, in the TRIGGER clause itself, e.g. `このカードのバトル相手が【リバース】した時…そのキャラを
+  …`) — widened `Clock Kick`, `Removal (Deck Bottom)`, `Removal (Stock)`, and `Removal (Memory)` to catch
+  this pronoun-with-earlier-antecedent shape (crossing the clause gap with `.` instead of `[^。]`).
+- `Other`: 3804 → ~1278 occurrences (505 → ~350 signatures) after this first pass. Several more real
+  clusters identified (a look-top-1-then-conditionally-clock scry, a self-discard-on-level-up mechanic, a
+  strip-a-trait-from-the-opponent effect, several self-discard-on-front-attack variants, hand-size/cost-
+  reduction statics, a marker-color self-grant) — pending user confirmation before implementing. One open
+  question: a Bomb-shaped ability (self-reverse trigger + a level/AntiEarly condition) with a **Memory**
+  destination doesn't fit any of the 4 named colors — flagged to the user rather than guessed.
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

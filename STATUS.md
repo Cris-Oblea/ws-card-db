@@ -265,6 +265,37 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     audit the `Other` family itself (516 signatures) the same way — it's the function's honest fallback, but
     likely still contains recurring patterns that deserve a real name, same as Card Select did. Not started
     yet this session.
+- ✅ **`Other` audit, round 1 (2026-07-22, same session).** User: "necesito reducir card select a 0, y luego
+  continuar con otros efectos que aún no tengan familia" → after Card Select hit 0, moved straight to
+  `Other` (3804 occurrences / 505 sigs).
+  - **User-reported bug: `SAO/S47-107` (a plain, non-CX-combo Clock Kick) was in `Other`.** Root cause: a
+    THIRD way real cards refer to "the opponent's character" (relative to the already-established
+    相手の…キャラ / このカードの正面のキャラ) — `そのバトル相手`/`このカードのバトル相手` (a noun) or a bare `そのキャラ`
+    pronoun whose antecedent lives in an earlier TRIGGER clause. Fixed across Clock Kick and every
+    Removal (...) destination that actually has real corpus occurrences of the shape.
+  - **Retroactive Bomb-taxonomy fix (user-driven, significant).** The user: "ojito con los efectos bomb...
+    en función son lo mismo, pero el coste de habilidad es diferente por nivel y por color también" — every
+    level/cost threshold AND every color needs its own distinct family, never merged. The PRE-EXISTING
+    RedBombLevel0/RedBombLevelX/AntiEarlyRedBomb entries (from a prior session) wrongly lumped THREE
+    different destinations (re-reverse/clock/stock) under one "Red" name — replaced with a dynamically-
+    computed name (`_dynamic_bomb_name`) covering every combination: `RedBombLevel0`, `RedBombLevel1`,
+    `RedBombLevel2`, `RedBombLevelX`, `AntiEarlyRedBomb` for re-reverse; the same suffixes under
+    `BlueBomb*` (→ bottom of their own deck) and `YellowBomb*` (→ their own stock, usually +1 opponent
+    stock loss too, 464/466 samples); `AutoKickToClock` added as a sibling of AutoKickToBottom/Memory (this
+    card, self, to its own clock — no opponent involved, not a Bomb). **Green (heal+clock) not found in this
+    exact shape after a real corpus search — flagged back to the user rather than guessed.**
+  - **New families:** `Multi Trigger Check` (generalized to any N), `Deck Copy Limit`, `Color Bypass`,
+    `Hexproof` (user's own term), `Reverse Immunity (Cost 0)`, `Level/WR Exchange`, `Free Refresh` (user's
+    own term), `Self Identity Grant`.
+  - `Other`: 3804 → ~1278 occurrences (505 → ~350 sigs) after this pass. Rebuilt `site/`: Explained% flat
+    95.3%, suspects 3588→3607 (small expected uptick — several brand-new families start with thin sample
+    pools). `pipeline/analysis/family_catalog.txt`: 101 families (was 74). `documentation/COST_MODEL.md`
+    updated with the full write-up.
+  - **Open, not yet resolved:** a self-reverse-trigger Bomb with a **Memory** destination (`BAV/W129-P01`,
+    n=51) doesn't fit any of the 4 named colors — needs a 5th color name or a different treatment. Several
+    more clusters identified (look-top-1-conditional-clock scry, self-discard-on-level-up, opponent
+    trait-strip, self-discard-on-front-attack variants, hand-size/cost-reduction statics, marker-color
+    self-grant) — presented to the user, not yet confirmed/implemented as of this writing.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
