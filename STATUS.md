@@ -296,6 +296,31 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     more clusters identified (look-top-1-conditional-clock scry, self-discard-on-level-up, opponent
     trait-strip, self-discard-on-front-attack variants, hand-size/cost-reduction statics, marker-color
     self-grant) — presented to the user, not yet confirmed/implemented as of this writing.
+- ✅ **Both open questions resolved + `Other` audit round 2 (2026-07-22, same session).**
+  - Memory destination is NOT a 5th color — user: "es un antiearly normalmente perteneciente al rojo, a
+    veces rojo puede ser reverse o memory... más que un 5to color es un efecto nuevo de esta era." Folded
+    into Red alongside re-reverse (both are "soft"/temporary removals).
+  - Green Bomb confirmed via real cards (`AZL/S102-P02`/`T48`): heal the OPPONENT's clock (their top clock
+    card → their own waiting room — the same "Heal" mechanic already established, just applied to the
+    opponent's clock) as an enabler, then bury the just-reversed opponent into that freed clock slot. Was
+    previously misclassified as "Opp Disrupt". User then confirmed the dynamic structure already handles
+    ANY color × ANY condition automatically (verified `AntiEarlyGreenBomb`/`GreenBombLevelX` both resolve
+    correctly with zero extra code) — "la gracia de tener la estructura es poder hacerlo con todos los
+    colores, niveles, coste o valor x."
+  - Round 2 found the same opponent-reference gap class again: Bomb conditions only recognized "バトル相手の",
+    not "このカードとバトルしている/バトル中のキャラの" — fixed via a shared `_BOMB_OPP` fragment. Removal (Deck
+    Top) widened for the そのキャラ+earlier-antecedent shape. Self Identity Grant widened for a
+    "手札にこのカードがあるなら" prefix and a bare unconditional "このカードは…を得る" (fixed color, or color
+    derived from this card's own markers). Grant Trait widened to also accept granting a TRIGGER ICON.
+    New families: `Clock Gen` (sibling of Stock Gen), `Marker Currency` (a banked marker substitutes for a
+    stock card when paying a cost).
+  - Gates flat both times (95.3%; suspects 3607→3606→3611). `Other` now ~340 sigs / ~1150 occurrences.
+  - **Still open, presented but not yet confirmed:** Reverse Immunity generalization question
+    (`AZL/S119-035` — same destination as `Reverse Immunity (Cost 0)` but a different condition: one broad
+    family or split like Bomb?), a ~9-trigger self-discard cluster (proposed as one umbrella
+    "Self-Discard (Conditional)" family, not yet confirmed), the look-top-1-conditional-clock scry
+    (`MK/S11-T03_`), the opponent trait-strip (`Sks/W62-084`, candidate name "Strip Trait"), and two small
+    hand-size/cost-reduction statics (`MAR/S124-P02EX`, `KJ8/S123-P02EX`).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
