@@ -31,7 +31,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - `pipeline/cost_standardize.py` — READ-ONLY cost analysis (does not touch the live model/DB/cache): standardizes the per-ability *package* price (mode over all years, no era split), hunts cost suspects, and estimates payment-bracket credits. Outputs to `pipeline/analysis/`.
 - `pipeline/analysis/` — generated analysis artifacts: `package_standards.csv` (the standardized price list), `suspects.csv` (cards deviating from their package mode), `payment_credits.csv` (per-payment credit), `cost_standardize_report.md` (the written report).
 - `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
-- `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
+- `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css` + `ws.sqlite.gz`, built fresh by CI, not committed); deployed to GitHub Pages.
 - `reference/` — official Bushiroad PDFs.
 
 ## How to run
@@ -51,7 +51,7 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 ## What NOT to touch
 - `pipeline/sources/` and `reference/` — reference material, not code.
 - `pipeline/translation_cache.json` — PERMANENT translation cache (reuses prior work, do not delete).
-- `.gitignore` — already excludes the regenerable artifacts (raw harvest, features.csv, uncompressed ws.sqlite).
+- `.gitignore` — already excludes the regenerable artifacts (raw harvest, features.csv, both `ws.sqlite` and `ws.sqlite.gz` — CI builds the DB fresh on every Pages deploy, see `documentation/WEBAPP.md`).
 
 ## Validation (instead of classic tests)
 This is a **data/research** project: the "proof" is **empirical** — % accuracy against the official list + audits (`cardlist_audit.json`, counts, suspects). There are NO traditional unit tests. Whoever validates (the `reviewer`) does so with **data counts and audits**, not with assertions.

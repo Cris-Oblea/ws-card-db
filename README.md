@@ -40,21 +40,27 @@ per-session accuracy work.)*
 
 ## Quick start
 
+Just want to browse? The live site is always up to date: **https://crisrp-dev.github.io/ws-card-db/**
+(GitHub Pages rebuilds it on every push — see below).
+
+To run it yourself:
+
 ```bash
 git clone https://github.com/CrisRP-dev/ws-card-db.git
 cd ws-card-db
 python -m pip install -r requirements.txt   # openpyxl — the entire toolchain
+python pipeline/build_db.py                 # -> site/ws.sqlite(.gz), the web app's data
 
 cd site && python -m http.server 8000       # -> http://localhost:8000/
 ```
 
-The canonical inputs (`cardlist_clean.json`, `cardlist_en.json`, translation stores) and the shipped
-`site/ws.sqlite.gz` are committed, so a fresh clone browses the site **without re-scraping anything**.
-To rebuild the data yourself (after a cost-model or translation change):
+The canonical inputs (`cardlist_clean.json`, `cardlist_en.json`, translation stores) are committed, so
+that one build step is local and instant — **no re-scraping, no network**. `site/ws.sqlite.gz` itself
+isn't committed (it's a rebuilt-every-time binary; committing it repeatedly bloated `.git` by hundreds of
+MB, see `documentation/RUNBOOK.md` §4), so you build it once after cloning.
 
 ```bash
 python pipeline/build_official_list.py   # -> Complete_Abilities_List.xlsx (15,889 abilities)
-python pipeline/build_db.py              # -> site/ws.sqlite(.gz), the web app's data
 ```
 
 Every full command sequence (ingest → translate → build → deploy) and every "how do I…" recipe is in

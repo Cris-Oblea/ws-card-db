@@ -12,8 +12,14 @@ pipeline/_tr/
 pipeline/_archive/
 to_translate.json
 
-# --- App build: ship only the compressed DB (the app fetches ws.sqlite.gz) ---
+# --- App build: both the uncompressed and gzipped DB are build output now.
+# ws.sqlite.gz used to be committed so a fresh clone could browse without building,
+# but each rebuild added a ~10-13MB blob that git can't delta-compress (gzip output
+# is high-entropy) -- 79 historical versions had bloated .git by ~820MB. CI now
+# builds it fresh on every deploy (see .github/workflows/deploy-pages.yml), so it
+# no longer needs to be tracked. Run `python pipeline/build_db.py` locally to get it.
 site/ws.sqlite
+site/ws.sqlite.gz
 
 # --- Excel cost sheets: generated on demand, not versioned (the deliverable is the site) ---
 deliverables/

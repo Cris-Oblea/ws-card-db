@@ -18,9 +18,12 @@ python -m pip install -r requirements.txt # installs openpyxl
 
 All commands below are run **from the repo root** (`ws-card-db/`) unless stated otherwise.
 
-> **You usually do NOT need to rebuild anything.** The canonical inputs (`cardlist_clean.json`,
-> `cardlist_en.json`, the translation JSONs) and the shipped `site/ws.sqlite.gz` are committed. Rebuild
-> only when you change the cost model, add a card set, or refresh translations.
+> **To browse the LIVE site, you don't need to rebuild anything** — GitHub Pages always serves a
+> freshly-built database (CI runs `build_db.py` on every deploy, see §4). **To run the site LOCALLY**,
+> though, you do need to build it once yourself: `site/ws.sqlite.gz` is NOT committed (gitignored — see
+> §4 for why), so a fresh clone's `site/` has no database in it until you run `python pipeline/build_db.py`.
+> The canonical inputs it reads (`cardlist_clean.json`, `cardlist_en.json`, the translation JSONs) ARE
+> committed, so that one command is all you need — no network, no re-scraping.
 
 ---
 
@@ -87,6 +90,7 @@ python pipeline/cost_standardize.py              # -> pipeline/analysis/*.csv + 
 ## 3. Run the site locally
 
 ```
+python pipeline/build_db.py    # only needed once (or after a data/model change) -- ws.sqlite.gz isn't committed
 cd site
 python -m http.server 8000
 # open http://localhost:8000/
@@ -99,17 +103,20 @@ internals and troubleshooting.
 
 ## 4. Deploy to GitHub Pages
 
-The site is static — deploying = pushing the `site/` files. `ws.sqlite.gz` is tracked; the uncompressed
-`ws.sqlite` is gitignored (the app only needs the `.gz`).
+Deployment is **automatic**: `.github/workflows/deploy-pages.yml` runs `pipeline/build_db.py` fresh and
+publishes `site/` on every push to `main` (also runnable on demand via `workflow_dispatch`). You do **not**
+need to build or commit `ws.sqlite.gz` yourself to ship a change — just push whatever you changed
+(`cost_model.py`, `cardlist_clean.json`, translations, `site/` code, …) and CI rebuilds the database from
+the current tracked inputs and deploys it. The live site updates within a minute or two of the push.
 
-```
-git add site/ws.sqlite.gz site/app.js            # the rebuilt DB + the bumped cache version
-git commit -m "data: rebuild ws.sqlite"
-git push
-```
-GitHub Pages serves the `site/` directory (per the repo's Pages settings). After the push, the live site
-updates within a minute or two. **Always commit `app.js` together with `ws.sqlite.gz`** so the cache-bust
-version matches the data you shipped.
+**Neither `site/ws.sqlite` nor `site/ws.sqlite.gz` is committed** (both gitignored) — each rebuild is a
+~10-13MB gzip blob that git can't delta-compress between versions, and 79 historical committed copies had
+bloated `.git` by ~820MB before this was fixed (2026-07-22). `site/app.js` **is** still committed; its
+`?v=` cache-bust hash reflects whatever the last LOCAL `build_db.py` run stamped into it, but the actually
+**deployed** `app.js` is whichever version CI just generated from a fresh build — always internally
+consistent with the DB it ships alongside, even if it doesn't byte-match the committed copy. Don't worry
+about keeping the committed `app.js` hash "in sync" by hand; CI's build is the source of truth for what's
+actually live.
 
 > Commit each discrete change on its own (project convention — see `CLAUDE.md`). Don't batch a data rebuild
 > with unrelated code changes.

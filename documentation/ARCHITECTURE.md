@@ -59,7 +59,8 @@ ws-card-db/
 │
 ├── site/                         # ── THE WEB APP (deliverable) ──
 │   ├── index.html  app.js  style.css
-│   └── ws.sqlite.gz              # the shipped data (gzipped; ws.sqlite itself is gitignored)
+│   └── ws.sqlite.gz              # the shipped data (gzipped; BOTH this and ws.sqlite are gitignored --
+│                                  #   CI builds it fresh on every deploy, see WEBAPP.md "Deploy")
 │
 ├── documentation/                # this folder — the detailed docs
 ├── reference/                    # official Bushiroad PDFs (reference material, not code)
@@ -158,7 +159,7 @@ committed so a fresh clone can build without re-scraping; "regenerable" files ar
 | `pipeline/_tr2/` | `_tr2_extract.py` | translation workflow | Remaining strings to translate |
 | `pipeline/analysis/*` | `cost_standardize.py` | (humans) | Read-only cost analysis outputs |
 | `pipeline/*.xlsx` | `build_official_list.py`, `build_cost_sheet.py` | (humans) | Excel deliverables, on demand |
-| `site/ws.sqlite` | `build_db.py` | `build_db.py` (gzips it) | Uncompressed DB (the `.gz` IS tracked) |
+| `site/ws.sqlite` / `site/ws.sqlite.gz` | `build_db.py` | the web app, CI's deploy step | **Neither is tracked** (since 2026-07-22 — see WEBAPP.md "Deploy"): CI runs `build_db.py` fresh on every Pages deploy instead of shipping a committed copy, since repeated ~10-13MB gzip commits don't delta-compress and had bloated `.git` by ~820MB |
 
 ## 5. Module dependency graph (the cost math is single-sourced)
 

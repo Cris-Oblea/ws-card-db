@@ -54,12 +54,20 @@ There are **two different** `?v=` schemes — don't confuse them:
 
 ## Run locally
 ```
+python pipeline/build_db.py    # site/ws.sqlite.gz isn't committed -- build it once first
 cd site && python -m http.server 8000
 ```
 Then open http://localhost:8000/ . A plain static file server is enough — there is nothing to build or transpile. (Opening `index.html` via `file://` will fail: the CDN scripts and the `fetch` of the `.gz` need an `http(s)` origin.)
 
 ## Deploy
-The site is served by **GitHub Pages** straight from `site/` — `site/` *is* the deployed app (which is why project docs live in `documentation/`, not in `site/`). Deploying is just committing the updated `site/` files (including a freshly built `ws.sqlite.gz` and the `app.js` whose `?v=` hash was bumped by `build_db.py`) to the branch Pages serves. No build step.
+The site is served by **GitHub Pages**, built by `.github/workflows/deploy-pages.yml` on every push to
+`main`: the workflow runs `pipeline/build_db.py` fresh (checking out with LFS enabled so
+`cardlist_clean.json` resolves to its real content) and deploys whatever's in `site/` afterward — no
+manual step, no need to commit a rebuilt `ws.sqlite.gz` yourself. `site/ws.sqlite.gz` (and the
+uncompressed `ws.sqlite`) are gitignored on purpose: each rebuild is a ~10-13MB gzip blob that git can't
+delta-compress between versions, and 79 historical committed copies had bloated `.git` by ~820MB before
+this was fixed (2026-07-22). `site/app.js` stays committed — its `?v=` hash reflects the last local build,
+but the live site always serves whatever CI just built, which is internally consistent regardless.
 
 ## The `ws.sqlite` schema contract (what `app.js` depends on)
 `app.js` reads these tables/columns directly. **A schema change in `pipeline/build_db.py` requires a matching `app.js` change** — this section is the contract between them. (Full authoritative schema is the `CREATE TABLE` block in `build_db.py`.)

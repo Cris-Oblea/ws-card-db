@@ -29,7 +29,24 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      # lfs: true resolves pipeline/cardlist_clean.json to its real content (not just the
+      # pointer file) -- build_db.py needs the actual JSON to build the database.
       - uses: actions/checkout@v7
+        with:
+          lfs: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      # site/ws.sqlite.gz is NOT committed (see .gitignore) -- it's a ~10-13MB binary that
+      # changes on every rebuild and doesn't delta-compress, so committing it repeatedly
+      # bloated .git by hundreds of MB over time. Building it fresh here, every deploy,
+      # keeps the git history clean while the live site always reflects the latest data +
+      # cost model. build_db.py is stdlib-only, no pip install needed.
+      - name: Build the site database
+        run: python pipeline/build_db.py
 
       - name: Configure Pages
         # enablement: turns Pages on (build type = GitHub Actions) if not already.
@@ -37,7 +54,7 @@ jobs:
         with:
           enablement: true
 
-      - name: Upload site artifact (site/ = the deployed web app)
+      - name: Upload site artifact (site/ = the deployed web app, DB just built above)
         uses: actions/upload-pages-artifact@v5
         with:
           path: site
