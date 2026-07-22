@@ -282,7 +282,16 @@ FORMS = [
  ("Search / Tutor", "look at top N, add 1 to hand", "1000", "Universal + discard-cycle = 2000; restricted to trait ≈ half."),
  ("Brainstorm", "Act: BRAINSTORM, mill N", "mill4 = 1000, mill5 = 2000", "Salvage-brainstorm: any = 1000, trait = 500."),
  ("Stock gen", "deck -> stock", "500", "Near-neutral resource swap."),
- ("Bounce", "return an opponent's character to hand", "500 – 1000", "—"),
+ ("Removal (Hand)", "return an opponent's stage character to hand", "≈1000", "Formerly 'Bounce'. Cheapest Removal variant — the opponent can replay it."),
+ ("Removal (Waiting Room)", "opponent's stage character -> their waiting room", "≈500", "Formerly 'Disruption'. A kill; harder to recur than a bounce."),
+ ("Removal (Deck Bottom)", "opponent's stage character -> bottom of their deck", "≈1000", "Denies waiting-room recursion entirely."),
+ ("Removal (Deck Top)", "opponent's stage character -> top of their deck", "≈500", "They redraw it almost immediately -> cheaper than bottom."),
+ ("Removal (Memory)", "opponent's stage character -> Memory", "≈1000", "Usually TEMPORARY (returns to stage at the next Encore step)."),
+ ("Removal (Swap)", "opponent's stage character forced out, replaced by a weaker one from their own waiting room", "≈1000", "Still nets a Removal even though they get a replacement."),
+ ("ReviveOpponent", "opponent's OWN waiting-room character -> their OWN stage", "≈500", "The reverse of Removal — sets up a target for your own reverse-requiring finisher."),
+ ("AddMarkerWaitingRoom", "park a card face-up/down as a marker under this card, to retrieve later", "≈1000", "A banked resource, not an immediate effect."),
+ ("AllMemoryCleanse", "every player trims their Memory down to a kept amount", "0", "Symmetric board housekeeping, benefits both players equally."),
+ ("Drawback", "the OPPONENT acts against the card's OWN controller's zones", "≈500", "A self-inflicted downside the controller accepts as part of the card's own effect."),
 ]
 for f in FORMS:
     wsf.append(list(f)); rr = wsf.max_row

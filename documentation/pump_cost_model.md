@@ -1,11 +1,12 @@
-# Multiplicative cost-decomposition model (PARTIALLY wired: Power Pump (self) + Salvage)
+# Multiplicative cost-decomposition model (PARTIALLY wired: Power Pump (self) + Salvage + Look & Reorder)
 
 > Status: a validated **conceptual** model for how a single ability's power-cost is built up. Derived on
 > the `Power Pump (self)` family (where the effect base is literally the `+N` printed on the card, so the
 > model is directly checkable), and since generalized to `Salvage` (whose base is the swap's net advantage,
-> not a printed number — see "Wiring status" below). Cabled in `cost_model.py` for these two families only;
-> Search/Bounce/Debuff/etc. are qualitatively harder and still use the flat family median. Source of the
-> rules: the project owner (the cost designer / oracle), cross-checked against the measured/residual data.
+> not a printed number) and `Look & Reorder` (base halved per condition) — see "Wiring status" below. Cabled
+> in `cost_model.py` for these three families only; Search/Removal (Hand)/Power Debuff/etc. are qualitatively
+> harder and still use the flat family median. Source of the rules: the project owner (the cost designer /
+> oracle), cross-checked against the measured/residual data.
 
 ## The formula
 
@@ -125,13 +126,29 @@ modeling variant tried (trigger-as-discount, trigger-as-multiplier, round-neares
 at **~54% exact / ~84% within ±500**. The residual ~16% is largely **irreducible from text parsing**:
 condition-strength variation, per-card designer adjustments, and the genuinely-split half-step rounding.
 
-## Wiring status — PARTIAL cabling, two families done
+## Wiring status — PARTIAL cabling, three families done
 
 - **CABLED: Power Pump (self)** (2026-06-21). `cost_model.py` step 3d (`pump_self_estimate`) overrides the
   flat family-median ESTIMATE of self-pump sigs with `base N × (1/2)^(temporal + #conditions)`, floored at
   500. Estimated-only — measured/residual untouched. Result: the 484 estimated self-pumps now scale with
   `N` (e.g. `+10000 if hand ≤1` = 5000 instead of the old flat 500) instead of all sitting at 500. Gates
   held: validation 99%, Explained% 95.5% (≥94), suspects +14 (negligible).
+
+  **Extended to SCALING pumps** (per-unit `+N per matching card` instead of a flat printed `+N`, e.g.
+  5HY/W101-004's "…このカードのパワーを、あなたの《5th Year》の枚数×500に等しい値、上げる"). `pump_self_estimate`
+  now branches on `_PUMP_SCALE` (「につき」/「枚数」) to `_pump_scale_estimate`, which reads the per-unit rate
+  (`_PUMP_RATE1`/`_PUMP_RATE2`) and multiplies by an assumed matching-card count — 0.5 for a single-NAMED
+  count-source (`「N」1枚につき`, the narrowest/most-restricted case), 1 for `それらのカード` (a small,
+  already-selected group), 4 for `相手のキャラの枚数` (the opponent's whole board, typically large), else 2 (a
+  generic own-trait count) — then applies the same temporal/position-restriction ÷2 factors. Validated
+  90.5% exact / 97.5% within ±500 on 644/735 isolated samples — the best fit of any estimator cabled so far.
+
+- **CABLED: Look & Reorder** (2026-07-22, `look_reorder_estimate`). Base 1000, halved per `_PUMP_COND` match
+  (the same condition-counter reused from Power Pump), guarded against the `Brainstorm`-keyword variant and
+  a "keep only some" partial-look shape so those don't get mis-halved. Thin data (14 isolated samples) so
+  the guards are deliberately narrow — this is a smaller, lower-confidence win than Pump/Salvage, kept
+  because the alternative (flat family median) was actively wrong on a user-flagged card (5HY/W101-003,
+  whose name-restricted Look & Reorder must cost 500, not the ungated 1000).
 
 - **CABLED: Salvage** (2026-07-22, `salvage_estimate`). Salvage's base isn't a printed number like Pump's —
   it's the swap's NET ADVANTAGE, so instead of parsing a magnitude, the estimator classifies the package
@@ -149,7 +166,7 @@ condition-strength variation, per-card designer adjustments, and the genuinely-s
   below. Shipped as the plain 2-way categorical read; rebuilt `site/`: Explained% unchanged at 95.6%,
   suspects 3544→3537 (small real improvement, no regression).
 
-- **NOT cabled: Search, Bounce, Power Debuff, …** Investigated Search on the same 2026-07-22 pass (1080
+- **NOT cabled: Search, Removal (Hand), Power Debuff, …** Investigated Search on the same 2026-07-22 pass (1080
   isolated samples) and found it's qualitatively harder than Salvage: its variance is dominated by WHICH
   deck-manipulation mechanic a package uses (e.g. "search whole deck by trait" = 500 vs "reveal top 3, add
   any card" = 2000 — two disjoint mechanics, not the same base modulated by a condition), so a single

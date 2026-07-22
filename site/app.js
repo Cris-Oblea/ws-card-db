@@ -60,7 +60,7 @@ async function boot() {
   try {
     const [SQL, gz] = await Promise.all([
       initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` }),
-      fetch("ws.sqlite.gz?v=0479b11718").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
+      fetch("ws.sqlite.gz?v=1b10442426").then(r => { if (!r.ok) throw new Error("ws.sqlite.gz " + r.status); return r.arrayBuffer(); }),
     ]);
     status.textContent = "Decompressing…";
     const bytes = pako.inflate(new Uint8Array(gz));   // gunzip: gz ArrayBuffer -> raw SQLite bytes (Uint8Array)

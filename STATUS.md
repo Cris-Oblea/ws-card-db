@@ -136,6 +136,52 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   left on the flat median instead of forcing an unreliable wire. Rebuilt `site/`: Explained% unchanged
   95.6%, suspects 3544→3537 (small real improvement, no regression). See `documentation/pump_cost_model.md`
   for the full write-up and next steps (a Search base table).
+- ✅ **Look & Reorder cabled + scaling Power Pump estimator (2026-07-22).** Two user-reported miscosts:
+  `5HY/W101-003` (a name-restricted Look & Reorder was priced at the ungated 1000 instead of 500) and
+  `5HY/W101-004` (a per-unit-scaling Power Pump — "…×your ‹Trait› count×500" — was hitting the flat
+  Power-Pump-(self) median instead of scaling with the count). Fixed: `look_reorder_estimate()` (base 1000,
+  halved per condition, 14 isolated samples — thin data, narrowly guarded) and `_pump_scale_estimate()`
+  (reads the per-unit rate, multiplies by an assumed matching-card count keyed off the count-source phrasing
+  — 90.5% exact / 97.5% within ±500 on 644/735 isolated samples, the best fit of any estimator cabled so
+  far). See `documentation/pump_cost_model.md`.
+- ✅ **Family-taxonomy audit pass (2026-07-22).** User-driven methodology: a family name must reflect the
+  ability's FINAL EFFECT only (never its cost/trigger/requirements — those are the cost model's job, not
+  the name's). Built `pipeline/analysis/family_catalog.txt` (61 families, sig/occurrence/measured-residual-
+  estimated counts) and used it to audit the 1547-signature "Card Select" grab-bag (the family had no
+  in-game meaning — "select N cards" describes dozens of unrelated mechanics). Result: `Card Select` dropped
+  1547 → 361 sigs. Changes in `pipeline/cost_model.py`:
+  - **New `Removal (...)` group** — every ability whose final purpose is "get the opponent's STAGE character
+    out of play," split by destination (not lumped into one family) because destination changes the cost
+    floor, mirroring the existing per-color `RedBomb*` split: `Removal (Hand)` (renamed from `Bounce`, both
+    the FAMPAT text-pattern AND the `バウンス` keyword entry in `KW`, AND the EN-side `en_family` pattern — all
+    three pointed at the same effect and needed the same rename), `Removal (Waiting Room)` (renamed from
+    `Disruption`), `Removal (Deck Bottom)`, `Removal (Deck Top)`, `Removal (Memory)` (usually temporary —
+    returns to stage at the next Encore step), `Removal (Swap)` (opponent forced to replace it with a weaker
+    character from their own waiting room). `Clock Kick` explicitly stays OUT of this group (user: its
+    purpose is uncancellable damage delivery, not board control — contrast with a heal-then-clock "GreenBomb"
+    variant, which IS a damage-family effect).
+  - **`ReviveOpponent`** (name proposed by Claude, not yet confirmed by the user) — the mirror image of
+    Removal: an opponent's own waiting-room character placed onto their own stage, to give one of the
+    player's own reverse-requiring finishers a legal target (`RSL/S56-002`).
+  - **`AllMemoryCleanse`** — a symmetric "every player trims their Memory to N" housekeeping effect.
+  - **`AddMarkerWaitingRoom`** — park a card as a marker under this card, to retrieve later (banked resource,
+    not an immediate effect); named for the dominant source (own waiting room) even though the regex is
+    destination-anchored (`マーカーとして…置`) to also catch the rarer stage-source / self-becomes-marker
+    variants without fragmenting into more sub-families than the data supports.
+  - **`Drawback`** — the OPPONENT acts against the CARD'S OWN CONTROLLER's zones (e.g. "the opponent may
+    choose a character from YOUR waiting room and put it on top of YOUR deck") — the negative-polarity
+    mirror of Disruption/Opp Disrupt. Confirmed via `BD/W54-P03`'s full card context (two such drawback
+    abilities justify its power being 1000 over vanilla for a level-1/cost-0 print).
+  - **Two conjugation-coverage bugs found and fixed** (both are strict widenings, verified zero false
+    positives against the full 15,889-ability corpus): `Draw`/`DrawDiscard`/`DiscardCharacterToDraw`'s
+    `引[くき]` missed the very common て-form "…引いてよい" (may draw) — widened to `引[くきい]`. `Move`'s
+    `動かす` (dictionary form only) missed "…動かしてよい" (may move) — widened to the stem `動か`.
+  - Rebuilt `site/`: Explained% 95.6%→95.3%, suspects 3544→3594 — a small, expected dip (splitting a family
+    into finer-grained ones means each new sub-family starts with fewer pooled samples behind its standard
+    until more cards accumulate against it; still comfortably above the 94% floor).
+  - **Pending:** confirm/rename `ReviveOpponent`; `documentation/COST_MODEL.md` §6 and the `FORMS` legend in
+    `build_official_list.py` updated to match. The remaining long tail of `Card Select` (361 sigs, mostly
+    n≤3 one-offs) is future work, not audited this pass.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

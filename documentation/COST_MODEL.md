@@ -204,25 +204,46 @@ ones). The order is:
    `RedBombLevel0`, `AutoKickToBottom`, `AutoKickToMemory`.
 5. **Keyword mechanics (`KW`)** — the keyword *names* the effect: `Backup`(助太刀) · `Assist`(応援) ·
    `Brainstorm`(集中) · `Encore`(アンコール) · `Bond`(絆) · `Change`(チェンジ) · `Accelerate`(加速) ·
-   `Shift`(シフト) · `Great Performance`(大活躍) · `Force`(フォース) · `Heal`(ヒール) · `Bounce`(バウンス).
+   `Shift`(シフト) · `Great Performance`(大活躍) · `Force`(フォース) · `Heal`(ヒール) ·
+   `Removal (Hand)`(バウンス — the official keyword name for the same effect as the FAMPAT text-pattern below).
    *Condition* keywords (記憶 Memory, 経験 Experience, 共鳴 Resonance) are **deliberately excluded** — they
    only *gate* a separate effect, so the ability must file by what it actually does.
-6. **`FAMPAT` effect-text patterns**, in order: `Burn`, `Heal`, `Clock Kick`, `Bounce`, `Return to Deck`,
-   `Retreat`, `Disruption`, `Reverse Opp`, `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Search`,
-   `Look & Reorder`, `Look Deck`, `Comeback`, `Stock Gen`, `Retreat` (reactive), `Add to Hand`,
-   `Power Pump (board)`, `Power Pump (self)`, `Power Pump`, `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`,
-   `Early Play`, `Power Debuff`, `Soul`, `Level`, `Mill (self)`, `Retreat` (this card), `Move`,
-   `Stand/Rest`, `Stock Boost`, `Choice`, `Cannot Attack`, `Restriction`, `Card Select`.
+6. **`FAMPAT` effect-text patterns**, in order: `Burn`, `Heal`, `Clock Kick`, `Removal (Hand)`,
+   `Return to Deck`, `Retreat`, `AllMemoryCleanse`, `Removal (Waiting Room)`, `Removal (Deck Bottom)`,
+   `Removal (Deck Top)`, `Removal (Memory)`, `Removal (Swap)`, `ReviveOpponent`, `Reverse Opp`,
+   `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Search`, `Look & Reorder`, `Look Deck`, `Comeback`,
+   `Stock Gen`, `AddMarkerWaitingRoom`, `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`,
+   `Power Pump (self)`, `Power Pump`, `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`,
+   `Power Debuff`, `Soul`, `Level`, `Mill (self)`, `Retreat` (this card), `Move`, `Stand/Rest`,
+   `Stock Boost`, `Choice`, `Cannot Attack`, `Restriction`, `Drawback`, `Card Select`.
 7. **`Other`** — nothing matched.
 
 **How a FAMPAT is matched.** Each entry is `(family_name, regex)`; `family()` runs `re.search(regex, text)`
 on the `gen()`-normalized text and returns the first family whose regex hits. The regexes are tuned so
 narrow, specific mechanics peel off *before* broad grab-bags (`Add to Hand`, `Card Select`, `Move`) that
 would otherwise swallow them — e.g. `Retreat` (return your **own** stage character to hand) is checked before
-`Add to Hand`, and `Bounce` (return the **opponent's** character) before both. The `KW`/FAMPAT distance
-bounds (`[^。]{0,N}`) keep matches inside one clause so a payment bracket or a later sentence can't false-
-match. (Every non-obvious regex carries an inline rationale in `cost_model.py` — read those before editing
-one; a "simplification" usually re-opens a mislabel bug that a distance bound was closing.)
+`Add to Hand`, and `Removal (Hand)` (return the **opponent's** character) before both. The `KW`/FAMPAT
+distance bounds (`[^。]{0,N}`) keep matches inside one clause so a payment bracket or a later sentence can't
+false-match. (Every non-obvious regex carries an inline rationale in `cost_model.py` — read those before
+editing one; a "simplification" usually re-opens a mislabel bug that a distance bound was closing.)
+
+**The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
+is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
+destination changes the character's cost to the game (a bounce to hand lets the opponent replay it
+immediately; a permanent removal to the bottom of the deck denies recursion entirely) — `Removal (Hand)`
+(formerly `Bounce`), `Removal (Waiting Room)` (formerly `Disruption`), `Removal (Deck Bottom)`,
+`Removal (Deck Top)`, `Removal (Memory)` (usually temporary — returns to the stage at the next Encore
+step), `Removal (Swap)` (the opponent must replace it with a weaker character pulled from their own
+waiting room). `Clock Kick` is **deliberately excluded** from this group even though it also relocates an
+opponent's character to a zone: its real purpose is dealing *uncancellable damage* (bypassing the
+climax-reveal cancel a normal Burn allows), using the clock placement as the delivery mechanism, not board
+control. `ReviveOpponent` is the mirror-image family (an opponent's own waiting-room character placed onto
+their own stage, to give one of your own reverse-requiring finishers a legal target). `AllMemoryCleanse`
+(a symmetric "every player trims Memory" housekeeping effect), `AddMarkerWaitingRoom` (bank a card as a
+marker under this one, to retrieve later), and `Drawback` (the opponent acts against the card's own
+controller's zones — the negative-polarity counterpart of Disruption/Opp Disrupt) were split out of the
+`Card Select` grab-bag the same pass. User taxonomy throughout (methodology: classify by the ability's
+final effect only — never by cost, trigger, or requirements, which belong to the cost math, not the name).
 
 The family label serves two jobs: it groups abilities for the lookup site, and it supplies the **family
 median** used to estimate signatures with no measurement (STEP 3a/3c). A family that never converges (because

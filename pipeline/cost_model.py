@@ -84,7 +84,8 @@ def mode500_share(xs):
 # hid pumps/searches from the multiplicative estimate (the memory/experience "…なら" then reads as a ÷2 condition).
 KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコール":"Encore",
       "絆":"Bond","チェンジ":"Change","加速":"Accelerate",
-      "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal","バウンス":"Bounce"}
+      "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal",
+      "バウンス":"Removal (Hand)"}  # official keyword name for the same effect as the FAMPAT text-pattern below
 FAMPAT = [
   ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
   # A heal = move from the TOP OF YOUR CLOCK to ANY zone (waiting / stock / hand / memory / bottom-deck).
@@ -93,24 +94,63 @@ FAMPAT = [
   # Select that wrongly stole the "ストック置場" / "手札に(戻|加)" wordings (the old single 'ストック'/'手札'
   # pattern missed them).
   ("Heal", r"自分のクロック[^。]{0,18}(控え室に置|ストック置場に置|手札に(戻|加)|思い出|山札の下に置)"),
+  # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
+  # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
+  # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
+  # with a "GreenBomb"-style effect (heals 1 damage to the opponent FIRST, then clocks the character): that
+  # extra heal step is what marks it as damage-family too. Plain Clock Kick (no heal step) stays its own
+  # family. User taxonomy (explicit exclusion).
   ("Clock Kick", r"相手のキャラ[^。]{0,20}(クロック置場|クロックに)置"),
-  # Bounce = return an OPPONENT character to hand. 相手の…キャラ allows a qualifier (前列の / 後列の / レベルN以下の)
-  # between 相手の and キャラ, so "相手の前列のキャラを1枚選び、手札に戻す" is caught here instead of leaking to the
-  # Add to Hand (戻す) / Card Select (選) grab-bags. Distance to 手札に戻 kept tight so a "when opp char reverses,
-  # return THIS card to hand" (self-return) does NOT match.
-  ("Bounce", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
+  # Removal (Hand): return an OPPONENT character to hand — same final purpose as every other Removal variant
+  # below (get the opponent's stage character out of play), just a different destination. Named per-variant
+  # (not one flat "Removal") because the destination materially changes the character's cost to the game:
+  # bouncing to hand lets the opponent immediately replay it, so it measures far cheaper than a permanent
+  # removal to the bottom of the deck — folding them into one bucket would blur two different cost floors.
+  # 相手の…キャラ allows a qualifier (前列の / 後列の / レベルN以下の) between 相手の and キャラ, so "相手の前列のキャラを
+  # 1枚選び、手札に戻す" is caught here instead of leaking to the Add to Hand (戻す) / Card Select (選) grab-bags.
+  # Distance to 手札に戻 kept tight so a "when opp char reverses, return THIS card to hand" (self-return) does
+  # NOT match. (Formerly named "Bounce" — renamed into the Removal(...) group, same regex/cost data.)
+  ("Removal (Hand)", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
   # Retreat (own-stage-char branch): choosing one of YOUR OWN characters currently ON THE STAGE and returning
   # it to hand (a self-bounce/withdrawal). Checked here, BEFORE Add to Hand, because Add to Hand's own negative
   # lookbehind only excludes "このカードを手札に戻す" (see below) -- it does NOT exclude "自分の舞台の…選び…手札に
   #戻す", so without this earlier branch it would win first and steal the label. The "このカードを手札に戻す"
   # (this card retreats itself) branch stays lower in the list, right after Mill (self) -- see that comment.
   ("Retreat", r"自分の舞台(の|にいる)[^。]{0,14}(キャラ|「N」)[^。]{0,10}選び[^。]{0,10}手札に戻"),
-  # Disruption: proactively remove an opponent's STAGE character straight to their waiting room (a kill, not a
-  # reverse/bounce/clock-kick — those have their own families above). Usually a main-phase on-enter play, e.g.
-  # picking off a low-cost/low-level front-row character before the battle phase even starts. Distinct from
-  # Opp Disrupt below, which targets the opponent's RESOURCE ZONES (hand/stock/deck/memory/clock), not a
-  # character. User taxonomy (name "Disruption").
-  ("Disruption", r"相手の[^。]{0,16}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置"),
+  # AllMemoryCleanse: a symmetric effect ("すべてのプレイヤーは…") that trims EVERY player's Memory down to a
+  # kept amount, sending the rest to that player's own waiting room. Distinct from Salvage/Retreat (those
+  # move ONE player's cards, chosen by name/type) — this is a board-wide housekeeping effect that benefits
+  # both players equally (fewer cards in Memory = a more compressed deck at the next refresh). The kept-count
+  # clause sits inside a 『…』 quoted action block, so the gap to 控え室に置 must cross that sentence break
+  # (. not [^。], matching the Modal/Search convention elsewhere in this list). User taxonomy.
+  ("AllMemoryCleanse", r"すべてのプレイヤー.{0,90}思い出.{0,60}控え室に置"),
+  # Removal (Waiting Room): proactively remove an opponent's STAGE character straight to their waiting room
+  # (a kill, not a reverse/bounce/clock-kick — those have their own families). Usually a main-phase on-enter
+  # play, e.g. picking off a low-cost/low-level front-row character before the battle phase even starts.
+  # Distinct from Opp Disrupt below, which targets the opponent's RESOURCE ZONES (hand/stock/deck/memory/
+  # clock), not a character. (Formerly named "Disruption" — renamed into the Removal(...) group, same
+  # regex/cost data; user taxonomy.)
+  ("Removal (Waiting Room)", r"相手の[^。]{0,16}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置"),
+  # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an
+  # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above ("el
+  # propósito es sacarlo del stage"), each split into its OWN meaningfully-named variant rather than one
+  # flat "Removal" bucket, because the destination changes the cost floor (a permanent bottom-of-deck removal
+  # denies recursion much harder than a temporary Memory removal that returns the character at the next
+  # Encore step, which in turn differs from a forced swap that still leaves the opponent a replacement).
+  # Swap: the opponent must replace the removed character with a weaker one pulled from their OWN waiting
+  # room; the strong character still leaves the stage, so it's a Removal variant, not a different mechanic.
+  # Its 入れ替える sits after a second, nested "相手は…選び" clause, so it needs the wide . gap (crossing the
+  # sentence break some prints put before it) instead of [^。]. User taxonomy.
+  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置"),
+  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置"),
+  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}思い出にし"),
+  ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え"),
+  # ReviveOpponent (provisional name, pending user confirmation): the reverse of Removal — put a character
+  # from the OPPONENT's OWN waiting room onto a stage slot. Since a character always stays owned by its
+  # original controller, an unmarked "舞台" here can only mean the OPPONENT's stage: this "revives" an
+  # opponent character so a later reverse-requiring finisher/removal effect of your OWN has a legal target
+  # (some opponents deliberately empty their board to deny exactly that). User taxonomy / RSL/S56-002.
+  ("ReviveOpponent", r"相手の控え室の[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,14}(舞台|前列|後列)の[^。]{0,10}枠に置"),
   ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
@@ -136,6 +176,14 @@ FAMPAT = [
   # mechanic) can't bridge across the "か、相手の…" clause and false-match on the opponent branch.
   ("Comeback", r"自分の(控え室|山札)(?:(?!相手)[^。]){0,22}キャラ(?:(?!相手)[^。]){0,14}舞台(に|の(?:(?!相手)[^。]){0,6}枠に)置"),
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"),
+  # AddMarkerWaitingRoom: park a card face-up/down as a MARKER under this (or another named) card, to be
+  # retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an immediate
+  # effect. The user asked the name to spell out source -> destination; the overwhelming majority of prints
+  # source the marker from 自分の控え室 (own waiting room), so that's the name, even though a rare few source
+  # it from the stage or make THIS card itself the marker instead — same underlying "bank a card as a marker"
+  # purpose, so the regex is left unanchored on source and keyed on the destination phrase alone (マーカーとして
+  # …置く), which no other family's text can plausibly contain. User taxonomy.
+  ("AddMarkerWaitingRoom", r"マーカーとして[^。]{0,8}置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -150,10 +198,12 @@ FAMPAT = [
   # return) OUT. Placed right before Add to Hand so higher-priority families (Grant/CXC/Salvage/…) claim theirs first.
   ("Retreat", r"(自分の|あなたの)(?:(?!相手|このカードとバトル).)*?その(カード|キャラ)を[^。]{0,8}手札に戻"),
   ("Add to Hand", r"手札に(加える|加え)|(?<!このカードを)手札に戻す"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
-  # Draw = 引く/引き. Placed AFTER the pump families on purpose: a "draw N and pump" combo (引き…パワーを＋) is a
-  # combat trick whose meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so
-  # pump wins; only a pure draw (typically draw-then-discard "loot") falls through to Draw. 引き = continuative
-  # (the sentence keeps going, e.g. 引き、…控え室に置く) — the bare 引く missed it, leaking loot to Card Select.
+  # Draw = 引く/引き/引い (dictionary, continuative, and the very common て-form 引いて/引いた — a plain "-i" stem
+  # match catches all three conjugations at once; the narrower 引[くき] used until now silently missed every
+  # "…引いてよい" optional draw, leaking a large slice of real Draw/DrawDiscard prints to Card Select). Placed
+  # AFTER the pump families on purpose: a "draw N and pump" combo (引き…パワーを＋) is a combat trick whose
+  # meaningful cost is the pump (and Power Pump (self) carries the multiplicative cabling), so pump wins; only
+  # a pure draw (typically draw-then-discard "loot") falls through to Draw.
   # Power Pump: the plain キャラ…パワー branch stays at distance 16. The second branch anchors on a SELECTED
   # target (キャラを…選) and allows a longer gap to パワー, so a "select a char, 次の相手のターンの終わりまで, パワーを＋"
   # (the long "until next opponent turn" duration ~21 chars) is caught instead of leaking to Card Select /
@@ -164,13 +214,13 @@ FAMPAT = [
   # then draw. A specific payment-shaped draw (you spend a card to dig), distinct from a bare Draw — split out
   # BEFORE Draw so it doesn't hide in the generic 引く family. The cost bracket must contain 手札→キャラ→控え室に置
   # (all within one ［…］), and a 引く must follow it. (User taxonomy.)
-  ("DiscardCharacterToDraw", r"［[^］]*手札[^］]*キャラ[^］]*控え室に置[^］]*］.*引[くき]"),
+  ("DiscardCharacterToDraw", r"［[^］]*手札[^］]*キャラ[^］]*控え室に置[^］]*］.*引[くきい]"),
   # DrawDiscard: draw N then discard M cards from HAND to the waiting room (…引き、自分の手札を…選び、控え室に置く).
   # A hand-FIX / quality filter (net card gain is only N−M, often 0), distinct from a pure Draw (+N advantage) —
   # split out BEFORE Draw so the two don't share a blended cost median. After DiscardCharacterToDraw so a card
   # that BOTH discards a char as cost AND draw-discards keeps the more specific payment-shaped label.
-  ("DrawDiscard", r"引[くき].{0,20}手札を[\dＸ]+枚.{0,4}選.{0,6}控え室に置"),
-  ("Draw", r"引[くき]"),
+  ("DrawDiscard", r"引[くきい].{0,20}手札を[\dＸ]+枚.{0,4}選.{0,6}控え室に置"),
+  ("Draw", r"引[くきい]"),
   # Early Play (in hand): lowering THIS card's level WHILE IN HAND (手札の…レベルを－N) makes it playable before you
   # reach that level — functionally Early Play. Checked BEFORE the generic Level (レベルを±), which would else grab it.
   # Scoped to 手札の so an on-STAGE level-down (舞台の…レベルを－, a stat mod often paired with a pump) is NOT caught.
@@ -190,10 +240,21 @@ FAMPAT = [
   # instead (~4% of a broad そのキャラ/カード…手札に戻す sample), and safely resolving the pronoun needs more
   # than a fixed-distance regex; left for a future pass.
   ("Retreat", r"このカードを手札に戻(す|してよい)(?!］)"),
-  ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動かす|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
+  # Move: "動かす" (dictionary form) alone missed the very common て-form "…枠に動かしてよい" (may move) — real
+  # prints almost always phrase it as an optional action, so the stem 動か (catches 動かす/動かして/動かした/動かせる)
+  # is needed to actually match them instead of leaking to Card Select.
+  ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動か|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
   ("Stock Boost", r"ストック置場に置"), ("Choice", r"次の効果から|から\d+つを選"),
   ("Early Play", r"レベル\d+以下[^。]{0,12}手札からプレイ|レベルを参照しない"),
   ("Cannot Attack", r"アタックできない|サイドアタックできない"), ("Restriction", r"できない|選べない|受けない"),
+  # Drawback: the OPPONENT acts against the card's OWN CONTROLLER's zones (相手は/が…あなたの…選び…に置) — a
+  # self-inflicted downside the card's controller must accept as part of its own effect (e.g. a pump that
+  # lets the opponent bury one of your own waiting-room cards). Distinct from Disruption/Opp Disrupt (there
+  # the CARD'S OWNER acts against the OPPONENT); here the polarity is reversed, so it needed its own general
+  # family for "negative effect against yourself" rather than being folded into either. User taxonomy
+  # (confirmed via BD/W54-P03's full card context: two such drawback abilities justify its power being
+  # 1000 over vanilla for a level-1/cost-0 print).
+  ("Drawback", r"相手(は|が)[^。]{0,4}あなたの[^。]{0,20}を[^。]{0,10}選び[^。]{0,14}(山札の(上|下)|控え室|クロック置場)に置"),
   ("Card Select", r"\d+枚(まで)?選"),
 ]
 # CX Combo: an ability HARD-GATED to a specific named climax. Detected on the gen()-normalized text
@@ -296,7 +357,7 @@ def en_family(t):   # ordered, precise EN family detection (CX combo / burn / cl
     for fam, kw in (("Backup", "backup"), ("Assist", "assist"), ("Brainstorm", "brainstorm"),
                     ("Encore", "encore"), ("Experience", "experience"), ("Memory", "memory")):
         if kw in tl: return fam
-    if re.search(r"return[^.]{0,40}opponent[^.]{0,20}(character|hand)", tl): return "Bounce"
+    if re.search(r"return[^.]{0,40}opponent[^.]{0,20}(character|hand)", tl): return "Removal (Hand)"
     if re.search(r"(look at|reveal|search)[^.]{0,40}deck", tl): return "Search"
     if "your waiting room" in tl and " hand" in tl: return "Salvage"
     if "draw" in tl: return "Draw"
