@@ -1,6 +1,5 @@
 # Normalize line endings across OSes (stops the LF/CRLF churn on Windows).
 * text=auto eol=lf
-
 # Windows scripts keep CRLF.
 *.ps1 text eol=crlf
 *.bat text eol=crlf
