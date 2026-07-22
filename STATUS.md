@@ -228,8 +228,11 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - **New families:** `CX Exchange` (swap a climax card between two zones, matched by trigger icon — a
     combo-assembly tool), `Stock Search` (look at your own stock, take a card to hand), `Clock/Hand
     Exchange` (a clock character comes to hand, refilled from a hand or deck-top card), `Removal (Stock)`
-    (opponent's stage character converted into the ACTOR's own stock — a "capture" mechanic, 136
-    occurrences), `Grant Trait` (assign a chosen character a designated trait for the turn).
+    (opponent's stage character sent to the OPPONENT's OWN stock, 136 occurrences — **corrected 2026-07-22
+    post-ship**: my first write-up wrongly described this as the ACTOR capturing the character into their
+    own stock; the user caught it — Weiss Schwarz never mixes cards from different owners in one zone, so
+    an unmarked ストックに置く destination on an opponent's character can only mean their own stock), `Grant
+    Trait` (assign a chosen character a designated trait for the turn).
   - **Widened for gap/verb gaps found via real-card near-misses** (a level+cost double condition, a
     trigger-icon descriptor, a placement-order phrase, etc. kept pushing distances just past the old
     limits): `Summon`, `AddMarkerWaitingRoom`, `Memory Bank`, `Removal (Memory)`, `Removal (Waiting Room)`,

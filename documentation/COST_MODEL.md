@@ -269,8 +269,10 @@ payment — distinct from `Drawback`, where the OPPONENT acts against your zones
 (choose a different opponent character to attack instead of the normal target/attacker), `CX Exchange`
 (swap a climax card between two zones, matched by trigger icon — a combo-assembly tool, not a one-way
 get), `Clock/Hand Exchange` (a clock character comes to hand, refilled from a hand or deck-top card — the
-hand-side sibling of `Clock/WR Exchange`), `Removal (Stock)` (opponent's stage character converted into the
-ACTOR's own stock — a "capture" mechanic), `Grant Trait` (assign a chosen character a designated trait for
+hand-side sibling of `Clock/WR Exchange`), `Removal (Stock)` (opponent's stage character sent to the
+OPPONENT's OWN stock — a character card is always owned by its original controller, no zone ever mixes
+cards from different owners, so an unmarked "put it in the stock" destination on an opponent's character can
+only mean their own stock, not the actor's), `Grant Trait` (assign a chosen character a designated trait for
 the turn — a stat-grant sibling of `Soul`/`Level`, just targeting the trait slot).
 
 **`Card Select` was completely eliminated (2026-07-22), not just shrunk.** The generic `\d+枚選` catch-all

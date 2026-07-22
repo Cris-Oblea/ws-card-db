@@ -156,9 +156,12 @@ FAMPAT = [
   # Gap widened 16->24 (a compound color+trait condition, e.g. "前列のコスト0以下の、緑か《T》の", pushed past
   # the old limit); also accepts "このカードの正面のキャラ" (the character THIS card faces in combat), the same
   # opponent-reference alternative added to Clock Kick above. Also added a 2nd family: Removal (Stock) --
-  # opponent's stage character converted into the ACTOR's OWN stock (a "capture" mechanic, denying the
-  # opponent recursion while also handing the attacker a resource) -- a distinct enough destination/effect
-  # from every other Removal variant to need its own name.
+  # a character card is ALWAYS owned by its original controller in Weiss Schwarz (no zone ever mixes cards
+  # from different owners), so an unmarked "ストックに置く" destination on an opponent's character can only mean
+  # the OPPONENT's OWN stock, not the actor's -- same "get it out of play" purpose as every other Removal
+  # variant, just parked in a zone the opponent can later spend as a cost rather than recur from. (User
+  # correction: my first write-up wrongly described this as the ACTOR capturing the character into their own
+  # stock, which cross-owner mixing rules make impossible.)
   ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
   ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置"),
   # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an

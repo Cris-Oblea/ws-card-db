@@ -304,7 +304,7 @@ FORMS = [
  ("CX Exchange", "swap a climax card between two zones, matched by trigger icon", "≈500", "A combo-assembly tool: trade a useless climax for one whose trigger icon you need."),
  ("Stock Search", "look at your own STOCK, take a card to hand", "≈500", "Stock is normally spent on costs, not searched -- distinct enough from Search/Salvage to name separately."),
  ("Clock/Hand Exchange", "a clock character comes to hand, refilled from a hand or deck-top card", "≈1000", "The hand-side sibling of Clock/WR Exchange."),
- ("Removal (Stock)", "opponent's stage character converted into the ACTOR's OWN stock", "≈1000", "A \"capture\" mechanic -- denies recursion while handing the attacker a resource."),
+ ("Removal (Stock)", "opponent's stage character sent to the OPPONENT's OWN stock", "≈1000", "Cards never cross owners in Weiss Schwarz -- an unmarked stock destination on an opponent's character always means their own stock."),
  ("Grant Trait", "assign a chosen character a designated trait for the turn", "≈1000", "A stat-grant sibling of Soul/Level, just targeting the trait slot."),
 ]
 for f in FORMS:
