@@ -22,12 +22,36 @@ text match still works while the number match breaks.
 `build_db.py` fills each field from the best available source, top to bottom:
 
 1. **Official EN** — exact same-code EN card (`cardlist_en.json`), or same-JP-name propagation
-   (`NAME_OFFICIAL`). Best phrasing; only ~16.8k of 39.9k cards (the rest never released in English).
+   (`NAME_OFFICIAL`). Best phrasing; only ~18.7k of 40.4k cards (the rest never released in English).
 2. **Unofficial simulator** — `name_sim.json` / `traits_sim.json` / `abilities_sim.json`, built by
-   `pipeline/extract_simulator.py` from a fan-made WS game's `CardData.txt` files. English in roughly
-   the official taxonomy, keyed by `strict_key`. Fills the JP-only gap → names jump to ~91.6%,
-   traits ~84%, ability text ~92.7%. Abilities/traits are taken **positionally only when the count
-   matches** (the simulator sometimes splits abilities differently); names need no alignment.
+   `pipeline/extract_simulator.py` from a fan-made WS game's `CardData.txt` files (its identity is
+   deliberately not named in public docs — see `NOTICE.md`). English in roughly the official
+   taxonomy, keyed by `strict_key`. Abilities/traits are taken **positionally only when the count
+   matches** the JP ability count (the simulator sometimes splits abilities differently); names need
+   no alignment. **Site-wide ability EN coverage: 99.87%** (as of 2026-07-22) — see below for how.
+   - **Macro synthesis (2026-07-22).** Many abilities are written in `CardData.txt` as a single
+     scripted macro line (e.g. `*GainPowerWithEnoughCharacters(5000,2,Granblue)`) instead of a `Text`
+     line — the simulator's engine only needs the macro to run the effect, not a prose description.
+     `extract_simulator.py` now synthesizes real English for these: it looks up the macro name
+     against two sources, in priority order — (a) the simulator's OWN engine definitions,
+     `StreamingAssets/CommonEffects(copy).txt`, read live from the local install at runtime and
+     **never copied into the repo** (it's the simulator's internal source, more sensitive to
+     redistribute than the hand-curated fallback below); (b) `pipeline/sources/macros.tsv` (236
+     curated macro → English-template mappings, tracked in the repo) as a fallback where the engine
+     source has no `Text` line for a macro. Each macro's own call arguments are substituted into the
+     matched template's placeholders (`POWER`, `NUMBER`, `TRAITLIST`, ...).
+   - **Ability counting is depth-aware.** Only a TOP-LEVEL line (brace depth 0 in `CardData.txt`) is
+     its own ability — a macro or `Text` line nested inside another ability's block (a conditional,
+     a cost block, or a `GainEffect { ... }` temporary grant) describes a clause that
+     `cardlist_clean.json` already embeds inside the OUTER ability's single JP text, and must not be
+     counted as a second ability, or the simulator's count stops matching the JP count and the
+     WHOLE card's simulator text gets rejected by the alignment check above (not just the nested bit).
+   - **The printed "Backup" keyword ability is a known, permanent gap in the simulator's own data**
+     (marker `【起】`+`【カウンター】`, text `助太刀N レベルM...`) — the simulator stores it as a bare
+     numeric stat field, never as ability text, which used to make every Backup-having card's
+     simulator count come up 1 short (2,821 cards). `build_db.py` now excludes this specific ability
+     from the count comparison and maps simulator indices around its slot, so the card's OTHER
+     abilities aren't penalized for a gap that isn't fixable on the extraction side.
 3. **Heart of the Cards** — `name_hotc.json`, scraped by `pipeline/fetch_hotc.py`, keyed by the
    Japanese NAME (so it applies even to blocked franchises). HotC translates the ORIGINAL JP cards,
    so it is JP-ALIGNED and CORRECT even for renumbered legacy (e.g. it gives DG/S02-T05 the right
