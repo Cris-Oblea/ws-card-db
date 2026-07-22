@@ -50,14 +50,20 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
 
 ### In flight (launched 2026-07-21, check for results before re-launching)
 
-- **Data-refresh plan** (architect): locate where hand-made per-card fixes (wrong color/type corrected,
-  etc.) live relative to `pipeline/cardlist_clean.json`, and design a safe procedure to pull in new JP
-  sets + new official EN text (incl. the new **Uma Musume** set and its "Inspire"/継承 keyword) without
-  reverting those fixes. Report expected before any dev-agent touches the pipeline.
+- **Data-refresh plan** (architect) — ✅ **DONE 2026-07-21.** Every located hand-fix (color, side, name,
+  power/level, EN legacy-disparity) already lives in code (`clean_cardlist.py` `OVERRIDES`, `build_db.py`
+  `CARD_FIX`/`SIDE_FIX`/`NAME_OVERRIDE`/`EN_BLOCK_*`) — survives a re-harvest by construction. The one
+  flagged open risk (no override layer for card TYPE) was tested empirically (zero network): regenerating
+  `cardlist_clean.json` from the still-on-disk 2026-06-15 raw harvest reproduces it **byte-for-byte**
+  (same SHA256) — so there are NO orphaned direct hand-edits today. Also found: **Uma Musume (UMA series,
+  837 cards)** and its `継承`("Inspire") keyword are ALREADY in the June snapshot (87 cards) — it's inline
+  ability text, not a bracket marker, so it needs a cost-model look (`cost-analyst`), not re-ingestion.
+  Full ordered plan (pre-flight diff → ingest refresh → reconcile → 継承 costing → build/validate) is in
+  the architect's report; **next step is the owner's go-ahead to run the actual network harvest.**
 - **CX-Combo floor investigation** (cost-analyst): re-examine `CXC_FLOOR = 500` in `pipeline/cost_model.py`
   — the owner argues CX-Combo, being always resolved LAST as the pure residual absorber, shouldn't have an
   artificial floor (or ceiling) at all. Investigate empirically (how many sigs are actually clamped, does
-  removing it hold `Explained% >= 94%`) before changing anything.
+  removing it hold `Explained% >= 94%`) before changing anything. Still running as of 2026-07-21.
 
 ### English migration (deferred — code & folders)
 
@@ -94,5 +100,10 @@ Translation is done, so future sessions are **only** about cost-model accuracy. 
 
 ## Do not commit
 
-- Regenerable JSON (`cardlist_clean.json`, `ws.sqlite`, etc.) — see `.gitignore`
+- Regenerable/local-only JSON (`pipeline/ingest/cardlist_full.json` raw harvest, `site/ws.sqlite`
+  uncompressed, etc.) — see `.gitignore`. **`pipeline/cardlist_clean.json` is NOT in this list** — it
+  IS committed on purpose (the JP source of truth; see `documentation/ARCHITECTURE.md` §4). Verified
+  2026-07-21: it's fully reproducible byte-for-byte from the on-disk raw harvest + the code-level
+  override layers (`clean_cardlist.py` `OVERRIDES`, `build_db.py` `CARD_FIX`/`SIDE_FIX`) — there are
+  no orphaned direct hand-edits to protect.
 - `pipeline/_tr_batches/` temp outputs (regenerable)
