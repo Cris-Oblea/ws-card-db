@@ -292,6 +292,15 @@ FORMS = [
  ("AddMarkerWaitingRoom", "park a card face-up/down as a marker under this card, to retrieve later", "≈1000", "A banked resource, not an immediate effect."),
  ("AllMemoryCleanse", "every player trims their Memory down to a kept amount", "0", "Symmetric board housekeeping, benefits both players equally."),
  ("Drawback", "the OPPONENT acts against the card's OWN controller's zones", "≈500", "A self-inflicted downside the controller accepts as part of the card's own effect."),
+ ("Summon", "own character, ANY zone (waiting room/deck/hand/Memory/clock) -> straight onto the stage", "≈1000", "Formerly 'Comeback' (renamed -- collided with the official Comeback trigger icon). Bypasses cost/level entirely."),
+ ("Change", "this card retreats as its own cost; a replacement fills the exact vacated slot", "≈1000", "Same family as the official Change keyword, whether or not the card spells it out in full text."),
+ ("Clock/WR Exchange", "swap the bottom card of your own clock for a waiting-room character", "≈500", "Clock size unchanged -- only WHICH card sits there changes. Fixes color requirements / frees a trapped character."),
+ ("Return to Deck (Own)", "own waiting-room card(s) -> your own deck (top or bottom)", "≈500", "Self-recycle: redraw a specific card later, or declutter the waiting room."),
+ ("Memory Bank", "own waiting-room card -> Memory (usually gated by a low own-Memory-count)", "≈1000", "Often paired with a later Summon/Salvage that pulls the same card back out."),
+ ("Deck Thin", "deck search for a specific/trait card -> waiting room (NOT hand)", "≈1000", "A targeted mill, not a Search."),
+ ("Free Play (Alt Cost)", "discard a named own card to play THIS card for 0 cost", "500", "30 cards share the exact templated phrasing."),
+ ("Self Sacrifice", "the card's own ability sacrifices ANOTHER own character (no payment bracket)", "≈-500 (a bonus)", "A real downside -> the card gets EXTRA power as compensation, not less."),
+ ("Attack Redirect", "attack a different opponent character instead of the normal target", "500", "A combat-targeting trick, not a Move."),
 ]
 for f in FORMS:
     wsf.append(list(f)); rr = wsf.max_row

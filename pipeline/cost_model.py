@@ -110,13 +110,21 @@ FAMPAT = [
   # 1枚選び、手札に戻す" is caught here instead of leaking to the Add to Hand (戻す) / Card Select (選) grab-bags.
   # Distance to 手札に戻 kept tight so a "when opp char reverses, return THIS card to hand" (self-return) does
   # NOT match. (Formerly named "Bounce" — renamed into the Removal(...) group, same regex/cost data.)
-  ("Removal (Hand)", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"), ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札に(戻|加え)"),
+  ("Removal (Hand)", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"),
+  # Return to Deck: opponent's waiting-room card(s)/character -> the OPPONENT's OWN deck. Verb widened to
+  # also accept 置く (many prints say "山札の上か下に置く" rather than 戻す/加える -- same destination, different
+  # phrasing).
+  ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札[^。]{0,6}に(戻|加え|置)"),
   # Retreat (own-stage-char branch): choosing one of YOUR OWN characters currently ON THE STAGE and returning
   # it to hand (a self-bounce/withdrawal). Checked here, BEFORE Add to Hand, because Add to Hand's own negative
   # lookbehind only excludes "このカードを手札に戻す" (see below) -- it does NOT exclude "自分の舞台の…選び…手札に
   #戻す", so without this earlier branch it would win first and steal the label. The "このカードを手札に戻す"
   # (this card retreats itself) branch stays lower in the list, right after Mill (self) -- see that comment.
-  ("Retreat", r"自分の舞台(の|にいる)[^。]{0,14}(キャラ|「N」)[^。]{0,10}選び[^。]{0,10}手札に戻"),
+  # Retreat (own-stage branch), widened: real prints often say "他の自分の…キャラ" (another of your own
+  # characters) instead of spelling out the literal word 自分の舞台の -- context already implies the stage
+  # (only stage characters are normally choosable by a triggered ability), so the literal-word requirement
+  # missed a real chunk of this shape.
+  ("Retreat", r"自分の舞台(の|にいる)[^。]{0,14}(キャラ|「N」)[^。]{0,10}選び[^。]{0,10}手札に戻|他の自分の[^。]{0,14}(キャラ|「N」)[^。]{0,10}選び[^。]{0,10}手札に戻"),
   # AllMemoryCleanse: a symmetric effect ("すべてのプレイヤーは…") that trims EVERY player's Memory down to a
   # kept amount, sending the rest to that player's own waiting room. Distinct from Salvage/Retreat (those
   # move ONE player's cards, chosen by name/type) — this is a board-wide housekeeping effect that benefits
@@ -151,30 +159,80 @@ FAMPAT = [
   # opponent character so a later reverse-requiring finisher/removal effect of your OWN has a legal target
   # (some opponents deliberately empty their board to deny exactly that). User taxonomy / RSL/S56-002.
   ("ReviveOpponent", r"相手の控え室の[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,14}(舞台|前列|後列)の[^。]{0,10}枠に置"),
-  ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"), ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック)"),
+  # Opp Disrupt widened: (1) added 控え室 (waiting room) -- previously only hand/stock/deck/memory/level-zone/
+  # clock were covered, missing a common "force the opponent to reset/thin their own waiting room" shape.
+  # (2) added the REFLEXIVE construction 相手は自分の… (the opponent, acting on THEIR OWN zone -- 自分 here
+  # is the opponent's own reflexive, not the acting player's) alongside the possessive 相手の…, since most
+  # real prints phrase it "相手は自分の控え室のCXを1枚選び、そのカード以外を…山札に戻し…" (topic marker 相手は, not
+  # possessive 相手の) and the literal-possessive-only pattern silently missed all of them.
+  ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"),
+  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
   ("RevealTopSalvage", r"山札[^。]{0,10}公開[^。]{0,50}控え室[^。]{0,34}手札に(戻|加え)"),
   ("Salvage", r"自分の(控え室|思い出)[^。]{0,34}手札に(戻|加え)"),
+  # Memory Bank: bank a NAMED own waiting-room card into Memory (usually gated by a low own-Memory-count
+  # condition, e.g. "if your Memory has 2 or fewer cards"). Distinct final purpose from Salvage (destination
+  # is hand) and from Removal (Memory) (that's the OPPONENT's character) — this is your OWN card, parked in
+  # Memory rather than recovered to hand, typically to set up a later Memory-count payoff or a Memory-sourced
+  # Comeback/Summon combo on the SAME card (see e.g. SMP/W82-035, whose 3rd ability later pulls these exact
+  # banked cards back out of Memory to hand). User taxonomy.
+  ("Memory Bank", r"自分の控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}思い出にし"),
   # Search = look at your DECK and take a card to HAND. Two phrasings: 見る (look) and 公開 (reveal the top,
   # then conditionally add). The reveal-top dig crosses a sentence break (…公開する。…なら手札に加え), so its
   # branch uses . (not [^。]) to bridge it; 山札…公開 anchors it to own-deck reveal, 手札に加え to taking to hand.
   # RevealTopSalvage (reveal -> salvage from 控え室) is checked earlier, so only the plain deck-dig lands here.
   ("Search", r"山札[^。]{0,14}見[てる][^。]{0,28}(手札|加える)|山札[^。]{0,10}公開.{0,90}手札に加え"),
+  # Deck Thin: look at your OWN deck for a specific/trait card and send it to the WAITING ROOM instead of
+  # hand — a targeted mill (thin a specific unwanted/situational card out of your deck), not a Search (which
+  # takes the found card to hand). Checked after Search since the destination is mutually exclusive (手札 vs
+  # 控え室), so order doesn't matter for correctness, but grouped here thematically. User taxonomy.
+  ("Deck Thin", r"自分の山札[^。]{0,10}見[^。]{0,20}選(び|んで)[^。]{0,10}控え室に置"),
   # Look & Reorder = look at top N then put them back in ANY order (好きな順番) — a scry/setup, distinct from a
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"),
-  # Comeback = recruit YOUR OWN character from waiting room/deck straight onto the STAGE (not to hand — that's
-  # Salvage/Search). Was DEAD (0 matches): its "舞台に置" required the literal 4-char run, but real cards say
-  # "舞台の好きな枠に置く" / "舞台の別々の枠に置く" (a placement-slot descriptor breaks the literal substring), so
-  # every card fell through to the generic Card Select/Stand-Rest/Move grab-bags instead. Widened to accept the
-  # "舞台の…枠に" phrasing too. Scoped to 自分の (own zone) with a (?!相手) guard through every gap so an "either
-  # your own char to stock OR the OPPONENT's WR char to stage" compound (a different, more aggressive steal
-  # mechanic) can't bridge across the "か、相手の…" clause and false-match on the opponent branch.
-  ("Comeback", r"自分の(控え室|山札)(?:(?!相手)[^。]){0,22}キャラ(?:(?!相手)[^。]){0,14}舞台(に|の(?:(?!相手)[^。]){0,6}枠に)置"),
+  # Summon (renamed from "Comeback" — the old name collided with the official CLIMAX TRIGGER ICON "Comeback",
+  # a different game concept entirely; the user flagged the confusion). Final purpose: put YOUR OWN character
+  # directly onto the STAGE from ANY other zone (waiting room, deck, hand, Memory, clock), bypassing the
+  # normal play sequence (no cost paid, no level check) — a resource cheat, distinct from Salvage/Search
+  # (destination is hand — the card still has to be played normally afterward). Was DEAD (0 matches) before
+  # this session: its "舞台に置" required the literal 4-char run, but real cards say "舞台の好きな枠に置く" /
+  # "舞台の別々の枠に置く" (a placement-slot descriptor breaks the literal substring), so every card fell
+  # through to the generic Card Select/Stand-Rest/Move grab-bags instead. Also widened to accept a NAMED
+  # target («N») in addition to the literal word キャラ (most real prints name the specific character rather
+  # than saying キャラ), and to accept 手札/思い出置場/クロック置場 as additional sources (a Summon combo often
+  # stashes the target in Memory or the clock first, then recruits it from there — see e.g. ID/W13-122,
+  # PJS/S91-P52-style clock swaps feed the SAME waiting-room pool this pulls from). Scoped to 自分の (own
+  # zone) with a (?!相手) guard through every gap so an "either your own char to stock OR the OPPONENT's WR
+  # char to stage" compound (a different, more aggressive steal mechanic) can't bridge across the "か、相手の…"
+  # clause and false-match on the opponent branch. Deliberately does NOT match "このカードがいた枠に置" (placing
+  # into the slot THIS card just vacated) — that phrasing is the signature of the "Change" mechanic below
+  # (this card retreats AS the cost, a replacement fills its exact slot), a different final purpose even
+  # though the destination looks similar.
+  ("Summon", r"自分の(控え室|山札|手札|思い出置場|クロック置場)(?:(?!相手)[^。]){0,22}(キャラ|「N」)(?:(?!相手)[^。]){0,14}舞台(に|の(?:(?!相手)[^。]){0,6}枠に)置"),
+  # Change (text-form, no keyword marker): this card retreats to the waiting room/clock/Memory AS the cost of
+  # its own ability, and a replacement character (from hand or waiting room) fills the EXACT slot it just
+  # vacated ("このカードがいた枠に置く") — functionally identical to the official チェンジ keyword mechanic (already
+  # in the KW dict above), just spelled out in full text instead of using the keyword shorthand. Folded into
+  # the SAME family name so both detection paths share one cost standard, matching how the バウンス keyword and
+  # its FAMPAT text-pattern counterpart both resolve to Removal (Hand). User taxonomy.
+  ("Change", r"このカードがいた枠に[^。]{0,10}置"),
+  # Clock/WR Exchange: swap the card at the BOTTOM of your own clock for a character in your own waiting
+  # room — the clock's SIZE never changes (still the same number of clock cards), only WHICH card sits in
+  # one clock slot changes. Distinct from Heal (that permanently REMOVES a card from the clock, from the
+  # TOP, to some other zone — a net reduction) and from Summon (destination here is the clock, not the
+  # stage). User: useful for fixing your board's COLOR requirements (swap in a needed color from the
+  # waiting room) or for freeing a specific character trapped in the clock so a later Salvage/Summon can
+  # reach it. User taxonomy.
+  ("Clock/WR Exchange", r"自分のクロックの下から[^。]{0,20}控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}入れ替え"),
+  # Return to Deck (Own): send YOUR OWN waiting-room card(s) back into YOUR OWN deck (top or bottom) — the
+  # mirror of the existing "Return to Deck" family (which targets the OPPONENT's waiting room/deck). A
+  # self-recycle: redraw a specific card later, or just declutter the waiting room. Distinct from Summon
+  # (destination is the deck, not the stage) and from Stock Gen (destination is the deck, not stock).
+  ("Return to Deck (Own)", r"自分の控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,6}山札の(上|下)に[^。]{0,8}置"),
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,12}ストック置場に置"),
   # AddMarkerWaitingRoom: park a card face-up/down as a MARKER under this (or another named) card, to be
   # retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an immediate
@@ -183,7 +241,11 @@ FAMPAT = [
   # it from the stage or make THIS card itself the marker instead — same underlying "bank a card as a marker"
   # purpose, so the regex is left unanchored on source and keyed on the destination phrase alone (マーカーとして
   # …置く), which no other family's text can plausibly contain. User taxonomy.
-  ("AddMarkerWaitingRoom", r"マーカーとして[^。]{0,8}置"),
+  # The 2nd branch is the RETRIEVAL half of the same overall marker-banking mechanic: cards previously banked
+  # as markers (via the "…として置く" branch above, often on an earlier turn) come back out from under this
+  # card onto the stage. Same underlying purpose (a marker is just a temporarily-parked character), so it
+  # stays the same family rather than forking into a 6th Removal-style destination split.
+  ("AddMarkerWaitingRoom", r"マーカーとして[^。]{0,8}置|マーカー[^。]{0,20}舞台[^。]{0,10}枠に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -240,13 +302,45 @@ FAMPAT = [
   # instead (~4% of a broad そのキャラ/カード…手札に戻す sample), and safely resolving the pronoun needs more
   # than a fixed-distance regex; left for a future pass.
   ("Retreat", r"このカードを手札に戻(す|してよい)(?!］)"),
-  # Move: "動かす" (dictionary form) alone missed the very common て-form "…枠に動かしてよい" (may move) — real
-  # prints almost always phrase it as an optional action, so the stem 動か (catches 動かす/動かして/動かした/動かせる)
-  # is needed to actually match them instead of leaking to Card Select.
-  ("Move", r"(前列|後列|別の枠|横の枠|の枠)に[^。]{0,6}(動か|置く|移動)"), ("Stand/Rest", r"【スタンド】|【レスト】"),
+  # Attack Redirect: instead of the normal attacker/target, choose a different opponent character to attack
+  # (e.g. front-attack a back-row character). A combat-targeting trick, not a Move (nobody's position on the
+  # stage changes). Checked before Move so it doesn't get read as a generic reposition.
+  ("Attack Redirect", r"かわりに相手の[^。]{0,16}キャラを[^。]{0,10}選び[^。]{0,24}(フロントアタック|アタック)"),
+  # Move: reposition a character ALREADY on the stage into a different open slot -- entering play for the
+  # FIRST time from another zone is Summon, not Move. Split by whose character moves (user taxonomy): moving
+  # your OWN character is a defensive/tactical trick (dodge a matchup, set up a Backup/Assist angle); forcibly
+  # moving the OPPONENT's is a disruption/combat trick (break their blocking assignment) -- same action, a
+  # different final purpose depending on whose board it targets, so it needed two names, not one. Checked
+  # opponent-branch FIRST since it's the more specific case; own-branch is the fallback for everything else
+  # that reaches this point with a stage-slot verb (self-moves say "このカードを…枠に動かす" without 自分の, so a
+  # plain "not opponent" fallback catches them too, rather than trying to enumerate every own-phrasing). The
+  # "枠に" requirement was widened from a fixed literal-prefix list (前列に/後列に/の枠に/…) to ANY "…枠に", since
+  # real prints commonly precede it with other words the old prefix list didn't cover (e.g. "…いない枠に",
+  # "…いる枠に"). A negative lookahead excludes the "動かせない" (CANNOT be moved) negative form -- that's a
+  # restriction/lock on movement, not an actual move action, and belongs to Restriction instead. The
+  # opponent-branch requires 相手の…キャラを…選び (the SELECTION verb tied to 相手の) rather than just "相手の…キャラ
+  # …枠に動か" anywhere in the sentence — some own-character moves land the mover in a slot DESCRIBED relative
+  # to an opponent's character ("…自分の《T》のキャラを1枚選び…正面に相手のキャラがいる枠に動かしてよい" — IMC/W43-103),
+  # and the loose version wrongly grabbed that later, unrelated 相手のキャラ mention.
+  ("Move (Opponent)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,30}枠[^。]{0,4}(動か(?!せない)|置く|移動)"),
+  ("Move (Own)", r"[^。]{0,40}枠[^。]{0,4}(動か(?!せない)|置く|移動)"),
+  ("Stand/Rest", r"【スタンド】|【レスト】"),
   ("Stock Boost", r"ストック置場に置"), ("Choice", r"次の効果から|から\d+つを選"),
   ("Early Play", r"レベル\d+以下[^。]{0,12}手札からプレイ|レベルを参照しない"),
-  ("Cannot Attack", r"アタックできない|サイドアタックできない"), ("Restriction", r"できない|選べない|受けない"),
+  # Free Play (Alt Cost): pay an alternate cost (almost always discarding/returning a specific NAMED own
+  # card) to play THIS card for 0 cost — distinct from Early Play (that's about the LEVEL gate, not the cost)
+  # and from Summon (that's ANOTHER character entering play; here it's this card's OWN play, just for free).
+  # Anchored on the game's exact templated phrasing for this mechanic (30 cards share it verbatim). User
+  # taxonomy.
+  ("Free Play (Alt Cost)", r"手札のこのカードをプレイするにあたり.{0,60}コスト0でプレイできる"),
+  ("Cannot Attack", r"アタックできない|サイドアタックできない"),
+  ("Restriction", r"できない|選べない|受けない|動かせない"),
+  # Self Sacrifice: the card's OWN ability sacrifices ANOTHER of your own characters to the waiting room, as
+  # a direct mandatory/optional part of its effect (not a bracketed ［…］ payment — the "選び" selection verb
+  # is how real payment brackets almost never phrase it, keeping this from stealing a cost bracket's family).
+  # Distinct from Drawback (there the OPPONENT acts against your zones); here your OWN card's effect does it
+  # to your OWN board. User taxonomy.
+  ("Self Sacrifice", r"(自分の|他の自分の)[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,6}控え室に置(く|き)"),
   # Drawback: the OPPONENT acts against the card's OWN CONTROLLER's zones (相手は/が…あなたの…選び…に置) — a
   # self-inflicted downside the card's controller must accept as part of its own effect (e.g. a pump that
   # lets the opponent bury one of your own waiting-room cards). Distinct from Disruption/Opp Disrupt (there
@@ -312,6 +406,13 @@ def family(text, markers=""):
         if pat.search(text): return name
     for k, v in KW.items():
         if k not in text: continue
+        # "『応援』を持つ" ([a card] that HAS the Assist ability) — any keyword cited this way is being used as a
+        # SEARCH/SELECTION CRITERION for some OTHER card (e.g. "look at your deck, choose a card that has
+        # 『Change』, add it to hand" — a Search, not a Change ability), never the keyword's own performance.
+        # General guard (applies to all 12 keywords, not just one) — same category as the 記憶/経験/共鳴
+        # condition-keyword exclusion above: found via a 291-card audit of the "Change" family, where cards
+        # searching for OTHER cards with the Change keyword were wrongly filed as Change themselves.
+        if re.search("『" + re.escape(k) + "』を持つ", text): continue
         # "アンコールステップ" (the Encore STEP, a phase/timing reference — "at the start of the Encore step…") CONTAINS
         # the keyword アンコール but is NOT the Encore keyword MECHANIC. Only divert to Encore if アンコール appears
         # OUTSIDE that phrase; otherwise it's a timing-gated effect that must file by what it actually does.

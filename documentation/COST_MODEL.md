@@ -207,25 +207,81 @@ ones). The order is:
    `Shift`(シフト) · `Great Performance`(大活躍) · `Force`(フォース) · `Heal`(ヒール) ·
    `Removal (Hand)`(バウンス — the official keyword name for the same effect as the FAMPAT text-pattern below).
    *Condition* keywords (記憶 Memory, 経験 Experience, 共鳴 Resonance) are **deliberately excluded** — they
-   only *gate* a separate effect, so the ability must file by what it actually does.
+   only *gate* a separate effect, so the ability must file by what it actually does. A **general guard**
+   skips the KW shortcut whenever the matched keyword is cited as `『keyword』を持つ` ("[a card] that HAS
+   this keyword") — that phrasing always means the keyword is a SEARCH/SELECTION CRITERION for some OTHER
+   card (e.g. "look at your deck, choose a card that has 『Change』, add it to hand" is a Search, not a
+   Change ability), never the keyword's own performance. Found via a 291-card audit of the `Change` family.
 6. **`FAMPAT` effect-text patterns**, in order: `Burn`, `Heal`, `Clock Kick`, `Removal (Hand)`,
    `Return to Deck`, `Retreat`, `AllMemoryCleanse`, `Removal (Waiting Room)`, `Removal (Deck Bottom)`,
    `Removal (Deck Top)`, `Removal (Memory)`, `Removal (Swap)`, `ReviveOpponent`, `Reverse Opp`,
-   `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Search`, `Look & Reorder`, `Look Deck`, `Comeback`,
-   `Stock Gen`, `AddMarkerWaitingRoom`, `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`,
-   `Power Pump (self)`, `Power Pump`, `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`,
-   `Power Debuff`, `Soul`, `Level`, `Mill (self)`, `Retreat` (this card), `Move`, `Stand/Rest`,
-   `Stock Boost`, `Choice`, `Cannot Attack`, `Restriction`, `Drawback`, `Card Select`.
+   `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Memory Bank`, `Search`, `Deck Thin`, `Look & Reorder`,
+   `Look Deck`, `Summon`, `Change`, `Clock/WR Exchange`, `Return to Deck (Own)`, `Stock Gen`,
+   `AddMarkerWaitingRoom`, `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`, `Power Pump (self)`,
+   `Power Pump`, `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`, `Power Debuff`, `Soul`,
+   `Level`, `Mill (self)`, `Retreat` (this card), `Attack Redirect`, `Move (Opponent)`, `Move (Own)`,
+   `Stand/Rest`, `Stock Boost`, `Choice`, `Early Play` (level-gate), `Free Play (Alt Cost)`,
+   `Cannot Attack`, `Restriction`, `Self Sacrifice`, `Drawback`, `Card Select`.
 7. **`Other`** — nothing matched.
 
 **How a FAMPAT is matched.** Each entry is `(family_name, regex)`; `family()` runs `re.search(regex, text)`
 on the `gen()`-normalized text and returns the first family whose regex hits. The regexes are tuned so
-narrow, specific mechanics peel off *before* broad grab-bags (`Add to Hand`, `Card Select`, `Move`) that
-would otherwise swallow them — e.g. `Retreat` (return your **own** stage character to hand) is checked before
-`Add to Hand`, and `Removal (Hand)` (return the **opponent's** character) before both. The `KW`/FAMPAT
+narrow, specific mechanics peel off *before* broad grab-bags (`Add to Hand`, `Card Select`, `Move (Own)`)
+that would otherwise swallow them — e.g. `Retreat` (return your **own** stage character to hand) is checked
+before `Add to Hand`, and `Removal (Hand)` (return the **opponent's** character) before both. The `KW`/FAMPAT
 distance bounds (`[^。]{0,N}`) keep matches inside one clause so a payment bracket or a later sentence can't
 false-match. (Every non-obvious regex carries an inline rationale in `cost_model.py` — read those before
 editing one; a "simplification" usually re-opens a mislabel bug that a distance bound was closing.)
+
+**`Summon` (formerly `Comeback`), `Change`, and the "recruit onto the stage" families.** Renamed because
+the old name `Comeback` collided with the OFFICIAL CLIMAX TRIGGER ICON of the same name — a distinct game
+concept. `Summon`'s final purpose: put YOUR OWN character directly onto the STAGE from waiting room / deck /
+hand / Memory / clock, bypassing the normal play sequence (no cost paid, no level check) — distinct from
+Salvage/Search (destination is hand; the card still has to be played normally afterward). `Change` (text-form)
+catches the SAME mechanic as the official チェンジ keyword — this card retreats AS the cost, and a replacement
+fills the exact vacated slot (`このカードがいた枠に置く`) — spelled out in full text instead of the keyword
+shorthand; both detection paths resolve to one family/cost standard. `Clock/WR Exchange` swaps the card at
+the bottom of your own clock for a waiting-room character (the clock's size never changes, only its
+content) — useful for fixing a board's color requirements or freeing a character the clock was trapping.
+`Return to Deck (Own)` is the self-side mirror of the (opponent-targeting) `Return to Deck` family.
+
+**`Move (Own)` / `Move (Opponent)`.** Repositioning a character ALREADY on the stage into a different open
+slot — entering play for the first time is `Summon`, not Move. Split by whose character moves: your OWN
+character (a defensive/tactical trick) and the OPPONENT's (a disruption/combat trick) are the SAME action
+but a different final purpose depending on whose board it targets. The negative form `動かせない` ("cannot be
+moved") is excluded from both — that's a lock/restriction, not an actual move, and instead files under
+`Restriction`.
+
+**Other Card-Select-audit families:** `Memory Bank` (bank a named own waiting-room card into Memory, usually
+gated by a low own-Memory-count condition — often paired with a later Summon/Salvage that pulls it back out),
+`Deck Thin` (search your own deck for a specific/trait card and send it to the WAITING ROOM instead of hand —
+a targeted mill, not a Search), `Free Play (Alt Cost)` (discard a named own card to play THIS card for 0
+cost — the game's exact templated phrasing, 30 cards share it verbatim), `Self Sacrifice` (the card's own
+ability sacrifices ANOTHER of your own characters to the waiting room, not via a bracketed payment — distinct
+from `Drawback`, where the OPPONENT acts against your zones instead), `Attack Redirect` (choose a different
+opponent character to attack instead of the normal target/attacker).
+
+**The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
+is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
+destination changes the character's cost to the game (a bounce to hand lets the opponent replay it
+immediately; a permanent removal to the bottom of the deck denies recursion entirely) — `Removal (Hand)`
+(formerly `Bounce`), `Removal (Waiting Room)` (formerly `Disruption`), `Removal (Deck Bottom)`,
+`Removal (Deck Top)`, `Removal (Memory)` (usually temporary — returns to the stage at the next Encore
+step), `Removal (Swap)` (the opponent must replace it with a weaker character pulled from their own
+waiting room). `Clock Kick` is **deliberately excluded** from this group even though it also relocates an
+opponent's character to a zone: its real purpose is dealing *uncancellable damage* (bypassing the
+climax-reveal cancel a normal Burn allows), using the clock placement as the delivery mechanism, not board
+control. `ReviveOpponent` is the mirror-image family (an opponent's own waiting-room character placed onto
+their own stage, to give one of your own reverse-requiring finishers a legal target). `AllMemoryCleanse`
+(a symmetric "every player trims Memory" housekeeping effect), `AddMarkerWaitingRoom` (bank a card as a
+marker under this one, to retrieve later — also catches the RETRIEVAL half of the same mechanic, markers
+coming back out onto the stage), and `Drawback` (the opponent acts against the card's own controller's
+zones — the negative-polarity counterpart of Disruption/Opp Disrupt) were split out of the `Card Select`
+grab-bag the same pass. `Opp Disrupt` was widened to cover the opponent's waiting room too, including the
+REFLEXIVE construction `相手は自分の…` (the opponent, acting on THEIR OWN zone — most real prints phrase it
+this way, not the possessive `相手の…`). User taxonomy throughout (methodology: classify by the ability's
+final effect only — never by cost, trigger, or requirements, which belong to the cost math, not the name).
+`Card Select` went from the original 1547 signatures down to 139 across the two audit passes.
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

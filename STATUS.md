@@ -179,9 +179,48 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - Rebuilt `site/`: Explained% 95.6%→95.3%, suspects 3544→3594 — a small, expected dip (splitting a family
     into finer-grained ones means each new sub-family starts with fewer pooled samples behind its standard
     until more cards accumulate against it; still comfortably above the 94% floor).
-  - **Pending:** confirm/rename `ReviveOpponent`; `documentation/COST_MODEL.md` §6 and the `FORMS` legend in
-    `build_official_list.py` updated to match. The remaining long tail of `Card Select` (361 sigs, mostly
-    n≤3 one-offs) is future work, not audited this pass.
+  - `ReviveOpponent` name **confirmed by the user** in the follow-up round below.
+- ✅ **Family-taxonomy audit, round 2 (2026-07-22, same session).** Continued the Card Select cleanup with
+  full-card examples in English per the user's request (they don't read Japanese). Result: `Card Select`
+  361 → 139 sigs.
+  - **`Comeback` renamed to `Summon`** — the old name collided with the official CLIMAX TRIGGER ICON
+    "Comeback", a different game concept (user-flagged). Same purpose as before (own character, any zone,
+    straight onto the stage bypassing cost/level), widened to accept a NAMED target (`「N」`) in addition to
+    the literal word キャラ (most real prints name the character rather than saying キャラ), and to accept
+    手札/思い出置場/クロック置場 as additional sources.
+  - **`Move` split into `Move (Own)` / `Move (Opponent)`** (user: "ambos son move, pero apuntan a cosas
+    diferentes" — same action, different tactical purpose depending on whose board it targets). Also fixed:
+    the `枠に` requirement was a fixed literal-prefix list (前列に/後列に/の枠に/…) that missed common real
+    phrasings ("…いない枠に", "…いる枠に"); widened to any "…枠に". Excluded the negative form 動かせない ("cannot
+    be moved" — a lock/restriction, not an actual move) via a negative lookahead, and added it to
+    `Restriction`'s pattern instead.
+  - **`Change` (text-form)** — folded cards that spell out the official チェンジ keyword's mechanic in full
+    text (this card retreats as the cost, a replacement fills its exact vacated slot, `このカードがいた枠に置く`)
+    into the SAME family as the keyword-triggered `Change`, since it's the identical game mechanic.
+  - **New families:** `Memory Bank` (own waiting-room card banked into Memory), `Return to Deck (Own)` (own
+    waiting-room card back into own deck — mirrors the existing opponent-side `Return to Deck`), `Deck Thin`
+    (deck search sent to waiting room instead of hand), `Free Play (Alt Cost)` (discard a named own card to
+    play THIS card for 0 cost — 30 cards share the exact templated phrasing), `Self Sacrifice` (the card's
+    own ability sacrifices another own character, not via a payment bracket — distinct from `Drawback`,
+    where the OPPONENT acts against your zones), `Attack Redirect` (redirect this card's attack to a
+    different opponent character), `Clock/WR Exchange` (swap the bottom card of your own clock for a
+    waiting-room character — clock size unchanged, only content changes; user: useful for fixing color
+    requirements or freeing a character the clock was trapping).
+  - **Widened existing families:** `Return to Deck` (added 置く as a destination verb alongside 戻す/加える),
+    `Retreat` own-stage branch (added "他の自分の…" alongside the literal "自分の舞台の…"), `Opp Disrupt` (added
+    控え室 as a target zone, AND the REFLEXIVE construction 相手は自分の… — most real prints use this topic-marker
+    phrasing, not the possessive 相手の…, and the possessive-only pattern silently missed all of them),
+    `AddMarkerWaitingRoom` (added the RETRIEVAL half of the same marker mechanic — markers coming back out
+    onto the stage, not just being banked).
+  - **General KW-loop bug found and fixed**, same class as the earlier アンコール/集中 gate-vs-effect fixes but
+    applying to ALL 12 keywords at once: `『keyword』を持つ` ("[a card] that HAS this keyword") always cites the
+    keyword as a SEARCH CRITERION for some OTHER card, never the keyword's own action (e.g. a deck-search for
+    cards with 『Change』 was wrongly filed as `Change` itself instead of `Search`). Found via a spot-check of
+    the new `Change` family (291 sigs, 12 of them this false positive); fixed with one general guard instead
+    of one-off exceptions. Affects all 12 KW entries, not just Change.
+  - Rebuilt `site/`: Explained% flat at 95.3%, suspects 3594→3593 (no regression). `pipeline/analysis/
+    family_catalog.txt` regenerated (69 families, up from 61). `documentation/COST_MODEL.md` §6 updated.
+  - **Remaining:** `Card Select`'s long tail (139 sigs, mostly n≤2 one-offs) is unaudited, future work.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
