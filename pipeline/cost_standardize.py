@@ -47,8 +47,8 @@ def pb(c):
 
 
 def ra(c):
-    """Real abilities = non-empty ability rows (drop dash placeholders)."""
-    return [a for a in c["abilities"] if (a.get("text") or "").strip() not in ("-", "ー", "－", "ｰ", "")]
+    """Real abilities = non-empty ability rows (drop dash placeholders, incl. HYPHEN U+2010 / HORIZONTAL BAR U+2015)."""
+    return [a for a in c["abilities"] if (a.get("text") or "").strip() not in ("-", "ー", "－", "ｰ", "‐", "―", "")]
 
 
 def base_num(cn):

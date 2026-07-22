@@ -41,7 +41,10 @@ def ra(c):   # real abilities = non-empty rows; drop dash placeholders AND marke
     out = []
     for a in c["abilities"]:
         t = (a.get("text") or "").strip()
-        if t in ("-", "ー", "－", "ｰ", ""): continue
+        # Dash-only placeholder rows meaning "no ability" -- several distinct Unicode dash characters show up
+        # across the raw JP data (ASCII hyphen, katakana long-vowel mark, fullwidth/halfwidth hyphen, HYPHEN
+        # U+2010, HORIZONTAL BAR U+2015): all mean the same "vanilla, no text here", not a real ability.
+        if t in ("-", "ー", "－", "ｰ", "‐", "―", ""): continue
         # Markerless text fully wrapped in （）/() is beginner/trigger-icon REMINDER text (e.g. "（bounce：…）",
         # "（このデッキの切り札！…）") — it has no 自/永/起 marker and is not a real ability. Drop it.
         if not a.get("markers") and _REMINDER.fullmatch(t): continue
@@ -215,7 +218,10 @@ FAMPAT = [
   # correction: my first write-up wrongly described this as the ACTOR capturing the character into their own
   # stock, which cross-owner mixing rules make impossible.)
   ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
-  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}ストック[^。]{0,4}に置"),
+  # Same battle-opponent-reference gap fixed for Deck Top/Bottom/Memory above -- confirmed via LB/W06-T06 /
+  # LB/W06-018 / FH/SE03-001, which were falling through to the late generic "Stock Boost" catch-all
+  # (ストック置場に置, checked much later in this list) instead of the earlier, more specific Removal (Stock).
+  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置|(このカードのバトル相手|このカードとバトル(中の|している)キャラ)が【リバース】した時.{0,60}そのキャラを[^。]{0,10}ストック[^。]{0,4}に置"),
   # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an
   # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above (getting
   # the character out of the stage), each split into its OWN meaningfully-named variant rather than one
@@ -233,7 +239,10 @@ FAMPAT = [
   # top OR bottom) is folded in here too rather than split into its own family -- it's the same permanent-
   # removal purpose, just letting the attacker pick the position.
   ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の下に置"),
-  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の上に置"),
+  # Deck Top was missing the "このカードとバトルしているキャラが【リバース】した時" trigger-pronoun branch that its
+  # Deck Bottom sibling already had -- the same battle-opponent-reference gap class fixed repeatedly elsewhere
+  # this session (Bomb's _BOMB_OPP, Clock Kick, Removal (Stock)). Found via DC/W01-059.
+  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置|(このカードのバトル相手|このカードとバトル(中の|している)キャラ)が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の上に置"),
   # Verb widened にし -> にし|にする (dictionary form, no polite/optional suffix -- some prints phrase this as a
   # flat mandatory action, "…選び、思い出にする。", not "…にしてよい/にします").
   # 4th branch: "このカードのバトル相手が【リバース】した時…そのキャラを思い出に…" -- the ANTECEDENT (このカードのバトル
@@ -241,7 +250,9 @@ FAMPAT = [
   # sentence, crossing the '.{0,60}' gap between them. This is a genuine "removal on reverse" (needs the
   # opponent to already be reversed via combat before it can be removed) -- distinct from the RedBomb/Blue
   # Bomb family above (those trigger on THIS card's OWN reverse, not the opponent's). User taxonomy.
-  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(思い出にし|思い出にする)"),
+  # Same battle-opponent-reference gap fixed for Deck Top/Bottom above -- confirmed via KF/S05-032
+  # ("このカードとバトル中のキャラが【リバース】した時...そのキャラを思い出にする").
+  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)|(このカードのバトル相手|このカードとバトル(中の|している)キャラ)が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(思い出にし|思い出にする)"),
   ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え"),
   # ReviveOpponent (provisional name, pending user confirmation): the reverse of Removal — put a character
   # from the OPPONENT's OWN waiting room onto a stage slot. Since a character always stays owned by its
