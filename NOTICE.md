@@ -20,7 +20,7 @@ custom-card designers.
 | Japanese card list (names, stats, ability text) | Bushiroad's own official public card-list endpoint (`ws-tcg.com`) | The primary source of truth — data Bushiroad itself publishes for anyone to browse |
 | Official English card text | Bushiroad's official English card list (via the community-maintained [`CCondeluci/WeissSchwarz-ENG-DB`](https://github.com/CCondeluci/WeissSchwarz-ENG-DB) mirror) | Reproduces Bushiroad's own official EN localization |
 | English names for cards with no official EN release | [heartofthecards.com](https://www.heartofthecards.com/) (a long-running, publicly operated Weiß Schwarz fan translation resource) | Community translation, credited to its source |
-| English text for cards that never released in English at all | An unofficial fan-made Weiß Schwarz simulator's local card data | The only sourcing step once removed from an official channel; used strictly for text (no code or assets of the simulator itself are redistributed) |
+| English text for the small remaining set of cards with no official or fan-site translation available | Community-sourced translation data | Used strictly for text — no software, code, or other assets are redistributed |
 | Official rulebooks (`reference/`, `pipeline/sources/`) | Bushiroad's own freely-distributed Comprehensive Rules / Quick Manual PDFs | TCG rulebooks are routinely published free by the game's own company so players can learn the game |
 
 **What it deliberately does NOT contain:** card **artwork or images**. No card image is ever
