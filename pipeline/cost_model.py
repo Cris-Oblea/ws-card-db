@@ -85,7 +85,9 @@ def mode500_share(xs):
 KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコール":"Encore",
       "絆":"Bond","チェンジ":"Change","加速":"Accelerate",
       "シフト":"Shift","大活躍":"Great Performance","フォース":"Force","ヒール":"Heal",
-      "バウンス":"Removal (Hand)"}  # official keyword name for the same effect as the FAMPAT text-pattern below
+      "バウンス":"Removal (Hand)",  # official keyword name for the same effect as the FAMPAT text-pattern below
+      "継承":"AddMarker (Self)"}  # official keyword: THIS card (+ its own markers) becomes a marker under
+      # a newly-played ally -- the "self" source variant of the AddMarker (...) family group (see below)
 FAMPAT = [
   ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
   # Multi Trigger Check: during this attack, check for a trigger N times instead of once (N is usually 2,
@@ -371,25 +373,36 @@ FAMPAT = [
   # destination (clock advances your level/damage count differently than stock does), same "deck-top-into-
   # a-resource-zone" final purpose.
   ("Clock Gen", r"自分の山札の上から[^。]{0,14}クロック置場に置"),
-  # AddMarkerWaitingRoom: park a card face-up/down as a MARKER under this (or another named) card, to be
-  # retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an immediate
-  # effect. The user asked the name to spell out source -> destination; the overwhelming majority of prints
-  # source the marker from 自分の控え室 (own waiting room), so that's the name, even though a rare few source
-  # it from the stage or make THIS card itself the marker instead — same underlying "bank a card as a marker"
-  # purpose, so the regex is left unanchored on source and keyed on the destination phrase alone (マーカーとして
-  # …置く), which no other family's text can plausibly contain. User taxonomy.
+  # The "AddMarker (...)" group: park a card face-up/down as a MARKER under this (or another named) card, to
+  # be retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an
+  # immediate effect. User: markers can genuinely come from ANY zone (deck top, deck search, waiting room,
+  # stage, or the card itself) — the family name must say WHICH zone, "AddMarker (ZONE)", the same
+  # parenthetical convention as Removal (...)/Reverse Immunity (...). Checked in source-specificity order so
+  # the more specific zones peel off before the general waiting-room bucket claims everything with "マーカー
+  #として…置" in it.
+  # Deck Top: a revealed/checked TOP card of your own deck (usually gated on a trait match, "then return it
+  # if not"). Crosses a sentence break (reveal-then-conditionally-mark) via `.`.
+  ("AddMarker (Deck Top)", r"自分の山札の上から.{0,60}マーカーとして[^。]{0,14}置"),
+  # Deck Search: your OWN DECK is SEARCHED (見て, not 上から revealed) for a specific/named card, which
+  # becomes the marker — a real search, not a blind top-card peek, so it's a different zone-access shape
+  # even though both ultimately come "from the deck."
+  ("AddMarker (Deck Search)", r"自分の山札を見て[^。]{0,20}マーカーとして[^。]{0,14}置"),
+  # Waiting Room (the dominant remaining source once Deck Top/Search are peeled off above) — kept
+  # unanchored beyond that exclusion and keyed on the destination phrase alone (マーカーとして…置く), which no
+  # other family's text can plausibly contain, since the exact WR-selection phrasing varies a lot (with/
+  # without a trait filter, with/without a name-group restriction, etc.).
   # The 2nd branch is the RETRIEVAL half of the same overall marker-banking mechanic: cards previously banked
   # as markers (via the "…として置く" branch above, often on an earlier turn) come back out from under this
   # card onto the stage. Same underlying purpose (a marker is just a temporarily-parked character), so it
-  # stays the same family rather than forking into a 6th Removal-style destination split.
+  # stays the same family rather than forking into yet another destination split.
   # Banking-half gap widened 8->14 (a placement-order descriptor, "…好きな順番で裏向きに置く", pushed past the
   # old limit). Retrieval-half broadened from "-> stage only" to ANY destination + 置/戻 verb -- real prints
   # retrieve a banked marker to hand, stock, or the climax area too, not just back onto the stage; "マーカー"
   # alone is a specific enough anchor that no other family's text could plausibly contain it.
-  ("AddMarkerWaitingRoom", r"マーカーとして[^。]{0,14}置|マーカー[^。]{0,30}選(び|んで)[^。]{0,16}(置|戻)"),
+  ("AddMarker (Waiting Room)", r"マーカーとして[^。]{0,14}置|マーカー[^。]{0,30}選(び|んで)[^。]{0,16}(置|戻)"),
   # Marker Currency: a banked marker can substitute for a STOCK card when paying a cost (event cost, ACT
-  # cost, ...) — a distinct final purpose from AddMarkerWaitingRoom itself (that's the banking mechanic;
-  # this is a payment-substitution rule built ON TOP of an already-banked marker).
+  # cost, ...) — a distinct final purpose from the AddMarker (...) group itself (that's the banking
+  # mechanic; this is a payment-substitution rule built ON TOP of an already-banked marker).
   ("Marker Currency", r"マーカー[^。]{0,14}ストック[^。]{0,6}のかわりに[^。]{0,10}控え室に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
@@ -506,14 +519,16 @@ FAMPAT = [
   # Anchored on the game's exact templated phrasing for this mechanic (30 cards share it verbatim). User
   # taxonomy.
   ("Free Play (Alt Cost)", r"手札のこのカードをプレイするにあたり.{0,60}コスト0でプレイできる"),
-  # Cannot Attack, NARROWED (2026-07-22, Other-audit): the user clarified the concept behind this name is an
-  # effect YOU inflict ON THE OPPONENT so THEIR character can't attack -- a disruption tool. Checking the
-  # real corpus, every single occurrence of the old broad pattern (523/527) was actually SELF-referential
-  # (このカード…できない, this card restricting its OWN attacking), which is a Drawback, not a disruption of
-  # the opponent -- moved below. Narrowed to require 相手の explicitly; currently 0 real matches (no card in
-  # the corpus does this yet), left in place as the correctly-scoped home if/when one is found, rather than
-  # deleting the family outright.
-  ("Cannot Attack", r"相手の[^。]{0,20}キャラは[^。]{0,10}(アタックできない|サイドアタックできない|フロントアタックできない|ダイレクトアタックできない)"),
+  # "Cannot Attack" (an effect YOU inflict ON THE OPPONENT so THEIR character can't attack — a disruption
+  # tool) is DELETED outright, not just narrowed. The user clarified the concept it was meant for, and after
+  # checking the real corpus: every single occurrence of the old broad pattern (523/527) was actually
+  # SELF-referential (このカード…できない, this card restricting its OWN attacking — a Drawback, moved below),
+  # and after narrowing to require 相手の explicitly it sat at 0 real matches. Investigating why turned up
+  # the reason: every real "make the opponent's character unable to attack" case in the corpus is delivered
+  # via a GRANT (temporarily give that specific character the restriction, e.g. ALL/S90-072), which already
+  # resolves correctly to Grant Ability (grants are checked before FAMPAT and the granted text can't decide
+  # the family) — there is no standalone-FAMPAT-level case left for this name to catch. Same "delete once
+  # confirmed genuinely empty" treatment as the old generic Card Select catch-all.
   # Drawback: THIS card cannot attack (unconditionally OR gated on any game-state condition — a missing
   # ally, low stock/clock, an opponent's board state, etc.). User's rule: ANY effect that adds power to a
   # card is a drawback -- when YOUR OWN cards come with can't-attack effects, conditional or not, they're
@@ -552,7 +567,7 @@ FAMPAT = [
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
-  # purpose-named family earlier in this list (Summon, Removal (...), AddMarkerWaitingRoom, Stock Gen, CX
+  # purpose-named family earlier in this list (Summon, Removal (...), AddMarker (...), Stock Gen, CX
   # Exchange, Memory Bank, Change, Clock/Hand Exchange, Self Sacrifice, Grant Trait, etc.). What's left after
   # exhausting this whole list is a genuine one-off: a bespoke card-specific mechanic that doesn't recur
   # often enough to represent a real family (e.g. a single ultra-rare finisher's unique combo of effects).
@@ -569,6 +584,19 @@ FAMPAT = [
 # Deliberately NOT matched: あなたのクライマックスが…置かれた ("when ANY/your climax is placed"), which is a
 # generic on-climax trigger, not gated to a specific combo CX -> it must keep its own family.
 CXC_PAT = re.compile(r"(クライマックス|CX|ＣＸ)置場に「N」が(ある|あり)|「N」が((クライマックス|CX|ＣＸ)置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
+# A 4th CX Combo gate shape: pay the cost by discarding a SPECIFIC NAMED CLIMAX from hand ("手札の「N」を…
+# 控え室に置" as the ［…］ cost bracket). Can't be detected on gen()-normalized text alone like the 3 shapes
+# above, because gen() collapses EVERY name (character/event/climax) to the same generic 「N」 -- there is
+# no way to tell from the generalized text whether this specific discarded card happens to be a climax.
+# Needs the RAW (pre-gen) name cross-referenced against the actual climax card list, which build_cost_model
+# populates into _CLIMAX_NAMES from its `clean` parameter (kept in-module, no new file I/O — see its own
+# docstring). Checked from ab_cost() below (which still has the raw text), not from the pure family()
+# function (which only ever sees already-generalized text). User taxonomy, found via CHA/W40-077.
+_CLIMAX_NAMES = set()
+_CX_DISCARD_GATE = re.compile(r"手札の「([^」]+)」を[^。]{0,10}控え室に置")
+def _cx_discard_gate(raw_text):
+    m = _CX_DISCARD_GATE.search(raw_text or "")
+    return bool(m and m.group(1) in _CLIMAX_NAMES)
 # On-reverse families (user taxonomy): when THIS card is reversed, a specific revenge / self effect. Checked
 # BEFORE the generic families because "そのキャラを【リバース】" / "山札の下に置く" / "思い出にする" would otherwise
 # fall to Other. AutoKick* = the card removes/relocates ITSELF on reverse (no opponent involved at all).
@@ -947,15 +975,25 @@ class CostModel:
     def ab_cost(self, card_number, idx, markers, text):
         """cost/method/confidence/family for one ability instance (None cost if not a measurable
         Character ability). Honors the replay sig override (folded citer / zeroed replay body).
-        Confidence is evidence-aware (conf_evidence over the sig's n_samples + mode_share)."""
+        Confidence is evidence-aware (conf_evidence over the sig's n_samples + mode_share).
+        Family is overridden to "CX Combo" when this specific occurrence discards a NAMED CLIMAX as its
+        cost (_cx_discard_gate, checked on the RAW text -- this can't be folded into the pooled
+        signature's own family() call, since gen() collapses every name the same way and two cards
+        sharing a signature could differ on whether their discarded card happens to be a climax)."""
         mk = "".join(markers or "")
         sig = self.RP_SIG_OVERRIDE.get((card_number, idx), mk + " :: " + gen(text or ""))
-        if sig in self.cost:
+        if _cx_discard_gate(text):
+            fam = "CX Combo"
+        elif sig in self.cost:
             vt = self.variant_text.get(sig, (mk, gen(text or "")))
+            fam = family(vt[1], vt[0])
+        else:
+            fam = family(gen(text or ""), mk)
+        if sig in self.cost:
             return (self.cost[sig], self.method[sig],
                     conf_evidence(self.method[sig], self.nsamp.get(sig), self.mshare.get(sig)),
-                    family(vt[1], vt[0]))
-        return None, None, None, family(gen(text or ""), mk)
+                    fam)
+        return None, None, None, fam
 
     def ab_std(self, card_number, idx, markers, text):
         """standard_cost / mode_share / n_samples for one ability instance (None,None,0 if not measurable).
@@ -1000,6 +1038,8 @@ def build_cost_model(clean):
 
     `clean` = the de-duplicated cardlist_clean rows (the CALLER does its own de-dup, which differs between
     the two builders — that I/O detail is intentionally NOT in this module)."""
+    _CLIMAX_NAMES.clear()
+    _CLIMAX_NAMES.update(c["name"] for c in clean if c.get("type") == "Climax" and c.get("name"))
     rp_sig_override, replay_sigs, citer_sigs, rp_orphans = _fold_replays(clean)
 
     # collect Character abilities: per-signature occurrences + isolated single-ability deltas (pooled over
