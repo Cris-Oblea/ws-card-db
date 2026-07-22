@@ -88,12 +88,33 @@ KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコー
       "バウンス":"Removal (Hand)"}  # official keyword name for the same effect as the FAMPAT text-pattern below
 FAMPAT = [
   ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
+  # Multi Trigger Check: during this attack, check for a trigger N times instead of once (N is usually 2,
+  # occasionally more — generalized to any digit rather than hardcoding "Double", since the per-signature
+  # measured cost already scales naturally with whatever N a specific card prints). A well-known WS mechanic
+  # that had NO family at all before this pass (330+ occurrences landing in Other). User taxonomy.
+  ("Multi Trigger Check", r"トリガーステップにトリガーチェックを[0-9０-９]+回行う"),
   # A heal = move from the TOP OF YOUR CLOCK to ANY zone (waiting / stock / hand / memory / bottom-deck).
   # ALL heal types are ONE family — they all cost ~1000 power (to a resource zone you pay an extra cost,
   # e.g. discard/kill, so it nets neutral). Detected BEFORE the generic Stock Boost / Add to Hand / Card
   # Select that wrongly stole the "ストック置場" / "手札に(戻|加)" wordings (the old single 'ストック'/'手札'
   # pattern missed them).
   ("Heal", r"自分のクロック[^。]{0,18}(控え室に置|ストック置場に置|手札に(戻|加)|思い出|山札の下に置)"),
+  # Deck Copy Limit: a DECKBUILDING permission, not a gameplay ability at all — raises how many copies of a
+  # named card (usually itself) may be run together. Effectively a static rules-text exception with no
+  # in-game action, hence a near-zero measured cost. User taxonomy.
+  ("Deck Copy Limit", r"デッキに(好きな枚数|(合計)?\d+枚まで)入れることができる"),
+  # Color Bypass: a passive CONT permission letting this card (or a whole card TYPE — events/climaxes) be
+  # played ignoring the color requirement. Distinct from Summon (an ACTIVE effect that puts a DIFFERENT
+  # character into play bypassing its cost/level) — this is a permanent, intrinsic property of the card
+  # itself, no cost paid, no selection. User taxonomy.
+  ("Color Bypass", r"色条件を満たさずに(手札から)?プレイできる"),
+  # Hexproof: the user's own term (borrowed from a different TCG they know) for "this card cannot be
+  # targeted by the opponent's effects" -- a pure protection CONT, no action of its own.
+  ("Hexproof", r"このカードは相手の効果に選ばれない"),
+  # Reverse Immunity (Cost 0): a DIFFERENT protection family from Hexproof (user: same category — protection
+  # — but a distinct specific mechanic) — conditionally IMMUNE to becoming reversed at all when the character
+  # it's battling is cost 0 or lower. A defensive tech common in "Standby"-format decks per the user.
+  ("Reverse Immunity (Cost 0)", r"このカードの正面のキャラのコストが0以下なら、このカードは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
   # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
@@ -113,7 +134,10 @@ FAMPAT = [
   # SAO/S47-107). No 選び verb here at all: nothing needs to be SELECTED, since the trigger already pinned
   # down which single character is meant. Every other branch needs 選び because it's picking one out of a
   # broader class ("相手の…キャラ" = any matching opponent character); this pronoun form never does.
-  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)"),
+  # Last branch: antecedent established in an EARLIER trigger clause ("このカードのバトル相手が【リバース】した
+  # 時"), then a bare そのキャラ pronoun refers back to it later in the same sentence -- same cross-clause
+  # shape as the Removal (Memory) 4th branch below. .{0,60} crosses the gap since it's a different clause.
+  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(クロック置場に置|クロックに置)"),
   # Removal (Hand): return an OPPONENT character to hand — same final purpose as every other Removal variant
   # below (get the opponent's stage character out of play), just a different destination. Named per-variant
   # (not one flat "Removal") because the destination materially changes the character's cost to the game:
@@ -168,7 +192,7 @@ FAMPAT = [
   # correction: my first write-up wrongly described this as the ACTOR capturing the character into their own
   # stock, which cross-owner mixing rules make impossible.)
   ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
-  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置"),
+  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}ストック[^。]{0,4}に置"),
   # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an
   # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above ("el
   # propósito es sacarlo del stage"), each split into its OWN meaningfully-named variant rather than one
@@ -185,11 +209,16 @@ FAMPAT = [
   # why: the trigger clause already pinned down the single target). "山札の上か下に置" (attacker's choice of
   # top OR bottom) is folded in here too rather than split into its own family -- it's the same permanent-
   # removal purpose, just letting the attacker pick the position.
-  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)"),
+  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の下に置"),
   ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置"),
   # Verb widened にし -> にし|にする (dictionary form, no polite/optional suffix -- some prints phrase this as a
   # flat mandatory action, "…選び、思い出にする。", not "…にしてよい/にします").
-  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)"),
+  # 4th branch: "このカードのバトル相手が【リバース】した時…そのキャラを思い出に…" -- the ANTECEDENT (このカードのバトル
+  #相手) is established in the TRIGGER clause, and そのキャラ (a bare pronoun) refers back to it later in the
+  # sentence, crossing the '.{0,60}' gap between them. This is a genuine "removal on reverse" (needs the
+  # opponent to already be reversed via combat before it can be removed) -- distinct from the RedBomb/Blue
+  # Bomb family above (those trigger on THIS card's OWN reverse, not the opponent's). User taxonomy.
+  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(思い出にし|思い出にする)"),
   ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え"),
   # ReviveOpponent (provisional name, pending user confirmation): the reverse of Removal — put a character
   # from the OPPONENT's OWN waiting room onto a stage slot. Since a character always stays owned by its
@@ -294,6 +323,9 @@ FAMPAT = [
   # waiting room) or for freeing a specific character trapped in the clock so a later Salvage/Summon can
   # reach it. User taxonomy.
   ("Clock/WR Exchange", r"自分のクロックの下から[^。]{0,20}控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}入れ替え"),
+  # Level/WR Exchange: swap a card in your own LEVEL ZONE for a card in your own waiting room -- sibling of
+  # Clock/WR Exchange (same "trade which card sits in a resource zone" purpose, different zone pair).
+  ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Clock/Hand Exchange: a clock character comes to hand, and (as a SEPARATE step, not a true simultaneous
   # swap) a hand card goes to the clock -- net effect is the same shape as Clock/WR Exchange (trade WHICH
   # card sits in a clock slot) but the other side of the trade is your hand instead of your waiting room, a
@@ -316,6 +348,10 @@ FAMPAT = [
   # Gap 20->34 (a trigger-icon descriptor, "トリガーアイコンがtreasureのクライマックス", is long); verb widened to
   # accept 戻す (dictionary form) alongside 戻し (continuative).
   ("Return to Deck (Own)", r"自分の(控え室|手札)の[^。]{0,34}を[^。]{0,10}選(び|んで)[^。]{0,6}(山札の(上|下)に[^。]{0,8}置|山札に戻(し|す))"),
+  # Free Refresh (user's own name): return ALL of your own waiting-room cards to your deck at once, no
+  # selection -- the bigger-scale cousin of Return to Deck (Own). User: functionally like a deck Refresh
+  # (the waiting room fully empties back into the deck) but WITHOUT the normal 1-damage refresh penalty.
+  ("Free Refresh", r"自分の控え室のカードすべてを[^。]{0,10}山札に戻"),
   # Stock Gen widened: sources beyond just the deck top -- own hand, waiting room, or Memory can ALSO feed
   # your stock (e.g. discard a hand card face-down as stock instead of to the waiting room). Same final
   # purpose (grow/refill your stock) regardless of which own zone supplies the card.
@@ -386,6 +422,11 @@ FAMPAT = [
   # <Trait> it doesn't normally have -- combos with other trait-gated effects). A stat-grant sibling of
   # Soul/Level below, just targeting the trait slot instead of a number.
   ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)"),
+  # Self Identity Grant: this card (not a chosen target) permanently/conditionally gains a TRAIT, an
+  # ALTERNATE NAME, or a TRIGGER ICON -- three different "identity slots" but the same final purpose (this
+  # card's own identity is extended so other trait/name/icon-gated effects elsewhere can reach it). Distinct
+  # from Grant Trait above (that targets ANOTHER chosen character). User taxonomy.
+  ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の))[^。]{0,20}(を得る|得る|としても扱う)"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   # Retreat: THIS card (or another of your own STAGE characters) returns to hand -- a self-bounce/withdrawal,
@@ -472,17 +513,57 @@ FAMPAT = [
 CXC_PAT = re.compile(r"(クライマックス|CX|ＣＸ)置場に「N」が(ある|あり)|「N」が((クライマックス|CX|ＣＸ)置場に)?置かれた|クライマックスコンボ|ＣＸコンボ|CXコンボ")
 # On-reverse families (user taxonomy): when THIS card is reversed, a specific revenge / self effect. Checked
 # BEFORE the generic families because "そのキャラを【リバース】" / "山札の下に置く" / "思い出にする" would otherwise
-# fall to Other. RedBomb* = trade the opponent away (either by RE-REVERSING them, which keeps them alive but
-# taps them again, OR by sending them straight to the CLOCK/STOCK area, which denies waiting-room recursion —
-# same tactic, two execution styles, same family). AutoKick* = the card removes ITSELF on reverse.
-_REDBOMB_ACTION = r"(【リバース】してよい|そのキャラを(クロック置場|ストック置場)に置)"
+# fall to Other. AutoKick* = the card removes/relocates ITSELF on reverse (no opponent involved at all).
 ONREV_PAT = [
-    ("RedBombLevelX",    re.compile(r"【リバース】した時.*公開.*バトル相手のレベルが[ＸX]以下.*" + _REDBOMB_ACTION)),
-    ("AntiEarlyRedBomb", re.compile(r"【リバース】した時.*バトル相手のレベルが相手のレベルより高い.*" + _REDBOMB_ACTION)),
-    ("RedBombLevel0",    re.compile(r"【リバース】した時.*バトル相手のレベルが0以下.*" + _REDBOMB_ACTION)),
     ("AutoKickToBottom", re.compile(r"【リバース】した時.*このカードを山札の下に置く")),
-    ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出にする")),
+    # Verb widened する->する|して: some prints phrase this as optional ("…思い出にしてよい"), not just the
+    # mandatory dictionary form. Found via GL/S52-052 (a conditional, optional variant landing in Other).
+    ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出に(する|して)")),
+    # This card puts ITSELF into its own clock on reverse (a self-relocation, not a Bomb -- the opponent's
+    # character is never touched). Found via the ZM/W03-xxx "アラーム" clock-alarm card cluster.
+    # "あなたは" made optional -- many prints phrase this as a flat mandatory action ("…このカードをクロック
+    #置場に置く。") without the polite "あなたは…てよい" wrapper.
+    ("AutoKickToClock",  re.compile(r"(バトル中の)?このカードが【リバース】した時.*(あなたは)?このカードをクロック置場に置")),
 ]
+# RedBomb/BlueBomb/YellowBomb/GreenBomb* = trade the OPPONENT's character away after THIS card wins its own
+# battle (becomes reversed and the battle opponent qualifies under a level/cost condition) -- "punish the
+# loser." User taxonomy: same underlying FUNCTION (a bomb) across every color, but the exact condition
+# threshold AND the color/destination both change the ability's real cost, so every combination gets its
+# OWN distinct family name -- never merged into one flat "Bomb" bucket (mirrors how Removal (...) is split
+# by destination for the same reason). Color -> destination/action: red=re-reverse the opponent, blue=send
+# them to the bottom of their own deck, yellow=send them to their own stock (+ the opponent loses a stock
+# card too, present on 464/466 real samples, though the regex keys only on the destination since that alone
+# is already a reliable signal). green=heal+clock, per the user, but NOT YET FOUND in this exact shape in
+# the corpus after a real search -- flagged for the user to point at a concrete example before implementing.
+# Condition types found: a FIXED level threshold (0, 1, 2, 3...), a FIXED cost threshold (0, 1...), the
+# "AntiEarly" comparison (opponent's level > the CONTROLLING PLAYER's own game-level -- punishes early rush
+# with an over-leveled character), and a variable Ｘ/X (computed by a formula elsewhere on the card). Each
+# gets its own name suffix (LevelN / CostN / AntiEarly / LevelX) combined with the color, computed here
+# rather than listed as ~20+ near-duplicate static strings.
+_BOMB_TRIGGER = re.compile(r"(バトル中の)?このカードが【リバース】した時")
+_BOMB_LEVEL = re.compile(r"バトル相手のレベルが(\d+)以下")
+_BOMB_COST = re.compile(r"バトル相手のコストが(\d+)以下")
+_BOMB_LEVELX = re.compile(r"バトル相手のレベルが[ＸX]以下")
+_BOMB_ANTIEARLY = re.compile(r"バトル相手のレベルが相手のレベルより高い")
+_BOMB_ACTION = {
+    # Accepts both そのキャラ and そのバトル相手 as the pronoun -- real prints use either.
+    "Red":    re.compile(r"あなたは(そのキャラ|そのバトル相手)を【リバース】してよい"),
+    "Blue":   re.compile(r"(そのキャラ|そのバトル相手)を山札の下に置"),
+    "Yellow": re.compile(r"(そのキャラ|そのバトル相手)をストック置場に置"),
+}
+def _dynamic_bomb_name(text):
+    if not _BOMB_TRIGGER.search(text): return None
+    color = None
+    for c, pat in _BOMB_ACTION.items():
+        if pat.search(text): color = c; break
+    if color is None: return None
+    if _BOMB_ANTIEARLY.search(text): return f"AntiEarly{color}Bomb"
+    if _BOMB_LEVELX.search(text): return f"{color}BombLevelX"
+    m = _BOMB_LEVEL.search(text)
+    if m: return f"{color}BombLevel{m.group(1)}"
+    m = _BOMB_COST.search(text)
+    if m: return f"{color}BombCost{m.group(1)}"
+    return None
 # Modal effect = "choose 1 of the next N effects" — cost the CHOICE as its own family, NOT by whichever
 # sub-effect happens to match first (a "look-3 OR heal-1" must NOT pollute the Heal family — that's how a
 # family never converges). Requires the CHOOSING (…のうち…選 / 次の効果から…選), so a "do both" bundle
@@ -514,6 +595,8 @@ def family(text, markers=""):
         return "Pump & Grant" if _is_citing_pump(text) else "Grant Ability"  # dual if it also pumps (outside the quote)
     for name, pat in ONREV_PAT:
         if pat.search(text): return name
+    dyn_bomb = _dynamic_bomb_name(text)
+    if dyn_bomb: return dyn_bomb
     for k, v in KW.items():
         if k not in text: continue
         # "『応援』を持つ" ([a card] that HAS the Assist ability) — any keyword cited this way is being used as a
