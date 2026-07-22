@@ -5915,22 +5915,6 @@
 "Corps",
 "Weapon"
 ],
-"AOT/S50/P02": [
-"Corps",
-"Weapon"
-],
-"AOT/S50/P03": [
-"Corps",
-"Weapon"
-],
-"AOT/S50/P04": [
-"Corps",
-"Weapon"
-],
-"AOT/S50/P05": [
-"Corps",
-"Weapon"
-],
 "APO/S53/001": [
 "Servant",
 "Flag"
@@ -9056,6 +9040,10 @@
 "KAN-SEN",
 "Iron Blood"
 ],
+"AZL/S119/P03": [
+"KAN-SEN",
+"Royal Navy"
+],
 "BAV/W112/001": [
 "Kivotos",
 "Make-Up Work Club"
@@ -9082,11 +9070,11 @@
 ],
 "BAV/W112/007": [
 "Kivotos",
-"Sisterhood"
+"The Sisterhood"
 ],
 "BAV/W112/008": [
 "Kivotos",
-"Justice Realization Committee"
+"Justice Task Force"
 ],
 "BAV/W112/009": [
 "Kivotos",
@@ -9098,23 +9086,23 @@
 ],
 "BAV/W112/011": [
 "Kivotos",
-"Sisterhood"
+"The Sisterhood"
 ],
 "BAV/W112/012": [
 "Kivotos",
-"Justice Realization Committee"
+"Justice Task Force"
 ],
 "BAV/W112/013": [
 "Kivotos",
-"Knights Hospitaller"
+"Remedial Knights"
 ],
 "BAV/W112/014": [
 "Kivotos",
-"Justice Realization Committee"
+"Justice Task Force"
 ],
 "BAV/W112/015": [
 "Kivotos",
-"Trinity Vigilante Crew"
+"Trinity's Vigilante Crew"
 ],
 "BAV/W112/016": [
 "Kivotos",
@@ -9130,23 +9118,23 @@
 ],
 "BAV/W112/019": [
 "Kivotos",
-"Sisterhood"
+"The Sisterhood"
 ],
 "BAV/W112/020": [
 "Kivotos",
-"Justice Realization Committee"
+"Justice Task Force"
 ],
 "BAV/W112/021": [
 "Kivotos",
-"Sisterhood"
+"Library Committee"
 ],
 "BAV/W112/022": [
 "Kivotos",
-"Sisterhood"
+"The Sisterhood"
 ],
 "BAV/W112/023": [
 "Kivotos",
-"Knights Hospitaller"
+"Remedial Knights"
 ],
 "BAV/W112/024": [
 "Kivotos",
@@ -9158,7 +9146,7 @@
 ],
 "BAV/W112/026": [
 "Kivotos",
-"Trinity Vigilante Crew"
+"Trinity's Vigilante Crew"
 ],
 "BAV/W112/027": [
 "Kivotos",
@@ -9166,7 +9154,7 @@
 ],
 "BAV/W112/028": [
 "Kivotos",
-"Knights Hospitaller"
+"Remedial Knights"
 ],
 "BAV/W112/029": [
 "Kivotos",
@@ -9178,11 +9166,11 @@
 ],
 "BAV/W112/031": [
 "Kivotos",
-"Knights Hospitaller"
+"Remedial Knights"
 ],
 "BAV/W112/032": [
 "Kivotos",
-"Knights Hospitaller"
+"Remedial Knights"
 ],
 "BAV/W112/038": [
 "Kivotos",
@@ -9194,7 +9182,7 @@
 ],
 "BAV/W112/040": [
 "Kivotos",
-"Ninjutsu Research Club"
+"Ninjutsu Research Department"
 ],
 "BAV/W112/041": [
 "Kivotos"
@@ -9205,7 +9193,7 @@
 ],
 "BAV/W112/043": [
 "Kivotos",
-"Public Security Bureau"
+"Public Peace Bureau"
 ],
 "BAV/W112/044": [
 "Kivotos",
@@ -9249,11 +9237,11 @@
 ],
 "BAV/W112/054": [
 "Kivotos",
-"Xuanwu Merchant Association"
+"Black Tortoise Promenade"
 ],
 "BAV/W112/055": [
 "Kivotos",
-"Chinese Alchemy Study Club"
+"Eastern Alchemy Society"
 ],
 "BAV/W112/056": [
 "Kivotos",
@@ -9280,11 +9268,11 @@
 ],
 "BAV/W112/062": [
 "Kivotos",
-"Chinese Alchemy Study Club"
+"Eastern Alchemy Society"
 ],
 "BAV/W112/063": [
 "Kivotos",
-"Community Safety Bureau"
+"Public Safety Bureau"
 ],
 "BAV/W112/064": [
 "Kivotos",
@@ -9304,7 +9292,7 @@
 ],
 "BAV/W112/068": [
 "Kivotos",
-"Community Safety Bureau"
+"Public Safety Bureau"
 ],
 "BAV/W112/069": [
 "Kivotos",
@@ -9312,7 +9300,7 @@
 ],
 "BAV/W112/070": [
 "Kivotos",
-"Festival Management Committee"
+"Festival Operations Department"
 ],
 "BAV/W112/071": [
 "Kivotos",
@@ -9320,7 +9308,7 @@
 ],
 "BAV/W112/072": [
 "Kivotos",
-"Festival Management Committee"
+"Festival Operations Department"
 ],
 "BAV/W112/077": [
 "Kivotos",
@@ -9332,7 +9320,7 @@
 ],
 "BAV/W112/079": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/080": [
 "Kivotos",
@@ -9340,11 +9328,11 @@
 ],
 "BAV/W112/081": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/082": [
 "Kivotos",
-"Public Works Department"
+"Labor Party"
 ],
 "BAV/W112/083": [
 "Kivotos",
@@ -9372,11 +9360,11 @@
 ],
 "BAV/W112/089": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/090": [
 "Kivotos",
-"No. 227 Special Class"
+"Spec Ops No. 227"
 ],
 "BAV/W112/091": [
 "Kivotos",
@@ -9384,7 +9372,7 @@
 ],
 "BAV/W112/092": [
 "Kivotos",
-"No. 227 Special Class"
+"Spec Ops No. 227"
 ],
 "BAV/W112/093": [
 "Kivotos",
@@ -9396,7 +9384,7 @@
 ],
 "BAV/W112/095": [
 "Kivotos",
-"Emergency Medicine Club"
+"Medical Emergency Club"
 ],
 "BAV/W112/096": [
 "Kivotos",
@@ -9408,7 +9396,7 @@
 ],
 "BAV/W112/098": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/099": [
 "Kivotos",
@@ -9424,11 +9412,11 @@
 ],
 "BAV/W112/102": [
 "Kivotos",
-"Hot Spring Development Department"
+"Hot Springs Department"
 ],
 "BAV/W112/107": [
 "Kivotos",
-"Paranormal Affairs Department"
+"Supernatural Phenomenon Task Force"
 ],
 "BAV/W112/108": [
 "Kivotos",
@@ -9440,7 +9428,7 @@
 ],
 "BAV/W112/110": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/111": [
 "Kivotos",
@@ -9456,7 +9444,7 @@
 ],
 "BAV/W112/114": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/115": [
 "Kivotos",
@@ -9472,7 +9460,7 @@
 ],
 "BAV/W112/118": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/119": [
 "Kivotos",
@@ -9484,7 +9472,7 @@
 ],
 "BAV/W112/121": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/122": [
 "Kivotos",
@@ -9516,11 +9504,11 @@
 ],
 "BAV/W112/129": [
 "Kivotos",
-"Paranormal Affairs Department"
+"Supernatural Phenomenon Task Force"
 ],
 "BAV/W112/130": [
 "Kivotos",
-"Gym Training Department"
+"Athletics Training Club"
 ],
 "BAV/W112/131": [
 "Kivotos",
@@ -9532,7 +9520,7 @@
 ],
 "BAV/W112/133": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/134": [
 "Kivotos",
@@ -9592,15 +9580,15 @@
 ],
 "BAV/W112/T06": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/T07": [
 "Kivotos",
-"Disciplinary Committee"
+"Prefect Team"
 ],
 "BAV/W112/T10": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/T11": [
 "Kivotos",
@@ -9612,7 +9600,7 @@
 ],
 "BAV/W112/T13": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/T14": [
 "Kivotos",
@@ -9620,7 +9608,7 @@
 ],
 "BAV/W112/T15": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/T16": [
 "Kivotos",
@@ -9628,11 +9616,11 @@
 ],
 "BAV/W112/T17": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W112/T18": [
 "Kivotos",
-"Countermeasures Committee"
+"Foreclosure Task Force"
 ],
 "BAV/W129/001": [
 "Kivotos",
@@ -14737,10 +14725,6 @@
 "Music",
 "Mugendai Mewtype"
 ],
-"BFR/S78/001": [
-"Game",
-"Blacksmith"
-],
 "BFR/S78/002": [
 "Game",
 "Shield"
@@ -15635,6 +15619,438 @@
 ],
 "BR/SE06/38": [
 "Weapon"
+],
+"BRD/W139/001": [
+"RPG",
+"Modern"
+],
+"BRD/W139/002": [
+"RPG",
+"Modern"
+],
+"BRD/W139/003": [
+"RPG",
+"Modern"
+],
+"BRD/W139/004": [
+"RPG",
+"School"
+],
+"BRD/W139/005": [
+"RPG",
+"Other"
+],
+"BRD/W139/006": [
+"RPG",
+"Original"
+],
+"BRD/W139/007": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/008": [
+"RPG",
+"Original"
+],
+"BRD/W139/009": [
+"RPG",
+"Modern"
+],
+"BRD/W139/010": [
+"RPG",
+"Original"
+],
+"BRD/W139/011": [
+"RPG",
+"Original"
+],
+"BRD/W139/012": [
+"RPG",
+"Modern"
+],
+"BRD/W139/013": [
+"RPG",
+"Wuxia"
+],
+"BRD/W139/014": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/015": [
+"RPG",
+"Original"
+],
+"BRD/W139/016": [
+"RPG",
+"Future"
+],
+"BRD/W139/017": [
+"RPG",
+"Original"
+],
+"BRD/W139/018": [
+"RPG",
+"Original"
+],
+"BRD/W139/019": [
+"RPG",
+"Modern"
+],
+"BRD/W139/027": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/028": [
+"RPG",
+"Modern"
+],
+"BRD/W139/029": [
+"RPG",
+"Modern"
+],
+"BRD/W139/030": [
+"RPG",
+"Office"
+],
+"BRD/W139/031": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/032": [
+"RPG",
+"Office"
+],
+"BRD/W139/033": [
+"RPG",
+"Original"
+],
+"BRD/W139/034": [
+"RPG",
+"Original"
+],
+"BRD/W139/035": [
+"RPG",
+"Modern"
+],
+"BRD/W139/036": [
+"RPG",
+"Original"
+],
+"BRD/W139/037": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/038": [
+"RPG",
+"Modern"
+],
+"BRD/W139/039": [
+"RPG",
+"Office"
+],
+"BRD/W139/040": [
+"RPG",
+"Modern"
+],
+"BRD/W139/041": [
+"RPG",
+"Original"
+],
+"BRD/W139/042": [
+"RPG",
+"Original"
+],
+"BRD/W139/043": [
+"RPG",
+"Original"
+],
+"BRD/W139/044": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/045": [
+"RPG",
+"Wuxia"
+],
+"BRD/W139/046": [
+"RPG",
+"Original"
+],
+"BRD/W139/047": [
+"RPG",
+"Future"
+],
+"BRD/W139/048": [
+"RPG",
+"Future"
+],
+"BRD/W139/049": [
+"RPG",
+"Modern"
+],
+"BRD/W139/050": [
+"RPG",
+"Future"
+],
+"BRD/W139/054": [
+"RPG",
+"Future"
+],
+"BRD/W139/055": [
+"RPG",
+"Modern"
+],
+"BRD/W139/056": [
+"RPG",
+"Future"
+],
+"BRD/W139/057": [
+"RPG",
+"Original"
+],
+"BRD/W139/058": [
+"RPG",
+"Original"
+],
+"BRD/W139/059": [
+"RPG",
+"Modern"
+],
+"BRD/W139/060": [
+"RPG",
+"Modern"
+],
+"BRD/W139/061": [
+"RPG",
+"School"
+],
+"BRD/W139/062": [
+"RPG",
+"School"
+],
+"BRD/W139/063": [
+"RPG",
+"Original"
+],
+"BRD/W139/064": [
+"RPG",
+"Original"
+],
+"BRD/W139/065": [
+"RPG",
+"Other"
+],
+"BRD/W139/066": [
+"RPG",
+"Original"
+],
+"BRD/W139/067": [
+"RPG",
+"Future"
+],
+"BRD/W139/068": [
+"RPG",
+"Future"
+],
+"BRD/W139/069": [
+"RPG",
+"School"
+],
+"BRD/W139/070": [
+"RPG",
+"Modern"
+],
+"BRD/W139/071": [
+"RPG",
+"Original"
+],
+"BRD/W139/075": [
+"RPG",
+"Modern"
+],
+"BRD/W139/076": [
+"RPG",
+"Modern"
+],
+"BRD/W139/077": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/078": [
+"RPG",
+"School"
+],
+"BRD/W139/079": [
+"RPG",
+"Wuxia"
+],
+"BRD/W139/080": [
+"RPG",
+"Modern"
+],
+"BRD/W139/081": [
+"RPG",
+"Modern"
+],
+"BRD/W139/082": [
+"RPG",
+"Original"
+],
+"BRD/W139/083": [
+"RPG",
+"Modern"
+],
+"BRD/W139/084": [
+"RPG",
+"Other"
+],
+"BRD/W139/085": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/086": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/087": [
+"RPG",
+"Future"
+],
+"BRD/W139/088": [
+"RPG",
+"Future"
+],
+"BRD/W139/089": [
+"RPG",
+"Original"
+],
+"BRD/W139/090": [
+"RPG",
+"School"
+],
+"BRD/W139/091": [
+"RPG",
+"Future"
+],
+"BRD/W139/092": [
+"RPG",
+"Modern"
+],
+"BRD/W139/093": [
+"RPG",
+"Original"
+],
+"BRD/W139/094": [
+"RPG",
+"Original"
+],
+"BRD/W139/095": [
+"RPG",
+"School"
+],
+"BRD/W139/097": [
+"RPG",
+"Future"
+],
+"BRD/W139/113": [
+"RPG",
+"Modern"
+],
+"BRD/W139/114": [
+"RPG",
+"Modern"
+],
+"BRD/W139/115": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/116": [
+"RPG",
+"Modern"
+],
+"BRD/W139/117": [
+"RPG",
+"Modern"
+],
+"BRD/W139/118": [
+"RPG",
+"Future"
+],
+"BRD/W139/119": [
+"RPG",
+"Modern"
+],
+"BRD/W139/120": [
+"RPG",
+"Modern"
+],
+"BRD/W139/121": [
+"RPG",
+"Modern"
+],
+"BRD/W139/122": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/P02": [
+"RPG",
+"Modern"
+],
+"BRD/W139/T01": [
+"RPG",
+"Original"
+],
+"BRD/W139/T02": [
+"RPG",
+"Original"
+],
+"BRD/W139/T03": [
+"RPG",
+"Original"
+],
+"BRD/W139/T04": [
+"RPG",
+"Original"
+],
+"BRD/W139/T05": [
+"RPG",
+"Original"
+],
+"BRD/W139/T06": [
+"RPG",
+"Fairy Tale"
+],
+"BRD/W139/T07": [
+"RPG",
+"Original"
+],
+"BRD/W139/T09": [
+"RPG",
+"Original"
+],
+"BRD/W139/T10": [
+"RPG",
+"Original"
+],
+"BRD/W139/T11": [
+"RPG",
+"Original"
+],
+"BRD/W139/T12": [
+"RPG",
+"Original"
+],
+"BRD/W139/T13": [
+"RPG",
+"Original"
+],
+"BRD/W139/T14": [
+"RPG",
+"Original"
+],
+"BRD/W139/T15": [
+"RPG",
+"Fairy Tale"
 ],
 "BTR/W107/001": [
 "Music",
@@ -24480,425 +24896,425 @@
 "Music"
 ],
 "DCT/S86/001": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/002": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/003": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/004": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/005": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/006": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/007": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/008": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/009": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/010": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/011": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/012": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/013": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/014": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/015": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/016": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/017": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/018": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/024": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/025": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/026": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/027": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/028": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/029": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/030": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/031": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/032": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/033": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/034": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/035": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/036": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/037": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/038": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/039": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/040": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/041": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/042": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/043": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/044": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/045": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/051": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/052": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/053": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/054": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/055": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/056": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/057": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/058": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/059": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/060": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/061": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/062": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/063": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/064": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/065": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/066": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/067": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/068": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/069": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/070": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/076": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/077": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/078": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/079": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/080": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/081": [
-"Yura Island"
+"Yurajima"
 ],
 "DCT/S86/082": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/083": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/084": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/085": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/086": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/087": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/088": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/089": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/090": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/091": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/092": [
-"Knockerup",
-"Weapon"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/093": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/094": [
 "Mystery"
 ],
 "DCT/S86/095": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/101": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/102": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/103": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/104": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/P01": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/P02": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/P03": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/P04": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/P05": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/P06": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/P07": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T01": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/T02": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T03": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/T04": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T05": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/T06": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T07": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T08": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T09": [
-"Knockerup",
-"Yura Island"
+"Knocker Up",
+"Yurajima"
 ],
 "DCT/S86/T12": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T13": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T14": [
-"Knockerup",
+"Knocker Up",
 "Shibuya"
 ],
 "DCT/S86/T15": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T16": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DCT/S86/T17": [
-"Knockerup",
+"Knocker Up",
 "Weapon"
 ],
 "DD/WE12/01": [
@@ -33154,8 +33570,8 @@
 "Sake"
 ],
 "FXX/S57/001": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/002": [
 "Parasite"
@@ -33173,40 +33589,40 @@
 "Parasite"
 ],
 "FXX/S57/007": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klauxosaur"
 ],
 "FXX/S57/008": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/009": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/010": [
-"Science",
-"Adult"
+"Adult",
+"Science"
 ],
 "FXX/S57/011": [
-"Clone",
-"Parasite"
+"Parasite",
+"Clone"
 ],
 "FXX/S57/012": [
-"Mystery",
-"Adult"
+"Adult",
+"Mystery"
 ],
 "FXX/S57/013": [
 "Klaxosaur"
 ],
 "FXX/S57/014": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/015": [
 "Parasite"
 ],
 "FXX/S57/016": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/017": [
 "Parasite"
@@ -33215,7 +33631,7 @@
 "Parasite"
 ],
 "FXX/S57/019": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/020": [
 "Parasite"
@@ -33242,7 +33658,7 @@
 "Parasite"
 ],
 "FXX/S57/033": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/034": [
 "Parasite"
@@ -33284,50 +33700,50 @@
 "Parasite"
 ],
 "FXX/S57/052": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/053": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/054": [
 "Parasite"
 ],
 "FXX/S57/055": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/056": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/057": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/058": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/059": [
 "Parasite"
 ],
 "FXX/S57/060": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/061": [
 "Parasite"
 ],
 "FXX/S57/062": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/063": [
 "Adult"
 ],
 "FXX/S57/064": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/065": [
 "Parasite"
@@ -33336,8 +33752,8 @@
 "Parasite"
 ],
 "FXX/S57/067": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/068": [
 "Parasite"
@@ -33355,7 +33771,7 @@
 "Parasite"
 ],
 "FXX/S57/078": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/079": [
 "Parasite"
@@ -33370,7 +33786,7 @@
 "Parasite"
 ],
 "FXX/S57/083": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/084": [
 "Parasite"
@@ -33415,8 +33831,8 @@
 "Parasite"
 ],
 "FXX/S57/103": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/104": [
 "Parasite"
@@ -33425,23 +33841,23 @@
 "Parasite"
 ],
 "FXX/S57/P01": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/P02": [
 "Parasite"
 ],
 "FXX/S57/P03": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/P04": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/T01": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/T02": [
 "Parasite"
@@ -33450,21 +33866,21 @@
 "Parasite"
 ],
 "FXX/S57/T04": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/T05": [
 "Parasite"
 ],
 "FXX/S57/T06": [
-"Klaxosaur",
-"Parasite"
+"Parasite",
+"Klaxosaur"
 ],
 "FXX/S57/T07": [
 "Parasite"
 ],
 "FXX/S57/T08": [
-"FRANXX"
+"Franxx"
 ],
 "FXX/S57/T11": [
 "Parasite"
@@ -33971,19 +34387,539 @@
 ],
 "G86/WS02/080": [
 "Dengeki Bunko",
-"86th Independent Mobile Strike Group"
+"86th Strike Package"
 ],
 "G86/WS02/098": [
 "Dengeki Bunko",
-"86th Independent Mobile Strike Group"
+"86th Strike Package"
 ],
 "G86/WS02/107": [
 "Dengeki Bunko",
-"86th Independent Mobile Strike Group"
+"86th Strike Package"
 ],
 "G86/WS02/T28": [
 "Dengeki Bunko",
-"86th Independent Mobile Strike Group"
+"86th Strike Package"
+],
+"GA01/S131/102": [
+"GA Bunko",
+"Superpower"
+],
+"GA01/S131/113": [
+"GA Bunko",
+"Superpower"
+],
+"GA01/S131/115": [
+"GA Bunko",
+"Superpower"
+],
+"GA01/S131/117": [
+"GA Bunko",
+"Superpower"
+],
+"GA01/S131/121": [
+"GA Bunko",
+"Superpower"
+],
+"GA02/S131/003": [
+"GA Bunko",
+"Student"
+],
+"GA02/S131/009": [
+"GA Bunko",
+"Student"
+],
+"GA02/S131/018": [
+"GA Bunko",
+"Student"
+],
+"GA02/S131/022": [
+"GA Bunko",
+"Student"
+],
+"GA03/S131/035": [
+"GA Bunko",
+"Jienotsu"
+],
+"GA03/S131/037": [
+"GA Bunko",
+"Jienotsu"
+],
+"GA03/S131/044": [
+"GA Bunko",
+"Jienotsu"
+],
+"GA03/S131/058": [
+"GA Bunko",
+"Jienotsu"
+],
+"GA03/S131/060": [
+"GA Bunko",
+"Jienotsu"
+],
+"GA04/S131/005": [
+"GA Bunko",
+"Order",
+"Adventurer"
+],
+"GA04/S131/079": [
+"GA Bunko",
+"Order"
+],
+"GA04/S131/084": [
+"GA Bunko",
+"Order",
+"Adventurer"
+],
+"GA04/S131/100": [
+"GA Bunko",
+"Order",
+"Adventurer"
+],
+"GA05/S131/006": [
+"GA Bunko",
+"Divine Attire"
+],
+"GA05/S131/007": [
+"GA Bunko",
+"Divine Attire"
+],
+"GA05/S131/021": [
+"GA Bunko",
+"Divine Attire"
+],
+"GA05/S131/025": [
+"GA Bunko",
+"Divine Attire"
+],
+"GA05/S131/027": [
+"GA Bunko",
+"Divine Attire"
+],
+"GA06/S131/040": [
+"GA Bunko",
+"Magic"
+],
+"GA06/S131/048": [
+"GA Bunko",
+"Magic"
+],
+"GA06/S131/050": [
+"GA Bunko",
+"Magic"
+],
+"GA06/S131/053": [
+"GA Bunko",
+"Magic"
+],
+"GA07/S131/073": [
+"GA Bunko",
+"Celestial Spirit"
+],
+"GA07/S131/085": [
+"GA Bunko",
+"Celestial Spirit"
+],
+"GA07/S131/087": [
+"GA Bunko",
+"Celestial Spirit"
+],
+"GA07/S131/092": [
+"GA Bunko",
+"Celestial Spirit"
+],
+"GA08/S131/034": [
+"GA Bunko",
+"Magic"
+],
+"GA08/S131/038": [
+"GA Bunko",
+"Mazoku"
+],
+"GA08/S131/047": [
+"GA Bunko",
+"Magic"
+],
+"GA08/S131/054": [
+"GA Bunko",
+"Dragon"
+],
+"GA09/S131/103": [
+"GA Bunko",
+"Past Life"
+],
+"GA09/S131/110": [
+"GA Bunko",
+"Past Life"
+],
+"GA09/S131/116": [
+"GA Bunko",
+"Past Life"
+],
+"GA09/S131/118": [
+"GA Bunko",
+"Past Life"
+],
+"GA10/S131/002": [
+"GA Bunko",
+"Familia",
+"Hostess of Fertility"
+],
+"GA10/S131/004": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/011": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/012": [
+"GA Bunko",
+"Hostess of Fertility"
+],
+"GA10/S131/016": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/019": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/029": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/071": [
+"GA Bunko",
+"Hostess of Fertility"
+],
+"GA10/S131/080": [
+"GA Bunko",
+"Familia",
+"God"
+],
+"GA10/S131/083": [
+"GA Bunko",
+"Hostess of Fertility"
+],
+"GA10/S131/086": [
+"GA Bunko",
+"Familia",
+"Blacksmith Master"
+],
+"GA10/S131/099": [
+"GA Bunko",
+"Familia",
+"God"
+],
+"GA10/S131/105": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/107": [
+"GA Bunko",
+"Hostess of Fertility"
+],
+"GA10/S131/109": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/114": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/120": [
+"GA Bunko",
+"Guild"
+],
+"GA10/S131/P01": [
+"GA Bunko",
+"Familia",
+"God"
+],
+"GA10/S131/T02": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/T07": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA10/S131/T09": [
+"GA Bunko",
+"Familia",
+"God"
+],
+"GA10/S131/T18": [
+"GA Bunko",
+"Familia",
+"Adventurer"
+],
+"GA11/S131/041": [
+"GA Bunko",
+"Celestial Spirit"
+],
+"GA11/S131/049": [
+"GA Bunko",
+"Magic"
+],
+"GA11/S131/052": [
+"GA Bunko",
+"Magic"
+],
+"GA11/S131/056": [
+"GA Bunko",
+"Magic"
+],
+"GA12/S131/008": [
+"GA Bunko",
+"Student"
+],
+"GA12/S131/013": [
+"GA Bunko",
+"Student"
+],
+"GA12/S131/020": [
+"GA Bunko",
+"Student"
+],
+"GA12/S131/024": [
+"GA Bunko",
+"Student"
+],
+"GA12/S131/026": [
+"GA Bunko",
+"Student"
+],
+"GA13/S131/070": [
+"GA Bunko",
+"Agriculture"
+],
+"GA13/S131/077": [
+"GA Bunko",
+"Agriculture"
+],
+"GA13/S131/078": [
+"GA Bunko",
+"Agriculture"
+],
+"GA13/S131/089": [
+"GA Bunko",
+"Agriculture"
+],
+"GA13/S131/090": [
+"GA Bunko",
+"Agriculture"
+],
+"GA14/S131/036": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/039": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/042": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/045": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/046": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/057": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/106": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/112": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/T04": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/T10": [
+"GA Bunko",
+"Student"
+],
+"GA14/S131/T11": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/T14": [
+"GA Bunko",
+"Evil God"
+],
+"GA14/S131/T16": [
+"GA Bunko",
+"Evil God"
+],
+"GA15/S131/043": [
+"GA Bunko",
+"Hundred"
+],
+"GA15/S131/051": [
+"GA Bunko",
+"Hundred"
+],
+"GA15/S131/055": [
+"GA Bunko",
+"Hundred"
+],
+"GA15/S131/059": [
+"GA Bunko",
+"Hundred"
+],
+"GA16/S131/068": [
+"GA Bunko",
+"Vampire"
+],
+"GA16/S131/074": [
+"GA Bunko",
+"Vampire"
+],
+"GA16/S131/081": [
+"GA Bunko",
+"Vampire"
+],
+"GA16/S131/091": [
+"GA Bunko",
+"Vampire"
+],
+"GA17/S131/001": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/010": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/014": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/015": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/017": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/023": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/028": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/108": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/119": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/T12": [
+"GA Bunko",
+"Weapon"
+],
+"GA17/S131/T15": [
+"GA Bunko",
+"Magic"
+],
+"GA17/S131/T17": [
+"GA Bunko",
+"Magic"
+],
+"GA18/S131/066": [
+"GA Bunko",
+"Blazers"
+],
+"GA18/S131/072": [
+"GA Bunko",
+"Blazers"
+],
+"GA18/S131/075": [
+"GA Bunko",
+"Blazer"
+],
+"GA18/S131/088": [
+"GA Bunko",
+"Blazer"
+],
+"GA19/S131/067": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/069": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/076": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/082": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/093": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/101": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/104": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/111": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/T01": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/T03": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/T05": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/T06": [
+"GA Bunko",
+"Shogi"
+],
+"GA19/S131/T13": [
+"GA Bunko",
+"Shogi"
 ],
 "GAS/WS02/050": [
 "Dengeki Bunko"
@@ -34019,7 +34955,7 @@
 "GAW/WS02/029": [
 "Dengeki Bunko",
 "Net",
-"Bike"
+"Hike"
 ],
 "GAW/WS02/031": [
 "Dengeki Bunko",
@@ -34029,7 +34965,7 @@
 "GAW/WS02/T22": [
 "Dengeki Bunko",
 "Student Council",
-"Avatar"
+"Net"
 ],
 "GAW/WS02/T27": [
 "Dengeki Bunko",
@@ -34042,7 +34978,7 @@
 ],
 "GBB/WS02/090": [
 "Dengeki Bunko",
-"Civil security",
+"Civil Security",
 "Weapon"
 ],
 "GBC/WS02/013": [
@@ -34057,6 +34993,433 @@
 "Dengeki Bunko",
 "Dragon"
 ],
+"GBF/S134/001": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/002": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/003": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/004": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/005": [
+"Granblue"
+],
+"GBF/S134/006": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/007": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/008": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/009": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/010": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/011": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/012": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/013": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/014": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/015": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/016": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/017": [
+"Granblue",
+"Archangel"
+],
+"GBF/S134/018": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/019": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/025": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/026": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/027": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/028": [
+"Granblue",
+"Moon"
+],
+"GBF/S134/029": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/030": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/031": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/032": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/033": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/034": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/035": [
+"Granblue",
+"Moon"
+],
+"GBF/S134/036": [
+"Granblue",
+"Wales"
+],
+"GBF/S134/037": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/038": [
+"Granblue",
+"Moon"
+],
+"GBF/S134/039": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/040": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/041": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/042": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/043": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/044": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/045": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/046": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/047": [
+"Granblue",
+"Moon"
+],
+"GBF/S134/048": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/049": [
+"Granblue",
+"12 Divine Generals"
+],
+"GBF/S134/055": [
+"Granblue",
+"Fallen Archangel"
+],
+"GBF/S134/056": [
+"Granblue",
+"Society"
+],
+"GBF/S134/057": [
+"Granblue",
+"Society"
+],
+"GBF/S134/058": [
+"Granblue",
+"Wales"
+],
+"GBF/S134/059": [
+"Granblue",
+"Society"
+],
+"GBF/S134/060": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/061": [
+"Granblue",
+"Astrals"
+],
+"GBF/S134/062": [
+"Granblue"
+],
+"GBF/S134/063": [
+"Granblue",
+"Society"
+],
+"GBF/S134/064": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/065": [
+"Granblue",
+"Astrals"
+],
+"GBF/S134/066": [
+"Granblue",
+"Society"
+],
+"GBF/S134/067": [
+"Granblue",
+"Society"
+],
+"GBF/S134/068": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/069": [
+"Granblue",
+"Fallen Archangel"
+],
+"GBF/S134/070": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/071": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/072": [
+"Granblue",
+"Wales"
+],
+"GBF/S134/073": [
+"Granblue",
+"Society"
+],
+"GBF/S134/074": [
+"Granblue",
+"Society"
+],
+"GBF/S134/075": [
+"Granblue",
+"Astrals"
+],
+"GBF/S134/076": [
+"Granblue",
+"Society"
+],
+"GBF/S134/077": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/078": [
+"Granblue",
+"Fallen Archangel"
+],
+"GBF/S134/079": [
+"Granblue",
+"Society"
+],
+"GBF/S134/080": [
+"Granblue",
+"Astrals"
+],
+"GBF/S134/081": [
+"Granblue",
+"Society"
+],
+"GBF/S134/082": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/087": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/088": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/089": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/090": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/091": [
+"Granblue",
+"Wales"
+],
+"GBF/S134/092": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/093": [
+"Granblue"
+],
+"GBF/S134/094": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/095": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/096": [
+"Granblue"
+],
+"GBF/S134/097": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/098": [
+"Granblue",
+"Wales"
+],
+"GBF/S134/099": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/100": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/101": [
+"Granblue",
+"Eternals"
+],
+"GBF/S134/102": [
+"Granblue",
+"Evokers"
+],
+"GBF/S134/103": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/104": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/105": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/106": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/107": [
+"Granblue",
+"Six Dragons"
+],
+"GBF/S134/108": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/109": [
+"Granblue",
+"Feendrache"
+],
+"GBF/S134/P01": [
+"Granblue"
+],
+"GBF/S134/T01": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T02": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T03": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T04": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T05": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T06": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T07": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T08": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T09": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T10": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T11": [
+"Granblue",
+"Grandcypher"
+],
+"GBF/S134/T12": [
+"Granblue",
+"Grandcypher"
+],
 "GBL/WS02/001": [
 "Dengeki Bunko",
 "Yesma",
@@ -34069,8 +35432,12 @@
 ],
 "GBL/WS02/033": [
 "Dengeki Bunko",
-"Yesma",
+"Magic",
 "Animal"
+],
+"GBL/WS02/P08": [
+"Dengeki Bunko",
+"Magic"
 ],
 "GBL/WS02/T26": [
 "Dengeki Bunko",
@@ -34496,7 +35863,7 @@
 "GBY/WS02/T18": [
 "Dengeki Bunko",
 "Adolescence",
-"Cooking"
+"Cuisine"
 ],
 "GC/S16/001": [
 "Funeral Parlor",
@@ -34866,7 +36233,7 @@
 ],
 "GC3/WS02/103": [
 "Dengeki Bunko",
-"Cursed Tool"
+"Tool"
 ],
 "GCR/SE48/01": [
 "Music",
@@ -35230,38 +36597,37 @@
 ],
 "GDS/WS02/049": [
 "Dengeki Bunko",
-"Youth",
-"Space"
+"Seishun",
+"Universe"
 ],
 "GDS/WS02/058": [
 "Dengeki Bunko",
-"Youth",
-"Space"
+"Seishun",
+"Universe"
 ],
 "GDS/WS02/064": [
 "Dengeki Bunko",
-"Youth",
-"Space"
+"Seishun",
+"Universe"
 ],
 "GDS/WS02/T16": [
 "Dengeki Bunko",
-"Youth",
-"Space"
+"Seishun",
+"Universe"
 ],
 "GDY/WS02/056": [
 "Dengeki Bunko",
-"Accessories",
+"Accessory",
 "Flower"
 ],
 "GDY/WS02/P13": [
 "Dengeki Bunko",
-"Accessories",
+"Accessory",
 "Flower"
 ],
 "GEM/WS02/040": [
 "Dengeki Bunko",
-"Illustrator",
-"Social withdrawal"
+"Illustrator"
 ],
 "GEM/WS02/044": [
 "Dengeki Bunko",
@@ -35269,12 +36635,14 @@
 "Novel"
 ],
 "GEM/WS02/069": [
-"Dengeki Bunko"
+"Dengeki Bunko",
+"Novel",
+"Japanese Clothes"
 ],
 "GEM/WS02/T19": [
 "Dengeki Bunko",
 "Illustrator",
-"Social withdrawal"
+"Social Withdrawal"
 ],
 "GF/W33/001": [
 "Girl",
@@ -36896,10 +38264,6 @@
 "Avatar",
 "Weapon"
 ],
-"GGO/S59/P01": [
-"Avatar",
-"Weapon"
-],
 "GGO/S59/P02": [
 "Avatar",
 "Weapon"
@@ -36981,10 +38345,6 @@
 "Weapon"
 ],
 "GGO/S59/T19": [
-"Avatar",
-"Weapon"
-],
-"GGO/SE50/01": [
 "Avatar",
 "Weapon"
 ],
@@ -37142,7 +38502,7 @@
 ],
 "GGO/SE50/44": [
 "Avatar",
-"Weapon"
+"Net"
 ],
 "GGO/SE50/45": [
 "Avatar",
@@ -37182,7 +38542,7 @@
 ],
 "GGO/SE50/54": [
 "Avatar",
-"ZEAML"
+"ZEMAL"
 ],
 "GGO/SE50/55": [
 "Net",
@@ -37230,17 +38590,17 @@
 "GHM/WS02/043": [
 "Dengeki Bunko",
 "Ente Isla",
-"Demon"
+"Devil"
 ],
 "GHM/WS02/055": [
 "Dengeki Bunko",
 "Ente Isla",
-"Part-Time Job"
+"Part-Timer"
 ],
 "GHM/WS02/070": [
 "Dengeki Bunko",
 "Ente Isla",
-"Demon"
+"Devil"
 ],
 "GHM/WS02/P10": [
 "Dengeki Bunko",
@@ -37301,8 +38661,8 @@
 ],
 "GID/WS02/T06": [
 "Dengeki Bunko",
-"Psychic Ability",
-"Magic"
+"Magic",
+"Psychic Ability"
 ],
 "GIM/W124/001": [
 "Music",
@@ -37720,7 +39080,7 @@
 "GKB/WS02/134": [
 "Dengeki Bunko",
 "Journey",
-"Weapon"
+"Motorad"
 ],
 "GKB/WS02/T29": [
 "Dengeki Bunko",
@@ -38107,21 +39467,27 @@
 ],
 "GLT/WS02/141": [
 "Dengeki Bunko",
-"Dual personality"
+"Dual Personality"
 ],
 "GMF/WS02/076": [
 "Dengeki Bunko",
 "Mazoku",
-"Magic"
+"Weapon"
 ],
 "GMF/WS02/086": [
 "Dengeki Bunko",
 "Mazoku",
-"Magic"
+"Weapon"
 ],
 "GMF/WS02/105": [
 "Dengeki Bunko",
-"Cursed Tool"
+"Mazoku",
+"Weapon"
+],
+"GMF/WS02/P12": [
+"Dengeki Bunko",
+"Demon",
+"Magic"
 ],
 "GMF/WS02/T25": [
 "Dengeki Bunko",
@@ -38149,7 +39515,7 @@
 ],
 "GMR/WS02/133": [
 "Dengeki Bunko",
-"Magic"
+"MAgic"
 ],
 "GMR/WS02/137": [
 "Dengeki Bunko",
@@ -38160,6 +39526,10 @@
 "Magic"
 ],
 "GMR/WS02/142": [
+"Dengeki Bunko",
+"Magic"
+],
+"GMR/WS02/P06": [
 "Dengeki Bunko",
 "Magic"
 ],
@@ -38198,6 +39568,11 @@
 "Magic",
 "Weapon"
 ],
+"GNM/WS02/P09": [
+"Dengeki Bunko",
+"Magic",
+"Weapon"
+],
 "GNM/WS02/T24": [
 "Dengeki Bunko",
 "Magic",
@@ -38205,27 +39580,27 @@
 ],
 "GNS/WS02/102": [
 "Dengeki Bunko",
-"SE"
+"Software Engineer"
 ],
 "GNY/WS02/046": [
 "Dengeki Bunko",
 "Game",
-"Array cats"
+"Alley Cats"
 ],
 "GNY/WS02/054": [
 "Dengeki Bunko",
 "Game",
-"Array cats"
+"Alley Cats"
 ],
 "GNY/WS02/068": [
 "Dengeki Bunko",
 "Game",
-"Array cats"
+"Alley Cats"
 ],
 "GNY/WS02/T12": [
 "Dengeki Bunko",
 "Game",
-"Array cats"
+"Alley Cats"
 ],
 "GOI/WS02/041": [
 "Dengeki Bunko",
@@ -38248,7 +39623,7 @@
 "GOI/WS02/053": [
 "Dengeki Bunko",
 "Game",
-"Chuunibyou"
+"Chunibyo"
 ],
 "GOI/WS02/065": [
 "Dengeki Bunko",
@@ -38257,12 +39632,12 @@
 "GOI/WS02/066": [
 "Dengeki Bunko",
 "Game",
-"Chuunibyou"
+"Chunibyo"
 ],
 "GOI/WS02/T13": [
 "Dengeki Bunko",
 "Game",
-"Chuunibyou"
+"Chunibyo"
 ],
 "GOI/WS02/T20": [
 "Dengeki Bunko",
@@ -38292,11 +39667,12 @@
 ],
 "GOK/WS02/T02": [
 "Dengeki Bunko",
-"Animal"
+"Animal",
+"Merchant"
 ],
 "GOM/WS02/042": [
 "Dengeki Bunko",
-"Childhood friend"
+"Childhood Friend"
 ],
 "GOS/WS02/060": [
 "Dengeki Bunko",
@@ -38660,10 +40036,6 @@
 "GRI/S112/P09": [
 "Grisaia",
 "Weapon"
-],
-"GRI/S72/001": [
-"Grisaia",
-"Bread"
 ],
 "GRI/S72/002": [
 "Grisaia",
@@ -39594,8 +40966,8 @@
 ],
 "GSC/WS02/021": [
 "Dengeki Bunko",
-"Cosmos-so",
-"Powered suit"
+"Cosmossou",
+"Power Suit"
 ],
 "GSD/WS02/122": [
 "Dengeki Bunko",
@@ -39609,11 +40981,7 @@
 ],
 "GSK/WS02/099": [
 "Dengeki Bunko",
-"Mushroom guard"
-],
-"GSO/WS02/003": [
-"Dengeki Bunko",
-"Net"
+"Mushroom Keeper"
 ],
 "GSO/WS02/006": [
 "Dengeki Bunko",
@@ -39653,6 +41021,11 @@
 "Fluctlight",
 "Goddess"
 ],
+"GSO/WS02/P03": [
+"Dengeki Bunko",
+"Avatar",
+"Weapon"
+],
 "GSO/WS02/T34": [
 "Dengeki Bunko",
 "Avatar",
@@ -39677,10 +41050,14 @@
 "Dengeki Bunko",
 "Voice Actor"
 ],
+"GSR/WS02/P11": [
+"Dengeki Bunko",
+"Voice Actor"
+],
 "GSS/WS02/077": [
 "Dengeki Bunko",
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "GSS/WS02/079": [
 "Dengeki Bunko",
@@ -39705,7 +41082,7 @@
 "GSS/WS02/106": [
 "Dengeki Bunko",
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "GSS/WS02/132": [
 "Dengeki Bunko",
@@ -40235,52 +41612,51 @@
 ],
 "GTD/WS02/004": [
 "Dengeki Bunko",
-"Youth",
-"Weapom"
+"Seishun",
+"Weapon"
 ],
 "GTD/WS02/009": [
 "Dengeki Bunko",
-"Youth",
-"Weapom"
+"Seishun",
+"Weapon"
 ],
 "GTD/WS02/012": [
 "Dengeki Bunko",
-"Youth",
+"Seishun",
 "Model"
 ],
 "GTD/WS02/017": [
 "Dengeki Bunko",
-"Young",
+"Seishun",
 "Sports"
 ],
 "GTD/WS02/020": [
 "Dengeki Bunko",
-"Young",
-"Housework"
+"Seishun"
 ],
 "GTD/WS02/023": [
 "Dengeki Bunko",
-"Young",
+"Seishun",
 "Student Council"
 ],
 "GTD/WS02/025": [
 "Dengeki Bunko",
-"Young",
+"Seishun",
 "Sports"
 ],
 "GTD/WS02/026": [
 "Dengeki Bunko",
-"Young",
+"Seishun",
 "Model"
 ],
 "GTD/WS02/T05": [
 "Dengeki Bunko",
-"Youth",
-"Weapom"
+"Seishun",
+"Weapon"
 ],
 "GTD/WS02/T08": [
 "Dengeki Bunko",
-"Youth"
+"Seishun"
 ],
 "GU/W44/003": [
 "Fleur De Lapin",
@@ -42548,7 +43924,8 @@
 "BLOOM"
 ],
 "GYF/WS02/089": [
-"Dengeki Bunko"
+"Dengeki Bunko",
+"Your Forma"
 ],
 "GZL/S54/P02": [
 "Aratrum",
@@ -46252,7 +47629,7 @@
 ],
 "ID/W10/013": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "ID/W10/014": [
 "Clone",
@@ -67749,10 +69126,6 @@
 "LycoReco",
 "Weapon"
 ],
-"LRC/W105/P06": [
-"LycoReco",
-"Weapon"
-],
 "LRC/W105/T01": [
 "LycoReco",
 "Weapon"
@@ -67814,10 +69187,6 @@
 "Weapon"
 ],
 "LRC/W105/T18": [
-"LycoReco",
-"Weapon"
-],
-"LRC/WE47/01": [
 "LycoReco",
 "Weapon"
 ],
@@ -77436,11 +78805,11 @@
 ],
 "NA/W12/112": [
 "Magic",
-"Book"
+"Weapon"
 ],
 "NA/W12/113": [
 "Magic",
-"Weapon"
+"Book"
 ],
 "NA/W12/G01": [
 "Magic",
@@ -81039,788 +82408,811 @@
 "Sextuplets",
 "Smartphone"
 ],
-"OSK/S107/001": [
-"Showbiz",
-"Idol"
-],
 "OSK/S107/002": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/003": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/004": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/005": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/006": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/007": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/008": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/009": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/010": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/011": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/012": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/013": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/014": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/015": [
-"Showbiz"
+"Show Business"
 ],
 "OSK/S107/016": [
-"Showbiz",
+"Show Business",
 "Muscle"
 ],
 "OSK/S107/017": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/018": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/019": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/020": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/021": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/022": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/023": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/024": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/025": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/026": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/027": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/028": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/034": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/035": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/036": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/037": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/038": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/039": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/040": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/041": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/042": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/043": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/044": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/045": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/046": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/047": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/048": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/049": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/050": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/051": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/052": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/053": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/054": [
-"Showbiz",
+"Show Business",
 "President"
 ],
 "OSK/S107/055": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/056": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/057": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/058": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/059": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/060": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/066": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/067": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/068": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/069": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/070": [
-"Showbiz",
-"Bell-pepper"
+"Show Business",
+"Bell Pepper"
 ],
 "OSK/S107/071": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/072": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/073": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/074": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/075": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/076": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/077": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/078": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/079": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/080": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/081": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/082": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/083": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/084": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/085": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/086": [
-"Showbiz",
-"Soda"
+"Show Business",
+"Baking Soda"
 ],
 "OSK/S107/087": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/088": [
-"Showbiz",
-"director"
+"Show Business",
+"Director"
 ],
 "OSK/S107/089": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/090": [
-"Showbiz",
+"Show Business",
 "Model"
 ],
 "OSK/S107/091": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/092": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/093": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/094": [
-"Showbiz",
-"Host"
+"Show Business",
+"Live Streamer"
 ],
 "OSK/S107/095": [
-"Showbiz",
+"Show Business",
 "Model"
 ],
 "OSK/S107/101": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/102": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/103": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/104": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/105": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/106": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/P01": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/P02": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/P03": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
+"OSK/S107/P04": [
+"Show Business",
+"Idol"
+],
+"OSK/S107/P05": [
+"Show Business",
+"Actor"
+],
+"OSK/S107/P06": [
+"Show Business",
+"Idol"
+],
+"OSK/S107/P07": [
+"Show Business",
+"Idol"
+],
+"OSK/S107/P08": [
+"Show Business",
+"Idol"
+],
+"OSK/S107/P09": [
+"Show Business",
+"Actress"
+],
 "OSK/S107/T01": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T02": [
-"Showbiz",
+"Show Business",
 "Otaku"
 ],
 "OSK/S107/T03": [
-"Showbiz",
+"Show Business",
 "President"
 ],
 "OSK/S107/T04": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T05": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T06": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T07": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T08": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T09": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T10": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S107/T13": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/T14": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S107/T15": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S107/T16": [
-"Showbiz",
+"Show Business",
 "Otaku"
 ],
 "OSK/S107/T17": [
-"Showbiz"
+"Show Business"
 ],
 "OSK/S107/T18": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/001": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/002": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/003": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/004": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/005": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/006": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/007": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/008": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/009": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/010": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/011": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/012": [
-"Showbiz",
+"Show Business",
 "Creator"
 ],
 "OSK/S121/013": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/014": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/015": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/016": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/017": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/018": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/019": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/020": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/021": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/027": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/028": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/029": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/030": [
-"Showbiz",
-"Idol"
+"Show Business"
 ],
 "OSK/S121/031": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/032": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/033": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/034": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/035": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/036": [
-"Showbiz"
+"Show Business"
 ],
 "OSK/S121/037": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/038": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/039": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/040": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/041": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/042": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/043": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/044": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/045": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/046": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/047": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/048": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/049": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/050": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/051": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/052": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OSK/S121/053": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/054": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/055": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/056": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/057": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/058": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/059": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/065": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/066": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/067": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/068": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/069": [
-"Showbiz"
+"Show Business"
 ],
 "OSK/S121/070": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/071": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/072": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/073": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/074": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/075": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/076": [
-"Showbiz",
+"Show Business",
 "Manga"
 ],
 "OSK/S121/077": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/078": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/079": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/080": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/081": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/082": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/083": [
-"Showbiz",
+"Show Business",
 "Producer"
 ],
 "OSK/S121/084": [
-"Showbiz",
+"Show Business",
 "Manga"
 ],
 "OSK/S121/085": [
-"Showbiz",
-"Screenwriter"
+"Show Business",
+"Scriptwriter"
 ],
 "OSK/S121/086": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/087": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/088": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/089": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/090": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/091": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/092": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/093": [
-"Showbiz",
+"Show Business",
 "Actor"
 ],
 "OSK/S121/094": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/095": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
+"OSK/S121/P01": [
+"Show Business",
+"Idol"
+],
 "OSK/S121/P02": [
-"Showbiz",
+"Show Business",
 "Actress"
 ],
 "OSK/S121/P03": [
-"Showbiz",
+"Show Business",
 "Idol"
 ],
 "OVL/S62/001": [
@@ -89589,19 +90981,19 @@
 ],
 "RG/W10/026": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/027": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/028": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/030": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/031": [
 "Science",
@@ -89609,19 +91001,19 @@
 ],
 "RG/W10/032": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/034": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/035": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/037": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/038": [
 "Teacher",
@@ -89649,7 +91041,7 @@
 ],
 "RG/W10/044": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/045": [
 "Psychic Ability"
@@ -89660,11 +91052,11 @@
 ],
 "RG/W10/052": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/053": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/054": [
 "Psychic Ability",
@@ -89672,7 +91064,7 @@
 ],
 "RG/W10/055": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/056": [
 "Psychic Ability",
@@ -89684,15 +91076,15 @@
 ],
 "RG/W10/058": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/059": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/060": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/061": [
 "Psychic Ability",
@@ -89720,7 +91112,7 @@
 ],
 "RG/W10/067": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/068": [
 "Psychic Ability",
@@ -89728,11 +91120,11 @@
 ],
 "RG/W10/070": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/101": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/102": [
 "Psychic Ability",
@@ -89740,15 +91132,15 @@
 ],
 "RG/W10/105": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/106": [
 "Frog",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/107": [
 "Psychic Ability",
-"Judgment"
+"Judgement"
 ],
 "RG/W10/109": [
 "Psychic Ability",
@@ -89906,7 +91298,7 @@
 "Glasses"
 ],
 "RG/W13/069": [
-"Psychic Ability",
+"Glasses",
 "Science"
 ],
 "RG/W13/070": [
@@ -90136,6 +91528,68 @@
 "RG/W26/076": [
 "Psychic Ability",
 "Frog"
+],
+"RG/W26/081": [
+"Psychic Ability",
+"Judgment"
+],
+"RG/W26/083": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/084": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/085": [
+"Psychic Ability",
+"Judgment"
+],
+"RG/W26/086": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/087": [
+"Clone",
+"Psychic Ability"
+],
+"RG/W26/088": [
+"Psychic Ability"
+],
+"RG/W26/089": [
+"Doll",
+"Weapon"
+],
+"RG/W26/P01": [
+"Psychic Ability",
+"Judgment"
+],
+"RG/W26/P03": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/P04": [
+"Psychic Ability",
+"Judgment"
+],
+"RG/W26/P05": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/P06": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/P08": [
+"Psychic Ability"
+],
+"RG/W26/P09": [
+"Psychic Ability",
+"Frog"
+],
+"RG/W26/P10": [
+"Psychic Ability",
+"Judgment"
 ],
 "RG/WP03/01": [
 "Psychic Ability",
@@ -93463,10 +94917,6 @@
 "Chairman",
 "Occult"
 ],
-"RZ/S116/001": [
-"Magic",
-"Witch"
-],
 "RZ/S116/002": [
 "Magic",
 "Witch"
@@ -93485,7 +94935,7 @@
 ],
 "RZ/S116/006": [
 "Magic",
-"Demi-human"
+"Demi-Human"
 ],
 "RZ/S116/007": [
 "Magic",
@@ -93497,7 +94947,7 @@
 ],
 "RZ/S116/009": [
 "Magic",
-"Demi-human"
+"Demi-Human"
 ],
 "RZ/S116/010": [
 "Magic",
@@ -93516,7 +94966,7 @@
 "Witch"
 ],
 "RZ/S116/014": [
-"Witchbeast User"
+"Witchbeast Tamer"
 ],
 "RZ/S116/015": [
 "Magic",
@@ -93531,7 +94981,7 @@
 ],
 "RZ/S116/018": [
 "Magic",
-"Demi-human"
+"Demi-Human"
 ],
 "RZ/S116/019": [
 "Magic",
@@ -93558,10 +95008,6 @@
 "Celestial Spirit"
 ],
 "RZ/S116/030": [
-"Magic",
-"Celestial Spirit"
-],
-"RZ/S116/031": [
 "Magic",
 "Celestial Spirit"
 ],
@@ -93637,7 +95083,7 @@
 "Book"
 ],
 "RZ/S116/054": [
-"Demi-human"
+"Demi-Human"
 ],
 "RZ/S116/055": [
 "Magic",
@@ -93688,8 +95134,7 @@
 "Odd Eye"
 ],
 "RZ/S116/067": [
-"Magic",
-"Buddy"
+"Magic"
 ],
 "RZ/S116/068": [
 "Death",
@@ -93789,6 +95234,378 @@
 "RZ/S116/P01": [
 "Magic",
 "Celestial Spirit"
+],
+"RZ/S116/P02": [
+"Magic",
+"Maid"
+],
+"RZ/S116/P03": [
+"Magic",
+"Maid"
+],
+"RZ/S116/P04": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S116/P05": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S116/P06": [
+"Magic",
+"Maid"
+],
+"RZ/S116/P07": [
+"Magic",
+"Maid"
+],
+"RZ/S116/P08": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S116/P09": [
+"Magic",
+"Maid"
+],
+"RZ/S132/001": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/002": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/003": [
+"Merchant"
+],
+"RZ/S132/004": [
+"Weapon",
+"Fang Teeth"
+],
+"RZ/S132/005": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/006": [
+"Death",
+"Magic"
+],
+"RZ/S132/007": [
+"Weapon",
+"Fang Teeth"
+],
+"RZ/S132/008": [
+"Merchant"
+],
+"RZ/S132/009": [
+"Magic",
+"Knight"
+],
+"RZ/S132/010": [
+"Weapon",
+"Knight"
+],
+"RZ/S132/011": [
+"Magic",
+"Demi-Human"
+],
+"RZ/S132/012": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/013": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/014": [
+"Weapon",
+"Knight"
+],
+"RZ/S132/015": [
+"Magic",
+"Knight"
+],
+"RZ/S132/016": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/017": [
+"Magic",
+"Knight"
+],
+"RZ/S132/018": [
+"Magic",
+"Weapon"
+],
+"RZ/S132/019": [
+"Weapon",
+"Knight"
+],
+"RZ/S132/020": [
+"Weapon",
+"Fang Teeth"
+],
+"RZ/S132/021": [
+"Weapon",
+"Knight"
+],
+"RZ/S132/022": [
+"Magic",
+"Knight"
+],
+"RZ/S132/023": [
+"Death",
+"Magic"
+],
+"RZ/S132/024": [
+"Merchant"
+],
+"RZ/S132/025": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/026": [
+"Weapon"
+],
+"RZ/S132/027": [
+"Weapon",
+"Knight"
+],
+"RZ/S132/028": [
+"Weapon"
+],
+"RZ/S132/029": [
+"Weapon"
+],
+"RZ/S132/030": [
+"Magic",
+"Demi-Human"
+],
+"RZ/S132/031": [
+"Magic",
+"Demi-Human"
+],
+"RZ/S132/032": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/033": [
+"Weapon",
+"Demi-Human"
+],
+"RZ/S132/034": [
+"Death",
+"Magic"
+],
+"RZ/S132/035": [
+"Envoy"
+],
+"RZ/S132/036": [
+"Magic",
+"Demi-Human"
+],
+"RZ/S132/038": [
+"Link: Royal Election"
+],
+"RZ/S132/039": [
+"Link: Royal Election"
+],
+"RZ/S132/040": [
+"Link: Royal Election"
+],
+"RZ/S132/041": [
+"Link: Royal Election"
+],
+"RZ/S132/042": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/043": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/044": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/045": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/046": [
+"Witch Cult",
+"Weapon"
+],
+"RZ/S132/047": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/048": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/049": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/050": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/051": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/052": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/053": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/054": [
+"Witch Cult",
+"Weapon"
+],
+"RZ/S132/055": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/056": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/057": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/058": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/059": [
+"Witch Cult",
+"Magic"
+],
+"RZ/S132/060": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/064": [
+"Magic",
+"Maid"
+],
+"RZ/S132/065": [
+"Magic",
+"Book"
+],
+"RZ/S132/066": [
+"Music"
+],
+"RZ/S132/067": [
+"Magic",
+"Maid"
+],
+"RZ/S132/068": [
+"Magic",
+"Book"
+],
+"RZ/S132/069": [
+"Music"
+],
+"RZ/S132/070": [
+"Magic",
+"Book"
+],
+"RZ/S132/071": [
+"Music"
+],
+"RZ/S132/072": [
+"Magic",
+"Book"
+],
+"RZ/S132/073": [
+"Merchant"
+],
+"RZ/S132/074": [
+"Music"
+],
+"RZ/S132/078": [
+"Magic",
+"Maid"
+],
+"RZ/S132/079": [
+"Magic",
+"Maid"
+],
+"RZ/S132/080": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/081": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/082": [
+"Death",
+"Magic"
+],
+"RZ/S132/083": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/084": [
+"Merchant",
+"Magic"
+],
+"RZ/S132/085": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/086": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/087": [
+"Magic",
+"Maid"
+],
+"RZ/S132/088": [
+"Merchant",
+"Magic"
+],
+"RZ/S132/089": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/090": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/091": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/092": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/093": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/094": [
+"Magic",
+"Celestial Spirit"
+],
+"RZ/S132/095": [
+"Death",
+"Magic"
+],
+"RZ/S132/096": [
+"Death",
+"Magic"
 ],
 "RZ/S46/002": [
 "Flower",
@@ -94242,10 +96059,6 @@
 "RZ/S46/T43": [
 "Magic",
 "Maid"
-],
-"RZ/S55/001": [
-"Magic",
-"Weapon"
 ],
 "RZ/S55/002": [
 "Weapon",
@@ -95350,7 +97163,7 @@
 ],
 "SAO/S100/038": [
 "Anniversary",
-"Fluctlight",
+"Avatar",
 "Weapon"
 ],
 "SAO/S100/039": [
@@ -96358,10 +98171,6 @@
 "Avatar",
 "Weapon"
 ],
-"SAO/S51/001": [
-"Avatar",
-"Weapon"
-],
 "SAO/S51/002": [
 "Avatar",
 "Weapon"
@@ -97031,6 +98840,10 @@
 "Fluctlight",
 "Integrity Knight"
 ],
+"SAO/S65/P03": [
+"Fluctlight",
+"Weapon"
+],
 "SAO/S65/T01": [
 "Fluctlight",
 "Sacred Arts"
@@ -97090,10 +98903,6 @@
 "SAO/S65/T17": [
 "Fluctlight"
 ],
-"SAO/S71/001": [
-"Anniversary",
-"Fluctlight"
-],
 "SAO/S71/002": [
 "Anniversary",
 "Fluctlight"
@@ -97140,11 +98949,12 @@
 ],
 "SAO/S71/013": [
 "Anniversary",
-"Fluctlight"
+"Net",
+"Avatar"
 ],
 "SAO/S71/014": [
 "Anniversary",
-"Fluctlight"
+"Avatar"
 ],
 "SAO/S71/015": [
 "Anniversary",
@@ -97215,6 +99025,7 @@
 ],
 "SAO/S71/035": [
 "Anniversary",
+"Avatar",
 "Net"
 ],
 "SAO/S71/036": [
@@ -97295,7 +99106,7 @@
 ],
 "SAO/S71/058": [
 "Anniversary",
-"Avatar"
+"Net"
 ],
 "SAO/S71/059": [
 "Anniversary",
@@ -97321,7 +99132,7 @@
 ],
 "SAO/S71/064": [
 "Anniversary",
-"Net"
+"Avatar"
 ],
 "SAO/S71/065": [
 "Anniversary",
@@ -97334,7 +99145,8 @@
 ],
 "SAO/S71/067": [
 "Anniversary",
-"Avatar"
+"Avatar",
+"Net"
 ],
 "SAO/S71/071": [
 "Anniversary",
@@ -97444,7 +99256,7 @@
 ],
 "SAO/S71/101": [
 "Anniversary",
-"Avatar"
+"Fluctlight"
 ],
 "SAO/S71/102": [
 "Anniversary",
@@ -97472,9 +99284,13 @@
 "Anniversary",
 "Avatar"
 ],
-"SAO/S80/001": [
-"Fluctlight",
-"Goddess"
+"SAO/S71/P04": [
+"Anniversary",
+"Net"
+],
+"SAO/S71/P06": [
+"Anniversary",
+"Net"
 ],
 "SAO/S80/002": [
 "Fluctlight",
@@ -98023,10 +99839,6 @@
 "Weapon"
 ],
 "SAO/SE23/T17": [
-"Avatar",
-"Weapon"
-],
-"SAO/SE26/01": [
 "Avatar",
 "Weapon"
 ],
@@ -98735,15 +100547,15 @@
 ],
 "SBY/W114/035": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/036": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/037": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/038": [
 "Adolescence",
@@ -98851,8 +100663,7 @@
 "Cooking"
 ],
 "SBY/W114/068": [
-"Adolescence",
-"Cooking"
+"Adolescence"
 ],
 "SBY/W114/069": [
 "Adolescence",
@@ -98879,7 +100690,7 @@
 ],
 "SBY/W114/080": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/081": [
 "Adolescence"
@@ -98906,37 +100717,37 @@
 ],
 "SBY/W114/087": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/088": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/089": [
 "Adolescence"
 ],
 "SBY/W114/090": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/091": [
 "Adolescence"
 ],
 "SBY/W114/092": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/093": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/094": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/095": [
 "Adolescence",
-"Parent and Child"
+"Parent and child"
 ],
 "SBY/W114/096": [
 "Adolescence",
@@ -98944,7 +100755,7 @@
 ],
 "SBY/W114/097": [
 "Adolescence",
-"Ranzen"
+"Knapsack"
 ],
 "SBY/W114/P01": [
 "Adolescence",
@@ -99603,7 +101414,7 @@
 ],
 "SBY/W64/104": [
 "Adolescence",
-"Cooking"
+"Cuisine"
 ],
 "SBY/W64/105": [
 "Adolescence",
@@ -99615,15 +101426,15 @@
 ],
 "SBY/W64/P01": [
 "Adolescence",
-"Cooking"
+"Cuisine"
 ],
 "SBY/W64/P02": [
 "Adolescence",
-"Cooking"
+"Cuisine"
 ],
 "SBY/W64/P03": [
 "Adolescence",
-"Cooking"
+"Cuisine"
 ],
 "SBY/W64/T01": [
 "Adolescence",
@@ -106555,10 +108366,6 @@
 "Summer Pockets",
 "Twins"
 ],
-"SMP/W82/001": [
-"Summer Pockets",
-"Time"
-],
 "SMP/W82/002": [
 "Summer Pockets",
 "Time"
@@ -108258,7 +110065,7 @@
 ],
 "SS/WE41/01": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/02": [
 "Flame",
@@ -108266,15 +110073,15 @@
 ],
 "SS/WE41/03": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/04": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/05": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/06": [
 "Flame",
@@ -108282,7 +110089,7 @@
 ],
 "SS/WE41/07": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/08": [
 "Mystery",
@@ -108290,30 +110097,30 @@
 ],
 "SS/WE41/09": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/10": [
 "Flame",
-"Treasure"
+"Precious Tool"
 ],
 "SS/WE41/11": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/12": [
 "Love"
 ],
 "SS/WE41/13": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/14": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/15": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/20": [
 "Flame",
@@ -108329,7 +110136,7 @@
 ],
 "SS/WE41/23": [
 "Flame",
-"Melon bread"
+"Melon Bread"
 ],
 "SS/WE41/24": [
 "Flame",
@@ -108345,7 +110152,7 @@
 ],
 "SS/WE41/27": [
 "Flame",
-"Relics"
+"Sacred Object"
 ],
 "SS/WE41/28": [
 "Flame",
@@ -108405,15 +110212,15 @@
 ],
 "SS/WE41/47": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/48": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/49": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/50": [
 "Flame",
@@ -108428,15 +110235,15 @@
 ],
 "SS/WE41/53": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/54": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/55": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/56": [
 "Flame",
@@ -108444,11 +110251,15 @@
 ],
 "SS/WE41/57": [
 "Flame",
-"Miko"
+"Shrine Maiden"
 ],
 "SS/WE41/58": [
 "Flame",
-"Miko"
+"Shrine Maiden"
+],
+"SS/WE41/P01": [
+"Flame",
+"Melon Bread"
 ],
 "SS/WE41/P02": [
 "Flame",
