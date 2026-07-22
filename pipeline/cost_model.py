@@ -89,12 +89,20 @@ KW = {"助太刀":"Backup","応援":"Assist","集中":"Brainstorm","アンコー
       "継承":"AddMarker (Self)"}  # official keyword: THIS card (+ its own markers) becomes a marker under
       # a newly-played ally -- the "self" source variant of the AddMarker (...) family group (see below)
 FAMPAT = [
-  ("Burn", r"相手に(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
+  # Widened to also accept SYMMETRIC "deal damage to ALL players" (すべてのプレイヤーに) — the user: still a
+  # Burn, just a symmetric one (you take the same hit too).
+  ("Burn", r"相手に(\d+|[ＸX])ダメージ|すべてのプレイヤーに、?(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
   # Multi Trigger Check: during this attack, check for a trigger N times instead of once (N is usually 2,
   # occasionally more — generalized to any digit rather than hardcoding "Double", since the per-signature
   # measured cost already scales naturally with whatever N a specific card prints). A well-known WS mechanic
   # that had NO family at all before this pass (330+ occurrences landing in Other). User taxonomy.
   ("Multi Trigger Check", r"トリガーステップにトリガーチェックを[0-9０-９]+回行う"),
+  # Side Attack (No Soul Loss): an OFFENSIVE damage tool, not a defensive one (user correction) -- normally
+  # side-attacking loses Soul equal to the defender's level minus your Soul, which can make a side attack
+  # deal LESS damage than a front attack against a higher-level defender; this ignores that penalty entirely,
+  # so you reliably deal full damage via the side attack's other benefits (e.g. bypassing a strong front
+  # defender) instead of being punished for using it.
+  ("Side Attack (No Soul Loss)", r"サイドアタックしてもソウルが減少しない"),
   # A heal = move from the TOP OF YOUR CLOCK to ANY zone (waiting / stock / hand / memory / bottom-deck).
   # ALL heal types are ONE family — they all cost ~1000 power (to a resource zone you pay an extra cost,
   # e.g. discard/kill, so it nets neutral). Detected BEFORE the generic Stock Boost / Add to Hand / Card
@@ -126,6 +134,10 @@ FAMPAT = [
   # you're playing solo (no other own characters) -- a completely different condition from Cost 0, same
   # destination/purpose.
   ("Reverse Immunity (Hand4/Solo)", r"あなたの手札が\d+枚以上で、他のあなたのキャラがいないなら、このカードは【リバース】しない"),
+  # Reverse Immunity (Paid): a 3rd variant -- ACTIVE and TEMPORARY (pay a cost, reactively, for immunity
+  # only until end of turn), unlike the two passive/permanent CONT variants above. Same destination/purpose
+  # (this card can't be reversed), different activation shape -> its own explicit name, same convention.
+  ("Reverse Immunity (Paid)", r"あなたはコストを払ってよい。そうしたら、そのターン中、このカードは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
   # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
@@ -205,8 +217,8 @@ FAMPAT = [
   ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
   ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}ストック[^。]{0,4}に置"),
   # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an
-  # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above ("el
-  # propósito es sacarlo del stage"), each split into its OWN meaningfully-named variant rather than one
+  # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above (getting
+  # the character out of the stage), each split into its OWN meaningfully-named variant rather than one
   # flat "Removal" bucket, because the destination changes the cost floor (a permanent bottom-of-deck removal
   # denies recursion much harder than a temporary Memory removal that returns the character at the next
   # Encore step, which in turn differs from a forced swap that still leaves the opponent a replacement).
@@ -244,7 +256,10 @@ FAMPAT = [
   # real prints phrase it "相手は自分の控え室のCXを1枚選び、そのカード以外を…山札に戻し…" (topic marker 相手は, not
   # possessive 相手の) and the literal-possessive-only pattern silently missed all of them.
   ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"),
-  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)"),
+  # 3rd branch: wipe all markers in the marker area tied to one of the OPPONENT's stage slots -- confirmed
+  # by the user as a kind of disruption, even though it doesn't literally say 相手の(zone) since the zone is
+  # referenced indirectly via "the marker area corresponding to that [chosen opponent] slot."
+  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
@@ -286,6 +301,9 @@ FAMPAT = [
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
+  # Clock Reorder: the same "look, then set back in any order" scry purpose as Look & Reorder above, but
+  # applied to your OWN CLOCK instead of your deck -- a distinct zone, so it needed its own name.
+  ("Clock Reorder", r"自分のクロックすべてを[^。]{0,10}好きな順番で並べ直す"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"),
   # Summon (renamed from "Comeback" — the old name collided with the official CLIMAX TRIGGER ICON "Comeback",
   # a different game concept entirely; the user flagged the confusion). Final purpose: put YOUR OWN character
@@ -333,10 +351,28 @@ FAMPAT = [
   # stage). User: useful for fixing your board's COLOR requirements (swap in a needed color from the
   # waiting room) or for freeing a specific character trapped in the clock so a later Salvage/Summon can
   # reach it. User taxonomy.
-  ("Clock/WR Exchange", r"自分のクロックの下から[^。]{0,20}控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}入れ替え"),
+  # 2nd branch: THIS CARD is sitting at the TOP of your clock ("アラーム このカードがクロックの1番上にあるなら…"),
+  # and IT (not a generic bottom-of-clock card) is what trades for a chosen waiting-room character. Same
+  # underlying purpose (trade which card sits in the clock), just the clock-side is this card itself and at
+  # the top rather than the bottom -- confirmed by the user as a real, if rare, shape.
+  ("Clock/WR Exchange", r"自分のクロックの下から[^。]{0,20}控え室の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}入れ替え|このカードがクロックの1番上にある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Clock/Stage Exchange: sibling of Clock/WR Exchange, same self-referential "this card sits at the top of
+  # your clock" shape, but the OTHER side of the trade is a bare "自分のキャラ" (one of your characters) with NO
+  # waiting-room/level-zone qualifier at all -- meaning an in-play STAGE character, not a discarded one. A
+  # stage character is a materially different resource (already on board, contributing power/abilities) than
+  # a waiting-room character, so per the user's "split by variant, don't lump" rule (established for Bomb and
+  # Reverse Immunity) this gets its own name rather than folding into Clock/WR Exchange. Confirmed via
+  # DC4/W81-073: "あなたは自分のキャラを1枚とこのカードを選び、入れ替えてよい" -- no 控え室 anywhere in the sentence.
+  # Positioned AFTER Clock/WR Exchange so that WR-qualified prints keep matching the more specific pattern
+  # first; this only catches the zone-unqualified leftover shape.
+  ("Clock/Stage Exchange", r"このカードがクロックの1番上にあ[りる][^。]{0,45}あなたは自分のキャラを1枚とこのカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Level/WR Exchange: swap a card in your own LEVEL ZONE for a card in your own waiting room -- sibling of
-  # Clock/WR Exchange (same "trade which card sits in a resource zone" purpose, different zone pair).
-  ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Clock/WR Exchange (same "trade which card sits in a resource zone" purpose, different zone pair). 2nd
+  # branch: THIS CARD is the level-zone side specifically ("レベル置場にこのカードがあるなら…控え室の…とこのカードを
+  #選び、入れ替え"), the same self-referential shape as the Clock/WR variant above -- confirmed by the user
+  # as real (few cards, but they exist): summoning-style effects can source from level zone or clock, not
+  # just waiting room/deck.
+  ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Clock/Hand Exchange: a clock character comes to hand, and (as a SEPARATE step, not a true simultaneous
   # swap) a hand card goes to the clock -- net effect is the same shape as Clock/WR Exchange (trade WHICH
   # card sits in a clock slot) but the other side of the trade is your hand instead of your waiting room, a
@@ -404,6 +440,10 @@ FAMPAT = [
   # cost, ...) — a distinct final purpose from the AddMarker (...) group itself (that's the banking
   # mechanic; this is a payment-substitution rule built ON TOP of an already-banked marker).
   ("Marker Currency", r"マーカー[^。]{0,14}ストック[^。]{0,6}のかわりに[^。]{0,10}控え室に置"),
+  # Marker Cleanup: discard ALL markers under this card to the waiting room, unconditionally (no selection,
+  # "すべて" -- distinct from the AddMarker (...) retrieval branch, which requires CHOOSING one marker to
+  # bring back). A forced end-of-effect/end-of-turn/on-level-up cleanup of the whole banked pile at once.
+  ("Marker Cleanup", r"このカードの下のマーカーをすべて控え室に置く"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -459,7 +499,19 @@ FAMPAT = [
   # Widened to also accept granting a TRIGGER ICON to an external target ("すべての領域の「N」のトリガーアイコンに
   #soulを与える") -- same purpose as granting a trait (extend a chosen/named external card's identity), just
   # a different identity slot.
-  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|の「N」のトリガーアイコンに\w+を与える"),
+  # Trigger-icon branch gap widened around 「N」 (…領域の、「N」と「N」のトリガーアイコンに… has a 、 before the name
+  # and a と before the trailing の, which the tight "の「N」の" literal missed).
+  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える"),
+  # Grant Trigger Icon (Class): grants a trigger icon to an entire CLASS of climaxes (any CX that already
+  # has trigger icon X, in all zones), not a specific NAMED target -- broader in scope than Grant Trait
+  # above, so it needed its own name even though the underlying mechanic (extend an identity slot) is
+  # conceptually the same.
+  ("Grant Trigger Icon (Class)", r"トリガーアイコンが\w+の(CX|クライマックス)のトリガーアイコンに\w+を与える"),
+  # Trigger Icon Reuse: use a specific trigger icon's bonus effect (salvage/gate/choice/...) OUTSIDE of an
+  # actual trigger check -- e.g. "you may choose a card in your waiting room with the gate effect" lets you
+  # pull off a Gate-icon-style pickup even when no climax with that icon actually triggered. Confirmed by
+  # the user: some cards let you use Gate's payoff on something that isn't even a climax.
+  ("Trigger Icon Reuse", r"あなたは\w+の効果で[^。]{0,20}(選んでよい|選ぶ)"),
   # Strip Trait: the negative-polarity mirror of Grant Trait -- choose an OPPONENT's character and one of
   # its traits, it loses that trait until end of turn (denies it to trait-gated effects/Assist/etc.).
   # User: conceptually part of the broader "disruption" theme (interferes with the opponent's board), but

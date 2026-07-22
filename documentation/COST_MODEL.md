@@ -374,17 +374,58 @@ family). First pass so far:
     `CX Combo` when it matches — scoped to the per-occurrence label only, not the pooled per-signature
     standard cost, since two cards sharing a signature could differ on whether their discarded card happens
     to be a climax.
-  - **The `AddMarker (...)` group, renamed and split by source ZONE** (user: "para los marker la familia
-    generica es AddMarker (ZONE), para saber desde donde se pone el marker" — markers can come from ANY
-    zone, not just the waiting room the old flat name implied). Found via `ALL/S90-072`, whose marker
-    sourced from the DECK TOP, not the waiting room as the old name assumed. Split into
-    `AddMarker (Deck Top)` (a revealed/checked top-of-deck card), `AddMarker (Deck Search)` (a real search
-    of the whole deck, not a blind top peek), `AddMarker (Waiting Room)` (the dominant remaining source),
-    and `AddMarker (Self)` (this card + its own markers transfer onto a newly-played ally — the official
-    継承 keyword, added to the `KW` dict).
+  - **The `AddMarker (...)` group, renamed and split by source ZONE**, per the user's explicit naming
+    convention — the generic family for any marker-placement effect is `AddMarker (ZONE)`, naming whichever
+    zone the marker is actually sourced from, since markers can come from ANY zone, not just the waiting room
+    the old flat name implied. Found via `ALL/S90-072`, whose marker was sourced from the DECK TOP, not the
+    waiting room the old name assumed. Split into `AddMarker (Deck Top)` (a revealed/checked top-of-deck
+    card), `AddMarker (Deck Search)` (a real search of the whole deck, not a blind top peek),
+    `AddMarker (Waiting Room)` (the dominant remaining source), and `AddMarker (Self)` (this card + its own
+    markers transfer onto a newly-played ally — the official 継承 keyword, added to the `KW` dict).
   - Explained% 95.3% → **95.5%**, suspects 3578 → **3520** (both real gains — the CX Combo fix in particular
     routes those cards through the residual-absorber math correctly instead of a flat Grant-Ability
     estimate).
+
+**Family-taxonomy audit, round 7 — 9 more `Other` clusters resolved.** Worked through the remaining `Other`
+dump in 5 major + 4 minor batches, each confirmed or corrected by the user:
+
+- **`Side Attack (No Soul Loss)`** (new): "サイドアタックしてもソウルが減少しない". Initially mischaracterized as
+  defensive; the user corrected this — it's an OFFENSIVE damage-reliability tool. Normally a side attack's
+  damage is reduced by the level gap between attacker and defender (soul −1 per level over); this effect lets
+  the side attack ignore that reduction and deal its full damage, guaranteeing damage through an attack that
+  would otherwise whiff or under-deal.
+- **`Clock/WR Exchange`** / **`Level/WR Exchange`** 2nd branches widened to catch the self-referential shape
+  ("this card sits at the top of the clock" / "in the level zone" and trades for a waiting-room character) —
+  confirmed real, if rare.
+- **`Clock/Stage Exchange`** (new, split off `Clock/WR Exchange`): `DC4/W81-073`'s "アラーム このカードがクロック
+  の1番上にあり…あなたは自分のキャラを1枚とこのカードを選び、入れ替えてよい" has NO waiting-room qualifier at all — unlike
+  `ISC/S81-P02`'s explicit "自分の控え室のキャラ" — meaning the trade partner is an in-play STAGE character, not a
+  discarded one. Per the "split by variant, don't lump" rule established for Bomb and Reverse Immunity, this
+  gets its own family instead of a relaxed WR regex that would blur two different resources together.
+- **`Grant Trigger Icon (Class)`** (new): grants a trigger-icon bonus to an entire CLASS of climax cards
+  (any CX whose printed trigger icon matches X, in all zones), not a single named target — a broader scope
+  than the existing named-target `Grant Trait` pattern, even though the underlying mechanic (extend an
+  identity slot) is conceptually the same.
+- **`Trigger Icon Reuse`** (new): "あなたは◯◯の効果で……選んでよい" — lets you apply a trigger icon's bonus effect
+  (salvage/gate/choice/…) OUTSIDE of an actual trigger check, e.g. pulling off a Gate-icon-style pickup even
+  when no climax with that icon actually triggered. Confirmed real by the user.
+- **`Marker Cleanup`** (new): "このカードの下のマーカーをすべて控え室に置く" — bulk-discards all markers parked under
+  this card; the disposal half of the marker-banking mechanic (`AddMarker (...)` is the deposit half).
+- **`Reverse Immunity (Paid)`** (new): "あなたはコストを払ってよい。そうしたら、そのターン中、このカードは【リバース】しない"
+  — a THIRD Reverse Immunity variant (after `(Cost 0)` and `(Hand4/Solo)`), gated behind a generic paid cost
+  instead of a fixed condition. Confirmed real by the user.
+- **`Burn`** widened to also catch symmetric "all players take N damage" text (previously matched
+  opponent-only damage). Confirmed: burning everyone is still a Burn.
+- **`Clock Reorder`** (new): "自分のクロックすべてを好きな順番で並べ直す" — sibling of the existing deck-side Look &
+  Reorder, same reordering mechanic applied to your own clock instead of your deck.
+- **`Opp Disrupt`** widened with a 3rd branch: wiping the opponent's entire marker area ("相手の枠を…選び…
+  マーカー置場のマーカー…控え室に置") is a disruption tool against the opponent's board state, joining the existing
+  hand/stock/deck/etc. branches even though the zone reference here is indirect (via a chosen opponent slot,
+  not a literal 相手の(zone) phrase).
+
+Explained% flat at **95.5%**, suspects **3521** (up 1 from 3520 — effectively unchanged, within noise for a
+re-classification pass). `pipeline/analysis/family_catalog.txt`: **122 families** (was 115). `Other` down to
+**178 signatures / 399 occurrences**.
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

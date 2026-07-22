@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
-**Last updated:** 2026-07-22
+**Last updated:** 2026-07-22 (family-taxonomy audit round 7)
 
 ## Current state
 
@@ -188,8 +188,8 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     straight onto the stage bypassing cost/level), widened to accept a NAMED target (`「N」`) in addition to
     the literal word キャラ (most real prints name the character rather than saying キャラ), and to accept
     手札/思い出置場/クロック置場 as additional sources.
-  - **`Move` split into `Move (Own)` / `Move (Opponent)`** (user: "ambos son move, pero apuntan a cosas
-    diferentes" — same action, different tactical purpose depending on whose board it targets). Also fixed:
+  - **`Move` split into `Move (Own)` / `Move (Opponent)`** — same underlying action, but a different
+    tactical purpose depending on whose board it targets, per the user's confirmation. Also fixed:
     the `枠に` requirement was a fixed literal-prefix list (前列に/後列に/の枠に/…) that missed common real
     phrasings ("…いない枠に", "…いる枠に"); widened to any "…枠に". Excluded the negative form 動かせない ("cannot
     be moved" — a lock/restriction, not an actual move) via a negative lookahead, and added it to
@@ -370,6 +370,39 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     keyword, added to the `KW` dict).
   - Explained% 95.3% → **95.5%**, suspects 3578 → **3520** (both real gains). `pipeline/analysis/
     family_catalog.txt`: 115 families.
+- ✅ **Family-taxonomy audit, round 7 — 9 more `Other` clusters resolved (2026-07-22, same session).**
+  Reviewed the remaining `Other` dump in 5 major + 4 minor batches; the user confirmed or corrected each:
+  - **`Side Attack (No Soul Loss)`** (new): the "サイドアタックしてもソウルが減少しない" mechanic. Initially
+    mischaracterized as defensive; the user corrected it — this is an OFFENSIVE damage-reliability tool
+    (lets a side-attack deal its full damage instead of being reduced/negated by the usual -1-per-level-gap
+    soul-loss rule), used to guarantee damage through an otherwise-unfavorable side attack.
+  - **`Clock/WR Exchange`** and **`Level/WR Exchange`** 2nd branches widened (self-referential "this card
+    sits at the top of the clock / in the level zone" shapes, confirmed real though rare).
+  - **`Clock/Stage Exchange`** (new, split off from `Clock/WR Exchange`): `DC4/W81-073`'s "アラーム この
+    カードがクロックの1番上にあり…あなたは自分のキャラを1枚とこのカードを選び、入れ替えてよい" has NO waiting-room
+    qualifier at all (unlike `ISC/S81-P02`'s explicit "自分の控え室のキャラ") — meaning the trade partner is an
+    in-play STAGE character, not a discarded one. Per the user's "split by variant, don't lump" rule
+    (established for Bomb/Reverse Immunity), this is its own family rather than a relaxed WR regex.
+  - **`Grant Trigger Icon (Class)`** (new): grants a trigger-icon bonus to an entire CLASS of climax cards
+    (any CX whose printed trigger icon is X), not a single named target — distinct from the existing
+    named-target `Grant Trait`/icon-grant patterns.
+  - **`Trigger Icon Reuse`** (new): "あなたは◯◯の効果で……選んでよい" — lets you additionally apply a trigger-icon
+    effect you already resolved this turn, confirmed real (e.g. take an extra card off a Soul trigger).
+  - **`Marker Cleanup`** (new): "このカードの下のマーカーをすべて控え室に置く" — bulk-discards all markers parked
+    under this card, the disposal half of the marker-banking mechanic (`AddMarker (...)` is the deposit half).
+  - **`Reverse Immunity (Paid)`** (new): "あなたはコストを払ってよい。そうしたら、そのターン中、このカードは【リバース】
+    しない" — a THIRD Reverse Immunity variant (after `(Cost 0)` and `(Hand4/Solo)`), gated behind a generic
+    paid cost rather than a fixed condition. Confirmed real per the user (exists alongside the other two).
+  - **`Burn`** widened to also catch symmetric "all players take N damage" text (previously only matched
+    opponent-only damage) — confirmed still a `Burn` per the user ("burning everyone is still a burn").
+  - **`Clock Reorder`** (new): "自分のクロックすべてを好きな順番で並べ直す" — sibling of the existing deck-side
+    Look & Reorder, same reordering mechanic applied to your own clock instead of your deck.
+  - **`Opp Disrupt`** widened with a 3rd branch: wiping the opponent's entire marker area
+    ("相手の枠を…選び…マーカー置場のマーカー…控え室に置") is a disruption tool against the opponent's board state,
+    same family as the existing hand/stock/deck/etc. disruption branches.
+  - Explained% flat at **95.5%**, suspects **3521** (up 1 from 3520 — effectively unchanged, within noise
+    for a re-classification pass). `pipeline/analysis/family_catalog.txt`: **122 families** (was 115).
+    `Other` down to **178 signatures / 399 occurrences** (from several hundred more at the batch's start).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
