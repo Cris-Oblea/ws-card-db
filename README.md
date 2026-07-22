@@ -40,13 +40,13 @@ per-session accuracy work.)*
 
 ## Quick start
 
-Just want to browse? The live site is always up to date: **https://crisrp-dev.github.io/ws-card-db/**
+Just want to browse? The live site is always up to date: **https://cris-oblea.github.io/ws-card-db/**
 (GitHub Pages rebuilds it on every push — see below).
 
 To run it yourself:
 
 ```bash
-git clone https://github.com/CrisRP-dev/ws-card-db.git
+git clone https://github.com/Cris-Oblea/ws-card-db.git
 cd ws-card-db
 python -m pip install -r requirements.txt   # openpyxl — the entire toolchain
 python pipeline/build_db.py                 # -> site/ws.sqlite(.gz), the web app's data

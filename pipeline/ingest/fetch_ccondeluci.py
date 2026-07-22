@@ -8,7 +8,7 @@ for official English names/abilities. Read-only on everything else."""
 import urllib.request, json, ssl, io, os, time, sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")   # force UTF-8 stdout (Windows console default is cp1252)
 D = os.path.dirname(os.path.abspath(__file__))
-UA = "ws-power-research (https://github.com/CrisRP-dev/ws-card-db)"
+UA = "ws-power-research (https://github.com/Cris-Oblea/ws-card-db)"
 ctx = ssl.create_default_context()
 
 def get(url, accept=None):

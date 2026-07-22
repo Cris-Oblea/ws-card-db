@@ -20,7 +20,7 @@ URL = ("https://ws-tcg.com/manage/CardListUser/searchJson"
        "?keyword=&keyword_or=&keyword_not=&keyword_type%5B%5D=all"
        "&show_page_count=100&page={page}")
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (WS power-cost research; https://github.com/CrisRP-dev/ws-card-db)",
+    "User-Agent": "Mozilla/5.0 (WS power-cost research; https://github.com/Cris-Oblea/ws-card-db)",
     "X-Requested-With": "XMLHttpRequest",
     "Referer": "https://ws-tcg.com/cardlist/search/",
     "Accept": "application/json, text/javascript, */*; q=0.01",

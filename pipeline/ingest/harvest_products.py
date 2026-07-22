@@ -15,7 +15,7 @@ import urllib.request, json, ssl, time, os, io, re
 
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUT     = os.path.join(OUT_DIR, "products_jp.json")
-HEADERS = {"User-Agent": "Mozilla/5.0 (WS power-cost research; https://github.com/CrisRP-dev/ws-card-db)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (WS power-cost research; https://github.com/Cris-Oblea/ws-card-db)"}
 CTX     = ssl.create_default_context()
 THROTTLE = 0.3
 BASE    = "https://ws-tcg.com/products/"

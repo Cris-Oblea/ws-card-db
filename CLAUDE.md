@@ -1,6 +1,6 @@
 # CLAUDE.md — ws-card-db
 
-An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,889 abilities / 63,350 cards) + a **static lookup website**. Personal repo (CrisRP-dev/ws-card-db).
+An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,889 abilities / 63,350 cards) + a **static lookup website**. Personal repo (Cris-Oblea/ws-card-db).
 
 > ⚠️ **This file is the SOURCE OF TRUTH for the stack and conventions.** When the project grows (new libs, new technology, new folder), update it HERE. The agents read this file and do NOT hardcode versions, so there's no need to modify them when the stack changes.
 

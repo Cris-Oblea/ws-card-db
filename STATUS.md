@@ -1,7 +1,7 @@
 # ws-card-db — Status
 
 > Living status file. Update at the end of each session.  
-> Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db).
+> Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
 **Last updated:** 2026-07-21
 
