@@ -255,6 +255,13 @@ def family(text, markers=""):
         # the keyword アンコール but is NOT the Encore keyword MECHANIC. Only divert to Encore if アンコール appears
         # OUTSIDE that phrase; otherwise it's a timing-gated effect that must file by what it actually does.
         if k == "アンコール" and "アンコール" not in text.replace("アンコールステップ", ""): continue
+        # "あなたが『集中』を使った時、…" (when you use Brainstorm [elsewhere on this card or another], if X…) only
+        # NAMES 集中 as the TRIGGER an AUTO effect is gated on -- it is not itself performing the flip-cards
+        # action, same category as the already-excluded 記憶/経験/共鳴 condition-keywords (see the block
+        # comment above KW). The real effect here is whatever comes after (often Power Pump or Burn) -- must
+        # fall through to FAMPAT instead of being swallowed into "Brainstorm". A genuine Brainstorm ability
+        # reads "【起】集中 ［cost］ 山札の上から…" (集中 right after the ACT marker, describing ITS OWN action).
+        if k == "集中" and re.search(r"『集中』を使った", text): continue
         return v
     for name, pat in FAMPAT:
         if re.search(pat, text): return name
