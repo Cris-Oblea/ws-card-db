@@ -419,6 +419,22 @@ def salvage_estimate(gen_text):
         return 500
     return 1000
 
+# ---- partial cabling: Look & Reorder (see documentation/pump_cost_model.md) ----
+# "Look at top N, put back in any order" (好きな順番) -- a scry/setup effect, base 1000 unconditioned
+# (10/10 isolated samples). A "なら/場合/いれば" condition gate halves it to 500 (1 isolated sample: a
+# CX-gated attack-trigger version) -- same condition rule as Pump, reusing _PUMP_COND. Thin data (14 total
+# isolated samples) so guarded narrowly: only the plain "look N, reorder all of them" shape, excluding the
+# ALARM keyword variant (a different, recurring-check mechanic that measured 2000, not 500, despite also
+# having a "なら" gate -- Alarm's own timing already IS the cost driver) and any "選び" partial-keep variant
+# (choose SOME of the revealed cards to keep, discard rest -- a different, richer effect than pure reorder).
+_LR_ALARM = re.compile(r"アラーム")
+_LR_PARTIAL = re.compile(r"カードを\d*枚まで選び")
+def look_reorder_estimate(gen_text):
+    if _LR_ALARM.search(gen_text) or _LR_PARTIAL.search(gen_text):
+        return None
+    k = len(_PUMP_COND.findall(gen_text))
+    return max(500, r500(1000 * (0.5 ** k)))
+
 
 class CostModel:
     """Result of build_cost_model(clean). Holds the per-signature cost cascade and the lookups both
@@ -672,6 +688,8 @@ def build_cost_model(clean):
             est = pump_self_estimate(variant_text[sig][1])
         elif fam == "Salvage":
             est = salvage_estimate(variant_text[sig][1])
+        elif fam == "Look & Reorder":
+            est = look_reorder_estimate(variant_text[sig][1])
         else:
             continue
         if est is not None: cost[sig] = est
