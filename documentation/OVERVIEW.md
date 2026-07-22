@@ -30,7 +30,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 - De-dup: keeps the base rarity, discards alt-art/parallels.
 
 ## Technologies
-- **Python 3.14** (stdlib: json/sqlite3/re/urllib/csv/statistics/unicodedata) + **`openpyxl`** (Excel) + **`mcp>=1.0`** (the MCP server in `tools/ws-mcp/`).
+- **Python 3.14** (stdlib: json/sqlite3/re/urllib/csv/statistics/unicodedata) + **`openpyxl`** (Excel).
 - **Web:** HTML5 + vanilla JS + **`sql.js`** + **`pako`** + **SQLite**.
 
 ## Key data
@@ -44,7 +44,7 @@ Pipeline validated at 98%; web in production (~40k cards). In progress: bilingua
 The detailed docs in `documentation/`:
 - **[`STACK.md`](STACK.md)** — languages, runtimes, exact dependency versions, from-scratch setup, external data sources + scraping etiquette.
 - **[`ARCHITECTURE.md`](ARCHITECTURE.md)** — the two products, repo map, the full data-flow diagram, the JSON artifact catalogue (writer/reader/tracked-or-regenerable), and the module graph with `cost_model.py` as the single source of cost math.
-- **[`RUNBOOK.md`](RUNBOOK.md)** — hands-on, no-AI, step-by-step: full rebuild in stage order, regenerating just the DB / Excel, running the site, deploying to Pages, the MCP server, and change recipes (new set, new cost family, debugging a suspect, EN exclusions).
+- **[`RUNBOOK.md`](RUNBOOK.md)** — hands-on, no-AI, step-by-step: full rebuild in stage order, regenerating just the DB / Excel, running the site, deploying to Pages, and change recipes (new set, new cost family, debugging a suspect, EN exclusions).
 - **[`COST_MODEL.md`](COST_MODEL.md)** — the power-cost math end to end (the detail behind `pipeline/cost_model.py`).
 - **[`WEBAPP.md`](WEBAPP.md)** — the static lookup site (`site/`): how it loads and queries the SQLite in the browser.
 - **[`en-name-matching.md`](en-name-matching.md)** — how official EN is attached + the legacy-disparity exclusions.

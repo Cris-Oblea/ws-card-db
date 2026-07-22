@@ -18,14 +18,14 @@
    the SQLite in the browser and lets you search any card and see the cost breakdown of each effect.
    Detailed in [`WEBAPP.md`](WEBAPP.md).
 
-Everything else (the MCP server, the analysis scripts, the translation workflow) is support around these two.
+Everything else (the analysis scripts, the translation workflow) is support around these two.
 
 ## 2. Repo map
 
 ```
 ws-card-db/
 ├── CLAUDE.md                     # source of truth for stack + conventions
-├── requirements.txt              # openpyxl, mcp
+├── requirements.txt              # openpyxl
 ├── STATUS.md                     # live status
 │
 ├── pipeline/                     # ── THE PIPELINE ──
@@ -61,7 +61,6 @@ ws-card-db/
 │   ├── index.html  app.js  style.css
 │   └── ws.sqlite.gz              # the shipped data (gzipped; ws.sqlite itself is gitignored)
 │
-├── tools/ws-mcp/server.py        # MCP server: portfolio status + card search over ws.sqlite
 ├── documentation/                # this folder — the detailed docs
 ├── reference/                    # official Bushiroad PDFs (reference material, not code)
 └── pipeline/sources/             # official rules/manuals (reference material, not code)
@@ -113,7 +112,6 @@ flowchart TD
     CM --> BOL[build_official_list.py] --> XLSX[(Complete_Abilities_List.xlsx)]
     CM --> BDB[build_db.py] --> SQL[(site/ws.sqlite.gz)]
     SQL --> SITE[site/ app.js in the browser]
-    SQL --> MCP[tools/ws-mcp/server.py]
 
     CLN -. research only .-> FEAT[build_features.py] -.-> CSV[(features CSV<br/>NOT shipped)]
 ```
@@ -156,11 +154,11 @@ committed so a fresh clone can build without re-scraping; "regenerable" files ar
 | `pipeline/ingest/cardlist_full.json` (+ `.jsonl`/`.state.json`) | `harvest_cardlist.py` | `clean_cardlist.py` | Raw harvest (~59 MB) |
 | `pipeline/ingest/features_by_card.csv` / `variant_era_cost.csv` | `build_features.py` | (research only) | ~73 MB substrate; **not shipped** |
 | `pipeline/to_translate.json` + `_tr/chunk_*.json` | `build_official_list.py` | `merge_translations.py` | Per-run translation requests |
-| `pipeline/_tr_batches/` + `_tr_manifest.json` | `_tr_extract.py` | translation workflow, MCP `get_translation_gap` | Batched strings to translate |
+| `pipeline/_tr_batches/` + `_tr_manifest.json` | `_tr_extract.py` | translation workflow | Batched strings to translate |
 | `pipeline/_tr2/` | `_tr2_extract.py` | translation workflow | Remaining strings to translate |
 | `pipeline/analysis/*` | `cost_standardize.py` | (humans) | Read-only cost analysis outputs |
 | `pipeline/*.xlsx` | `build_official_list.py`, `build_cost_sheet.py` | (humans) | Excel deliverables, on demand |
-| `site/ws.sqlite` | `build_db.py` | `build_db.py` (gzips it), MCP server | Uncompressed DB (the `.gz` IS tracked) |
+| `site/ws.sqlite` | `build_db.py` | `build_db.py` (gzips it) | Uncompressed DB (the `.gz` IS tracked) |
 
 ## 5. Module dependency graph (the cost math is single-sourced)
 

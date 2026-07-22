@@ -20,10 +20,9 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 2. **Lookup website (static):** search any card and see the cost breakdown of each effect. No backend — everything runs in the browser.
 
 ## Stack (the volatile part — updated HERE as it grows)
-- **Python 3.14** — stdlib (`json`, `sqlite3`, `re`, `urllib.request`, `csv`, `statistics`, `unicodedata`, `glob`) + **`openpyxl`** (Excel) + **`mcp>=1.0`** (FastMCP).
+- **Python 3.14** — stdlib (`json`, `sqlite3`, `re`, `urllib.request`, `csv`, `statistics`, `unicodedata`, `glob`) + **`openpyxl`** (Excel).
 - **Web:** HTML5 + vanilla JS + **`sql.js`** (SQLite in the browser) + **`pako`** (gunzip). Data in `site/ws.sqlite.gz`. Cache versioning with `?v=N`.
-- **MCP server** (`tools/ws-mcp/server.py`): cross-repo portfolio status tools + card search.
-- No CI; no formal test suite (see "Validation").
+- **CI:** GitHub Actions (`ci.yml`) — Python compile smoke + gitleaks secret scan on every push/PR. No formal test suite (see "Validation").
 
 ## Structure
 - `pipeline/` — canonical scripts: `build_official_list.py`, `build_db.py`, `build_master_list.py`, `build_cost_sheet.py`, `official_en.py`, `extract_simulator.py` (harvests EN translations from the fan simulator's `CardData.txt`), `fetch_hotc.py` (scrapes EN names from heartofthecards.com) + the JSON sources (`cardlist_clean.json` = JP truth, `cardlist_en.json`, `card_era.json`, `translation_cache.json`, `name_sim.json`/`traits_sim.json`/`abilities_sim.json` = simulator translations, `name_hotc.json` = Heart of the Cards names).
@@ -33,14 +32,12 @@ The reason it exists: **a balance reference for designing CUSTOM cards** — *"I
 - `pipeline/analysis/` — generated analysis artifacts: `package_standards.csv` (the standardized price list), `suspects.csv` (cards deviating from their package mode), `payment_credits.csv` (per-payment credit), `cost_standardize_report.md` (the written report).
 - `pipeline/sources/` — official rules, macros, manuals (reference material, **not code**).
 - `site/` — the web app = **the deliverable** (`index.html`, `app.js`, `style.css`, `ws.sqlite.gz`); deployed to GitHub Pages.
-- `tools/ws-mcp/` — the MCP server.
 - `reference/` — official Bushiroad PDFs.
 
 ## How to run
 - Abilities Excel: `python pipeline/build_official_list.py`
 - SQLite for the web: `python pipeline/build_db.py`
 - Local web: `cd site && python -m http.server 8000` → http://localhost:8000/
-- MCP server: `python tools/ws-mcp/server.py`
 
 ## Conventions
 - **Costs** always multiples of **500** (the game's power economy).

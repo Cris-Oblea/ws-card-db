@@ -44,7 +44,7 @@ per-session accuracy work.)*
 ```bash
 git clone https://github.com/CrisRP-dev/ws-card-db.git
 cd ws-card-db
-python -m pip install -r requirements.txt   # openpyxl + mcp — the entire toolchain
+python -m pip install -r requirements.txt   # openpyxl — the entire toolchain
 
 cd site && python -m http.server 8000       # -> http://localhost:8000/
 ```
@@ -72,7 +72,6 @@ flowchart LR
     M --> BOL[build_official_list.py] --> XL[(Complete_Abilities_List.xlsx)]
     M --> BDB[build_db.py] --> SQL[(ws.sqlite.gz)]
     SQL --> SITE[site/ — sql.js in the browser]
-    SQL --> MCP[MCP server]
 ```
 
 ```
@@ -84,7 +83,6 @@ ws-card-db/
 │   ├── cost_standardize.py    read-only cost analysis -> pipeline/analysis/
 │   └── sources/               official rules & macros (reference, not code)
 ├── site/                  the static lookup app (deliverable, GitHub-Pages-ready)
-├── tools/ws-mcp/          MCP server: portfolio status + card search
 ├── documentation/         the detailed manuals (below)
 └── reference/             official Bushiroad PDFs
 ```
