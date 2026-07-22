@@ -28,3 +28,33 @@
 12:15:26 consolidating JSONL -> cardlist_full.json
 12:15:27 DONE: 63350 unique cards | 334 distinct series | failed_pages=[]
 12:15:27 output: C:\Users\CRUIZ\WSAI\analisis\cardlist_full.json
+22:12:18 catalog total=64663 page_count=647 | resuming after page 0
+22:12:51 page 25/647 done (100 cards on page)
+22:13:29 page 50/647 done (100 cards on page)
+22:14:06 page 75/647 done (100 cards on page)
+22:14:39 page 100/647 done (100 cards on page)
+22:15:18 page 125/647 done (100 cards on page)
+22:15:59 page 150/647 done (100 cards on page)
+22:16:34 page 175/647 done (100 cards on page)
+22:17:09 page 200/647 done (100 cards on page)
+22:17:41 page 225/647 done (100 cards on page)
+22:18:15 page 250/647 done (100 cards on page)
+22:18:50 page 275/647 done (100 cards on page)
+22:19:31 page 300/647 done (100 cards on page)
+22:20:02 page 325/647 done (100 cards on page)
+22:20:35 page 350/647 done (100 cards on page)
+22:21:14 page 375/647 done (100 cards on page)
+22:21:51 page 400/647 done (100 cards on page)
+22:22:29 page 425/647 done (100 cards on page)
+22:23:05 page 450/647 done (100 cards on page)
+22:23:41 page 475/647 done (100 cards on page)
+22:24:16 page 500/647 done (100 cards on page)
+22:24:59 page 525/647 done (100 cards on page)
+22:25:35 page 550/647 done (100 cards on page)
+22:26:15 page 575/647 done (100 cards on page)
+22:26:50 page 600/647 done (100 cards on page)
+22:27:24 page 625/647 done (100 cards on page)
+22:27:59 page 647/647 done (63 cards on page)
+22:27:59 consolidating JSONL -> cardlist_full.json
+22:28:01 DONE: 64663 unique cards | 356 distinct series | failed_pages=[]
+22:28:01 output: C:\Users\CRUIZ\ws-card-db\pipeline\ingest\cardlist_full.json

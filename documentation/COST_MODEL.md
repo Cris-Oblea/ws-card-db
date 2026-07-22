@@ -140,8 +140,11 @@ only unknown left on an absorber card is its absorber signature.
 
 **STEP 3b — absorber residual.** Now that every non-absorber signature has a value, each CX-Combo / citer
 signature is derived by the same subtraction (`delta − Σ others`) on cards where it is the lone remaining
-unknown. CX-Combo is floored at ≥ 500; a citer is floored at ≥ 0 (a folded replay body never *gives* power
-back).
+unknown. Both are floored at ≥ 0 (`CXC_FLOOR = 0`): a CX-Combo *is* the card's leftover residual, whatever
+that value is — it gets **no arbitrary 500 minimum** — but a beneficial combo cannot cost negative (a
+negative only ever came from single-card over-stat noise, and CX-Combo is not a measured-negative drawback
+family). A citer is floored at ≥ 0 for the same non-negativity reason (a folded replay body never *gives*
+power back).
 
 **STEP 3b2 — estimated upgrade.** A non-absorber signature that only ever co-occurred with a
 then-unresolved absorber was "trapped" at STEP 2 and fell to a family-median guess in 3a. Now that absorbers
@@ -150,7 +153,7 @@ when every *other* signature on the card is already trusted (not itself a 3a gue
 STEP 2.
 
 **STEP 3c — estimate the leftovers.** Any signature still unpriced gets its family median (CX-Combo gets the
-CX-Combo median, floored).
+CX-Combo median, floored at ≥ 0).
 
 **STEP 3d — partial cabling for self-pumps.** The one place the flat family median is replaced by a smarter
 guess. For an *estimated* `Power Pump (self)` signature, the cost is `base N × (½)^(temporal + #conditions)`,
@@ -159,7 +162,8 @@ beats the flat median (a flat median gives a `+500` and a `+8000` pump the same 
 self-pumps are untouched; it stays LOW confidence — an N-scaled guess, not a measurement. This is the only
 wired piece of the multiplicative draft (§13).
 
-Finally, the **CX-Combo floor** (≥ 500) is enforced on every CX-Combo signature.
+Finally, the **CX-Combo floor** (≥ 0) is enforced on every CX-Combo signature — clamping only a genuinely
+negative combo up to 0; positive values pass through unchanged (no ceiling, no 500 minimum).
 
 ---
 
@@ -230,8 +234,15 @@ carefully ordered.
 ## 7. The CX-Combo family
 
 A **CX Combo** is an ability hard-gated to a specific named climax — you can only use it while that climax is
-assembled, so its cost is paid by *assembling the combo*, not in power. It is therefore its **own family**
-and is **floored at ≥ 500 regardless of raw power** (`CXC_FLOOR = 500`).
+assembled, so its cost is paid by *assembling the combo*, not in power. It is therefore its **own family** and
+is resolved **last** as the pure residual absorber, so it takes **whatever value is left over** — with **no
+arbitrary 500 minimum and no ceiling** (`CXC_FLOOR = 0`). The only floor is 0: a beneficial combo cannot cost
+negative (the same non-negativity every other beneficial absorber gets; a negative absorbed value came only
+from single-card over-stat noise, and CX Combo is not a measured-negative drawback family). Empirically,
+dropping the old 500 floor to 0 *raised* the Explained% acceptance metric (95.5→95.6%) and *cut* the suspect
+count (3555→3481) — flooring a lone CX-Combo absorber above its card's own residual had been manufacturing
+suspects. (Historical note: the removed 500 floor once lifted the CX-Combo *subset consistency* 93.4→95.0%,
+but that is a different, more self-referential metric than the out-of-sample Explained%.)
 
 Detection (`family()` + `CXC_PAT`), on the `gen()`-normalized text (names already `「N」`):
 

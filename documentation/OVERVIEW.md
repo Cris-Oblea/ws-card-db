@@ -16,7 +16,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
      - **HIGH** = `measured` AND `n_samples >= 3` AND `mode_share >= 60` (a tight, well-sampled mode). Structural replay-body zeros are also HIGH.
      - **MEDIUM** = `residual`, or `measured` with weaker n / mode-share.
      - **LOW** = `estimated` (family median, no reliable mode).
-   - **CX-Combo / replay** keep the residual-ABSORBER cascade (CX-combo floored at ≥500; replay body folded into its citer, counted once).
+   - **CX-Combo / replay** keep the residual-ABSORBER cascade (CX-combo floored at ≥0 — it IS the leftover residual, no arbitrary 500 minimum; replay body folded into its citer, counted once).
    - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
 5. **Outputs:**
    - `build_official_list.py` → `Complete_Abilities_List.xlsx` (15,889 abilities; local Excel, generated on demand).

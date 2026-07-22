@@ -15,7 +15,7 @@ The power that is SUBTRACTED from a card for having an ability **≈ the net res
 - **Ease of execution**: an on-play effect with no cost or condition is EXPENSIVE; gated (cost, condition, unreliable trigger) is cheaper. Since most come gated, **the mode of the costs falls in 500–1000**.
 - **Era**: ~~legacy cards (<2017) cost ~2× what the same effect would cost today (powercreep)~~ — **SUPERSEDED.** Era/date is **descriptive metadata only, NOT a cost driver.** There is **no power-creep at the package level**: for every tight, well-sampled package the per-era mode is flat across all six format eras (verified in `cost_standardize.py`). The apparent creep was **effect-mix shift + dispersion**, not a real price change. Standards are the MODE pooled across ALL years — do NOT apply an era multiplier. (See `documentation/COST_MODEL.md` §10.)
 - **Composition**: bundle (do everything) = **SUM**; modal (choose 1 of N) = the **best option**, not the sum; multi-trigger = value × number of triggers.
-- **CX-combo / hard-gate**: floor of ~500 regardless of power (the cost is paid in assembling the combo, not in power).
+- **CX-combo / hard-gate**: priced as the pure leftover residual — no fixed floor beyond 0 and no ceiling (the cost is paid in assembling the combo, not in power; a combo can cost 0 power when the setup already pays for it). *(Superseded the old ~500 floor; see `documentation/COST_MODEL.md` §7.)*
 - **Different families, different regimes**: burn is costed by *ease*, heal by *destination*, board-buff by *quantity×2*. They are not unified.
 
 ## 3. What worked and what didn't (the methodological lesson)
@@ -33,7 +33,7 @@ The power that is SUBTRACTED from a card for having an ability **≈ the net res
 ## 5. How to use it for custom cards
 1. **Effect that already exists** → look it up in the list (filter by Family), check the Cost and the Method/Confidence.
 2. **New effect** → use the GUIDE: decompose into primitives, apply modifiers (cost, condition×reliability, breadth — **no era factor**), compose (sum/modal/multi-trigger), round to 500.
-3. **Rule of thumb**: think in resources. Does the ability give you a card (hand/stock)? ≈ +1000. Is it easy to trigger? more expensive. Does it depend on a climax? floor 500.
+3. **Rule of thumb**: think in resources. Does the ability give you a card (hand/stock)? ≈ +1000. Is it easy to trigger? more expensive. Does it depend on a climax? it's the pure residual — floor 0, no ceiling (the combo's cost is paid in setup, not power).
 
 ## 6. If you want to continue (optional)
 - Raise the confidence of the residuals by weighting them by the quality of their seeds (a residual built from HIGH seeds is almost HIGH).

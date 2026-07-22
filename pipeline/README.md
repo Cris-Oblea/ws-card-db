@@ -82,6 +82,6 @@ python build_cost_sheet.py       # -> Ability_Cost_Guide.xlsx        (model for 
   ALL years). There is no power-creep at the package level; date/era is descriptive metadata only. (The old
   "legacy ≈ 2× modern" rule is retired — do not design against it.)
 - **Composition**: bundle = SUM · modal "choose 1 of N" = the strongest option · multi-trigger = value × number of triggers.
-- **CX-combo / hard-gate**: floor ~500 regardless of power (paid in assembling the combo).
+- **CX-combo / hard-gate**: the pure residual absorber — floor 0, no ceiling (paid in assembling the combo, not in power; `CXC_FLOOR = 0`).
 - **Validation**: the acceptance metric is **Explained%** — the share of costed Character cards whose
   per-card residual is within ±500 (acceptance floor 94%; `build_db.py` asserts it). See `documentation/COST_MODEL.md`.

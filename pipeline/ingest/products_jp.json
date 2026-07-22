@@ -5589,6 +5589,15 @@
 "day": 3
 },
 {
+"code": "scs_imc",
+"title": "アイドルマスター シンデレラガールズ シンデレラガール総選挙2026",
+"category": "その他",
+"date": "2026-07-18",
+"year": 2026,
+"month": 7,
+"day": 18
+},
+{
 "code": "bp_rzvol-4",
 "title": "「Re:ゼロから始める異世界生活」Vol.4",
 "category": "ブースターパック",
@@ -5623,5 +5632,32 @@
 "year": 2026,
 "month": 9,
 "day": 19
+},
+{
+"code": "anm_bp",
+"title": "anemoi",
+"category": "ブースターパック",
+"date": "2026-10-02",
+"year": 2026,
+"month": 10,
+"day": 2
+},
+{
+"code": "sts_bp",
+"title": "ステラソラ",
+"category": "ブースターパック",
+"date": "2026-10-16",
+"year": 2026,
+"month": 10,
+"day": 16
+},
+{
+"code": "sts_td",
+"title": "ステラソラ",
+"category": "トライアルデッキ",
+"date": "2026-10-16",
+"year": 2026,
+"month": 10,
+"day": 16
 }
 ]

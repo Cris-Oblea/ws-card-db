@@ -354,7 +354,15 @@ def conf_evidence(method, n_samples, mode_share):
         return "MEDIUM"
     return "LOW"   # estimated
 
-CXC_FLOOR = 500   # a CX-combo ability is worth >= 500: the cost is paid by ASSEMBLING the combo, not in power
+CXC_FLOOR = 0   # CX-combo absorbers are floored at 0 — the SAME non-negativity every other beneficial
+                # absorber gets (a replay citer already uses max(0, v); step 2 rejects negative residuals for
+                # beneficial families). By construction a CX combo is resolved LAST and IS the card's leftover
+                # residual, whatever value that is — so it gets NO arbitrary 500 minimum. The one guard kept is
+                # 0: a BENEFICIAL combo cannot cost negative (a negative only ever came from single-card over-
+                # stat noise, e.g. an over-statted promo dumping its surplus onto its lone unknown CXC sig; CX
+                # Combo is not in neg_fams, so it is not a real drawback family). Empirically, dropping the 500
+                # floor to 0 RAISES the Explained% acceptance metric and CUTS the suspect count (flooring a lone
+                # CXC absorber above its card's residual was itself manufacturing suspects).
 
 # ---- partial cabling: Power Pump (self) multiplicative estimate (see documentation/pump_cost_model.md) ----
 # For an ESTIMATED self-pump sig, replace the flat family-median GUESS (which ignores N entirely — it gives a
@@ -577,8 +585,8 @@ def build_cost_model(clean):
         if sig in cost or is_absorber(sig): continue
         cost[sig] = fam_med.get(fam_of(sig), 500); method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)   # 500 if the family has no data at all
     # STEP 3b absorber residual ABSORBER: with all non-absorber sigs known, derive each CXC / citer sig
-    # from the cards where it is now the lone unknown -> absorber = delta - sum(others). CXC floored at
-    # >= 500; a citer floored at >= 0 (the folded replay body never gives power back to the card).
+    # from the cards where it is now the lone unknown -> absorber = delta - sum(others). BOTH kinds floored
+    # at >= 0 (CXC via CXC_FLOOR==0): a beneficial combo / a folded replay body never gives power back.
     for _ in range(10):
         res = collections.defaultdict(list)
         for cn, dl, sg, e in multi:
@@ -628,7 +636,8 @@ def build_cost_model(clean):
         if method.get(sig) != "estimated" or fam_of(sig) != "Power Pump (self)": continue
         est = pump_self_estimate(variant_text[sig][1])
         if est is not None: cost[sig] = est
-    # enforce the CXC floor on EVERY CX-combo sig (incl. a single-ability measured combo below 500)
+    # enforce the CXC floor (== 0) on EVERY CX-combo sig — clamps only a genuinely NEGATIVE combo (incl. a
+    # single-ability measured combo whose lone over-statted print measured below 0) up to 0; positives pass.
     for sig in ALLV:
         if is_cxc(sig) and cost[sig] < CXC_FLOOR: cost[sig] = CXC_FLOOR
 
@@ -678,12 +687,13 @@ def en_cost_model(jp_arows, ex_cards, fam_med):
         if not c["is_char"]: continue
         for (_, _, txt, s) in c["sigs"]:
             if s not in encost: encost[s] = fam_med.get(en_family(txt), 500); enmethod[s] = "estimated"
-    # (f) CX-combo / hard-gate floor: such an ability is worth >= 500 (you pay by assembling the combo)
+    # (f) CX-combo non-negativity: floor a beneficial combo at 0 (== CXC_FLOOR), mirroring the JP model — no
+    # arbitrary 500 minimum; the combo IS the residual, but a beneficial effect cannot cost negative.
     for c in ex_cards:
         if not c["is_char"]: continue
         for (_, _, txt, s) in c["sigs"]:
-            if en_family(txt) == "CX Combo" and encost.get(s, 0) < 500:
-                encost[s] = 500; enmethod[s] = "estimated"
+            if en_family(txt) == "CX Combo" and encost.get(s, 0) < CXC_FLOOR:
+                encost[s] = CXC_FLOOR; enmethod[s] = "estimated"
     return encost, enmethod
 
 

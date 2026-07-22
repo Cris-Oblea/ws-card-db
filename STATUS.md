@@ -48,22 +48,54 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
 
 ## Next up (not blocked)
 
-### In flight (launched 2026-07-21, check for results before re-launching)
+### JP/EN data refresh — ✅ DONE + BUILT 2026-07-21/22 (uncommitted, awaiting owner review)
 
-- **Data-refresh plan** (architect) — ✅ **DONE 2026-07-21.** Every located hand-fix (color, side, name,
-  power/level, EN legacy-disparity) already lives in code (`clean_cardlist.py` `OVERRIDES`, `build_db.py`
-  `CARD_FIX`/`SIDE_FIX`/`NAME_OVERRIDE`/`EN_BLOCK_*`) — survives a re-harvest by construction. The one
-  flagged open risk (no override layer for card TYPE) was tested empirically (zero network): regenerating
-  `cardlist_clean.json` from the still-on-disk 2026-06-15 raw harvest reproduces it **byte-for-byte**
-  (same SHA256) — so there are NO orphaned direct hand-edits today. Also found: **Uma Musume (UMA series,
-  837 cards)** and its `継承`("Inspire") keyword are ALREADY in the June snapshot (87 cards) — it's inline
-  ability text, not a bracket marker, so it needs a cost-model look (`cost-analyst`), not re-ingestion.
-  Full ordered plan (pre-flight diff → ingest refresh → reconcile → 継承 costing → build/validate) is in
-  the architect's report; **next step is the owner's go-ahead to run the actual network harvest.**
-- **CX-Combo floor investigation** (cost-analyst): re-examine `CXC_FLOOR = 500` in `pipeline/cost_model.py`
-  — the owner argues CX-Combo, being always resolved LAST as the pure residual absorber, shouldn't have an
-  artificial floor (or ceiling) at all. Investigate empirically (how many sigs are actually clamped, does
-  removing it hold `Explained% >= 94%`) before changing anything. Still running as of 2026-07-21.
+- **Data-refresh plan** (architect) — every located hand-fix (color, side, name, power/level, EN
+  legacy-disparity) lives in code (`clean_cardlist.py` `OVERRIDES`, `build_db.py`
+  `CARD_FIX`/`SIDE_FIX`/`NAME_OVERRIDE`/`EN_BLOCK_*`) — survives a re-harvest by construction (verified
+  byte-for-byte reproducible from raw). Uma Musume (UMA, 837 cards) was already JP-covered in June; its
+  **English release was the actually-new thing** (confirmed: `cardlist_en.json` now has 195 UMA/ EN
+  entries — matches the whole +195 EN growth below).
+- **Ingest execution** (pipeline-dev, full re-harvest — see root-cause note below): **63,350 → 64,663 JP
+  cards (+1,313)**, **EN 18,532 → 18,727 (+195, all Uma Musume)**, 5 new sets (GBF Granblue Fantasy, BRD
+  Brown Dust 2, RZ Re:Zero Vol.4, GA Bunko, IMC iM@S Cinderella 2026) + 131 promos, all released
+  2026-06-09→07-21. 0 excluded, 0 data-quality flags, all overrides/hand-fixes verified intact, only 10
+  pre-existing cards changed (benign upstream wording/katakana→kanji fixes, zero stat changes). Translation
+  refreshers (simulator/HotC) skipped on purpose — the new cards are too recent to have fan translations.
+- **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
+  resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
+  `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
+  survived) — likely wiped by a plain `git clean -fd` at some point, since **`.gitignore` only listed
+  `cardlist_full.json`**, not the two resume files (`ARCHITECTURE.md` already claimed they were ignored —
+  it was aspirational, not true). **Fixed**: both now added to `.gitignore`. Next refresh should resume
+  incrementally instead of re-scraping all ~65k cards, as long as nobody manually deletes those two files.
+- **Build (2026-07-22):** ran `build_db.py` on the combined new-cards + CXC-floor-fix state. **40,393
+  cards / 66,817 abilities** shipped to `site/ws.sqlite.gz`. **Explained% 95.6%** (unchanged from the
+  CXC-only number — the +1,313 new cards didn't regress it), **suspects 3544** (up from 3481 pre-refresh,
+  expected — more cards, some brand-new signatures not yet well measured). Validation |err|≤500 on 99%.
+  **Nothing committed yet** — 19 files sitting as working-tree changes, owner wants to review before commit.
+- ✅ **CX-Combo floor investigation** (cost-analyst, done 2026-07-21): lowered `CXC_FLOOR` from **500 → 0**
+  in `pipeline/cost_model.py` (+ the EN pass). Only ~230 CXC sigs were clamped by the 500 floor, ALL
+  single-occurrence residuals; flooring a lone CX-Combo absorber above its card's own residual was itself
+  manufacturing suspects. Empirically **Explained% 95.5→95.6%** and **suspects 3555→3481 (−74)** — no
+  regression, well above the 94% gate. **Owner decision (2026-07-21): keep floor=0, do NOT go full
+  no-floor.** A full recompute with the floor fully disabled (diagnostic only, not shipped) found **89**
+  sigs would go negative (not cost-analyst's original 62 estimate — a fuller cascade recompute finds
+  more), and the distribution is damning: 32 sit at a plausible -500, but **29 land between -5000 and
+  -6500**, with 17 landing on the exact same -6500 across unrelated card text — almost certainly cascade
+  noise from an over-costed companion ability elsewhere on those cards (see the Search-family lead above),
+  not real designer signal. Publishing those would hurt the site's credibility more than "no floor" gains
+  in philosophical purity. Revisit full no-floor only after the Search over-cost (and similar) are fixed.
+
+### ⏳ NOT STARTED: extend the multiplicative cost model beyond Power Pump (self)
+
+Owner request 2026-07-21: apply `documentation/pump_cost_model.md`'s multiplicative model to more
+ESTIMATED-tail families (today only `Power Pump (self)` is cabled). Launched a `cost-analyst` agent to
+pin down salvage/search bases + decide on wiring trigger-difficulty, but it **hit the account session
+limit before making any change** — `pipeline/cost_model.py` still has ZERO multiplicative-model code
+beyond the pre-existing Power Pump (self) cabling (verified via diff). Needs a fresh session to actually
+start: see `pump_cost_model.md` §"Next levers" for exactly where to pick up (salvage/search bases, hard-
+condition-strength ×0.25 vs ×0.5, rounding direction — all still open per that doc).
 
 ### English migration (deferred — code & folders)
 
@@ -77,11 +109,13 @@ Docs, `CLAUDE.md` and `.claude/agents/` are already English (2026-06-17). Still 
 Translation is done, so future sessions are **only** about cost-model accuracy. (The "98%" is a consistency metric, not per-ability correctness — validate against real cards via the live site.)
 
 **Done 2026-06-20:**
-- ✅ **CX Combo** is its own family, detected by climax-area text, resolved LAST as the residual absorber, floor ≥500, no ceiling. CXC subset 93.4%→95.0%; negative/zero/below-500 CXC costs → 0.
+- ✅ **CX Combo** is its own family, detected by climax-area text, resolved LAST as the residual absorber, floor ≥0 (no arbitrary 500 minimum since 2026-07-21 — see the floor-investigation entry above), no ceiling.
 - ✅ **【リプレイ】 (replay)** abilities folded into their citer and counted once (handles pure-anchor / cost-gated / CX-combo / modal-wrapper). All 21 replay cards reconstruct exactly.
 
 **Next leads:**
 1. **Over-costed companion families surfaced by the CXC absorber** — standout: **Search effects valued ~+8000** (`SAO/S51-073`). Likely a mis-costed family → investigate/correct.
+   - **Corroborating evidence (2026-07-21):** ran the CX-Combo model with `CXC_FLOOR` fully disabled (diagnostic only, not shipped — see the CXC floor decision below) to see what the raw unfloored residuals look like. ~90 sigs go negative; 17 of them land on EXACTLY -6500 with otherwise unrelated card text, incl. `SAO/S51-073` itself. That's the same card already flagged for the Search over-cost — strong evidence the -6500 cluster IS that same downstream noise (an over-costed companion ability elsewhere on the card dragging the CXC absorber deeply negative), not independent signal. Worth fixing the Search family cost first, then re-checking whether the -6500 cluster shrinks.
+   - **Saved for follow-up:** the full list (all ~90 cards/sigs, sorted most-negative-first, with sample size/method/full JP text) is at `pipeline/analysis/cxc_negative_candidates.csv` (gitignored, local-only, like the rest of `pipeline/analysis/` — regenerate via the diagnostic if lost). Use it to hunt which OTHER ability family on each of those cards is over-costed.
 2. `suspects_report.xlsx` (top variants by impact × uncertainty) → `golden_costs.json` (anchor + regression) → validate ~20 variants/session → rebuild → measure.
 
 **Error hotspots:** estimated/LOW, bad residual seeds, era mixing, gate floor, drawback sign, over-costed families (Search).

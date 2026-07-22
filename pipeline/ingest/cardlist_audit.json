@@ -1,6 +1,6 @@
 {
-  "n_raw": 63350,
-  "n_clean": 63350,
+  "n_raw": 64663,
+  "n_clean": 64663,
   "excluded_total": 94,
   "excluded_by_reason": {
     "non_tournament_official": 66,
@@ -8,34 +8,34 @@
     "level_out_of_range": 4,
     "soul_out_of_range": 2
   },
-  "characters_kept": 52550,
+  "characters_kept": 53584,
   "overrides_applied": [
     "P3/S01-19T",
     "WS/WSPR-P19"
   ],
-  "neo_titles_total": 161,
+  "neo_titles_total": 165,
   "cards_without_neo_title": 86,
   "card_kind_values": {
     "2": {
-      "count": 52629,
+      "count": 53663,
       "sample_card": "DC/W01-001",
       "sample_name": "学園長のさくら",
-      "has_level": 52629,
-      "has_power": 52629,
-      "has_soul>0": 52619,
+      "has_level": 53663,
+      "has_power": 53663,
+      "has_soul>0": 53652,
       "mapped_type": "Character"
     },
     "3": {
-      "count": 2795,
+      "count": 2834,
       "sample_card": "DC/W01-018",
       "sample_name": "記憶消去",
-      "has_level": 2795,
+      "has_level": 2834,
       "has_power": 0,
       "has_soul>0": 0,
       "mapped_type": "Event"
     },
     "4": {
-      "count": 7926,
+      "count": 8166,
       "sample_card": "DC/W01-023",
       "sample_name": "存在のなくなる日",
       "has_level": 0,
@@ -45,43 +45,43 @@
     }
   },
   "color_values": {
-    "red": 18339,
-    "blue": 17138,
-    "yellow": 15779,
-    "green": 12091,
+    "red": 18643,
+    "blue": 17521,
+    "yellow": 16111,
+    "green": 12385,
     "purple": 2,
     "-": 1
   },
   "side_values": {
-    "-1": 32896,
-    "-2": 30020,
+    "-1": 33215,
+    "-2": 31014,
     "-3": 434
   },
   "trigger_values": {
-    "soul": 25866,
-    "salvage": 1259,
-    "gate": 1207,
-    "treasure": 926,
-    "choice": 812,
-    "standby": 545,
-    "draw": 457,
+    "soul": 26381,
+    "salvage": 1293,
+    "gate": 1261,
+    "treasure": 970,
+    "choice": 861,
+    "standby": 561,
+    "draw": 478,
     "bounce": 425,
     "shot": 255,
     "stock": 149,
-    "focus": 6,
+    "focus": 18,
     "discovery": 4,
     "chance": 4,
     "bushi": 1
   },
   "soul_distribution": {
-    "1": 43114,
-    "0": 10726,
-    "2": 9444,
-    "3": 64,
+    "1": 43916,
+    "0": 11006,
+    "2": 9667,
+    "3": 72,
     "4": 1,
     "15": 1
   },
-  "no_power_count": 10721,
-  "no_level_count": 7926,
-  "distinct_series": 334
+  "no_power_count": 11000,
+  "no_level_count": 8166,
+  "distinct_series": 356
 }

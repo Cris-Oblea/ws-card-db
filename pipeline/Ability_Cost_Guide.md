@@ -60,12 +60,12 @@
 
 ---
 ## 4. SPECIAL REGIME: CX-COMBO / hard-gate
-An ability that **MANDATORILY depends on a specific climax** (in CX zone, or a proper name in level/memory) has a **FLOOR of ~500 almost regardless of how powerful it is** (the cost is paid in assembling the combo, not in power). Detect it by the text CONDITION, not by the 【CXコンボ】 marker (legacy didn't have it). Do NOT sum its effects.
+An ability that **MANDATORILY depends on a specific climax** (in CX zone, or a proper name in level/memory) is priced as the **pure leftover residual** — the cost is paid in *assembling the combo*, not in power, so it carries **no fixed floor beyond 0 and no ceiling** (a combo can legitimately cost 0 power when the setup/gating already pays for it, up through several thousand for a big payoff). The only clamp is non-negativity: a beneficial combo never costs below 0. Detect it by the text CONDITION, not by the 【CXコンボ】 marker (legacy didn't have it). Do NOT sum its effects.
 
 ---
 ## 5. HOW TO COST A NOVEL EFFECT (step by step)
 1. **Decompose** into atomic effects (section 1) + identify the composition operator (section 3).
-2. **Hard-gate / CX-combo?** → floor ~500, done.
+2. **Hard-gate / CX-combo?** → price as the leftover residual, non-negative (floor 0, no ceiling), done.
 3. For each effect: **base value** (section 1) × **modifiers** (section 2: cost, condition×reliability, breadth — no era factor).
 4. **Compose** (sum / modal=best-option / multi-trigger×n).
 5. **Does it give a resource (card to hand/stock)?** add ~1000 if it does NOT carry a cost that balances it.
