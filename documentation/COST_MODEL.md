@@ -323,12 +323,33 @@ family). First pass so far:
   established earlier, in the TRIGGER clause itself, e.g. `このカードのバトル相手が【リバース】した時…そのキャラを
   …`) — widened `Clock Kick`, `Removal (Deck Bottom)`, `Removal (Stock)`, and `Removal (Memory)` to catch
   this pronoun-with-earlier-antecedent shape (crossing the clause gap with `.` instead of `[^。]`).
-- `Other`: 3804 → ~1278 occurrences (505 → ~350 signatures) after this first pass. Several more real
-  clusters identified (a look-top-1-then-conditionally-clock scry, a self-discard-on-level-up mechanic, a
-  strip-a-trait-from-the-opponent effect, several self-discard-on-front-attack variants, hand-size/cost-
-  reduction statics, a marker-color self-grant) — pending user confirmation before implementing. One open
-  question: a Bomb-shaped ability (self-reverse trigger + a level/AntiEarly condition) with a **Memory**
-  destination doesn't fit any of the 4 named colors — flagged to the user rather than guessed.
+- `Other`: 3804 → 606 occurrences (505 → 237 signatures) across three follow-up rounds, all resolved:
+  - **Memory folds into Red** (not a 5th color) — user: "a veces rojo puede ser reverse o memory... es un
+    efecto nuevo de esta era." Both re-reverse and Memory are "soft"/temporary removals.
+  - **Green Bomb confirmed** via real cards (`AZL/S102-P02`/`T48`): heal the OPPONENT's clock (their top
+    clock card → their own waiting room — the same `Heal` mechanic, applied to the opponent's clock) as an
+    enabler, then bury the just-reversed opponent into that freed clock slot. The dynamic color×condition
+    structure needed zero extra code to support Green automatically once its action pattern was added.
+  - Same opponent-reference gap recurred (`_BOMB_OPP` fragment: "バトル相手の" vs "このカードとバトルしている/バトル
+    中のキャラの"); `Removal (Deck Top)` widened for the そのキャラ+antecedent shape; `Self Identity Grant`
+    widened (a hand-only condition, and a bare unconditional grant — including deriving a color from this
+    card's own markers); `Grant Trait` widened to also cover granting a trigger icon.
+  - New families: `Clock Gen` (sibling of `Stock Gen`), `Marker Currency` (a banked marker substitutes for
+    a stock card when paying a cost), `Strip Trait` (negative-polarity mirror of `Grant Trait`),
+    `HandSizeLimit+1` (a rules-modifying static), `Hand Discount` (a named external hand card's cost OR
+    level −N — checked BEFORE `Early Play`, whose broader pattern was wrongly claiming the level variant).
+  - **`Reverse Immunity` and `Drawback` both generalized** on the SAME principle the user re-confirmed
+    from Bomb: same final purpose can still need distinct family names (`Reverse Immunity`) or a broadened
+    single name (`Drawback`) depending on whether the VARIANT changes real cost. `Reverse Immunity` got a
+    2nd explicit variant (`Reverse Immunity (Hand4/Solo)`). `Drawback` widened from "the opponent acts
+    against you" to ANY self-inflicted no-upside risk (regardless of who/what triggers it) — validated via
+    vanilla-power-delta math across 9 candidate cards spanning 9 different triggers: 8/9 price at/above
+    vanilla (the Drawback signature — power given, not taken); the 9th (`DC/W09-008`) priced BELOW vanilla,
+    correctly excluded as a real beneficial ability instead (folded into a widened `AutoKickToMemory`
+    trigger: "leaving the stage," not just "on reverse").
+  - Gates flat 95.3% throughout; suspects improved 3611→3578 (a real gain, not just noise) once Drawback's
+    broadened definition correctly captured several previously-misclassified cards. 113 families total
+    (was 74 when the `Other` audit started).
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

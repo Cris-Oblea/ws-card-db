@@ -321,6 +321,22 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     "Self-Discard (Conditional)" family, not yet confirmed), the look-top-1-conditional-clock scry
     (`MK/S11-T03_`), the opponent trait-strip (`Sks/W62-084`, candidate name "Strip Trait"), and two small
     hand-size/cost-reduction statics (`MAR/S124-P02EX`, `KJ8/S123-P02EX`).
+- ✅ **`Other` audit round 3 (2026-07-22, same session) — all 5 open items resolved by the user.**
+  - **`Reverse Immunity` generalized like Bomb**: every distinct condition gets its own explicit name.
+    Added `Reverse Immunity (Hand4/Solo)` alongside the existing `Reverse Immunity (Cost 0)`.
+  - **`Drawback` generalized** beyond "the opponent acts against you" to ANY self-inflicted, no-upside
+    risk, confirmed via vanilla-power-delta math across 9 candidate cards spanning 9 different triggers
+    (level-up, unpaid cost, no matching ally, front-attacked-with-no-opponent, Encore step, a linked ally
+    leaving, opponent playing any climax, uncancelled damage, a conditional deck-reveal risk): 8/9 price
+    at/above vanilla (the Drawback signature); the 9th (`DC/W09-008`) prices BELOW vanilla — a real
+    beneficial ability, not a drawback — and instead widened `AutoKickToMemory`'s trigger to also cover
+    "leaving the stage" (not just "on reverse").
+  - **New families:** `Strip Trait` (negative-polarity mirror of `Grant Trait`), `HandSizeLimit+1` (a
+    rules-modifying static), `Hand Discount` (a named external hand card's cost OR level −N — checked
+    BEFORE `Early Play`, whose broader pattern was wrongly claiming the level-reduction variant).
+  - Gates flat 95.3%, suspects 3611→3578 (**real improvement**, not just noise). `Other`: 3804 → 606
+    occurrences (505 → 237 signatures) across the full 3-round audit. `pipeline/analysis/
+    family_catalog.txt`: 113 families (was 74 at the start of the Other audit).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
