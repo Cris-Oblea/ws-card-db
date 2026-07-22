@@ -1,6 +1,8 @@
 # --- Regenerable / heavy data (rebuilt by the pipeline) ---
 # Raw harvest (~59 MB) and features (~73 MB): re-derivable. Not versioned.
 pipeline/ingest/cardlist_full.json
+pipeline/ingest/cardlist_full.jsonl
+pipeline/ingest/cardlist_full.state.json
 pipeline/ingest/features_by_card.csv
 
 # --- Cache and transient artifacts ---
