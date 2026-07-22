@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db) · Portfolio project **1 of 3**.
 
-**Last updated:** 2026-06-20
+**Last updated:** 2026-07-21
 
 ## Current state
 
@@ -23,6 +23,23 @@
 
 ## Done / recent
 
+### Repo landing page + public-release prep (2026-07-21)
+
+- ✅ `README.md` rewritten as a full landing page (badges, key metrics, quick start, architecture
+  diagram, documentation map). GitHub "About" description + topics updated to match.
+- ✅ Security/legal audit before a possible public release: full git-history scan (103 commits) for
+  secrets/PII — clean. `.github/workflows/ci.yml` already runs a gitleaks secret scan on every push
+  (discovered this session; `CLAUDE.md`'s old "no CI" claim was stale, now fixed).
+- ✅ Removed a leaked personal-sounding contact email (`agentic@propital.com`) from 4 scraper
+  `User-Agent` strings — the project has no public contact besides the GitHub repo itself.
+- ✅ Added `NOTICE.md`: full IP/legal disclaimer, sourcing breakdown, and takedown-request process,
+  as the written prerequisite the owner wants in place **before** flipping the repo public.
+- ✅ Removed the unused MCP server (`tools/ws-mcp/`) — never used day to day, and `search_cards`/
+  `get_card` were redundant with what the public site already shows. Dropped the `mcp` dependency;
+  merged the gitleaks-action Dependabot PR, closed the now-moot mcp-version-bump PR.
+- ⏳ **Not yet done:** actually flipping repo visibility to public (owner wants `NOTICE.md` reviewed
+  first) and uncommenting the `push` trigger in `deploy-pages.yml`.
+
 ### Bilingual JP→EN translation — COMPLETE (2026-06-20)
 
 EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAME?` data-error cells remain). Achieved via the cascade official EN → simulator → Heart of the Cards → LLM pass (see "Current state" + `documentation/en-name-matching.md`). The old `pipeline/_tr_batches/` + `_tr_extract.py` flow is superseded by `_tr2_extract.py` and the `name_tr.json`/`abilities_tr.json`/`trait_tr.json` artifacts that `build_db.py` loads.
@@ -30,6 +47,17 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
 **Phase 2 (later, optional):** flavor text (~37k JP) is still untranslated; neo-standard title names are covered.
 
 ## Next up (not blocked)
+
+### In flight (launched 2026-07-21, check for results before re-launching)
+
+- **Data-refresh plan** (architect): locate where hand-made per-card fixes (wrong color/type corrected,
+  etc.) live relative to `pipeline/cardlist_clean.json`, and design a safe procedure to pull in new JP
+  sets + new official EN text (incl. the new **Uma Musume** set and its "Inspire"/継承 keyword) without
+  reverting those fixes. Report expected before any dev-agent touches the pipeline.
+- **CX-Combo floor investigation** (cost-analyst): re-examine `CXC_FLOOR = 500` in `pipeline/cost_model.py`
+  — the owner argues CX-Combo, being always resolved LAST as the pure residual absorber, shouldn't have an
+  artificial floor (or ceiling) at all. Investigate empirically (how many sigs are actually clamped, does
+  removing it hold `Explained% >= 94%`) before changing anything.
 
 ### English migration (deferred — code & folders)
 

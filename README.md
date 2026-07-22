@@ -128,10 +128,14 @@ Full math, worked examples, and the CX-Combo/replay edge cases: **[`documentatio
 - All strings are **UTF-8 + NFKC-normalized** (full-width ↔ half-width Japanese fold to one form).
 - Every non-trivial line of code carries an inline comment — the repo must stay operable **by hand,
   without AI assistance**.
-- This is a personal, no-CI, no-team project: validation is **empirical** (accuracy % + audits), not unit
-  tests. Full conventions and the (optional) agent workflow are in [`CLAUDE.md`](CLAUDE.md).
+- This is a personal, no-team project (CI is a minimal compile smoke + secret scan, no formal test suite):
+  validation is **empirical** (accuracy % + audits), not unit tests. Full conventions and the (optional)
+  agent workflow are in [`CLAUDE.md`](CLAUDE.md).
 
 ## Ownership
 
-Code is MIT-licensed (see [`LICENSE`](LICENSE)). Card text, names, and images are property of **Bushiroad**
-and its respective IP holders; this project only measures and republishes structured metadata about them.
+Code is MIT-licensed (see [`LICENSE`](LICENSE)). Card text, names, and any other game content are property
+of **Bushiroad** and the respective licensors of the franchises depicted on Weiß Schwarz cards; this
+project only measures and republishes structured metadata about them, never artwork. This is an
+unofficial, non-commercial fan project, not affiliated with Bushiroad — see **[`NOTICE.md`](NOTICE.md)**
+for the full disclaimer, sourcing breakdown, and how to request a correction or takedown.
