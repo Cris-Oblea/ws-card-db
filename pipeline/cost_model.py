@@ -403,7 +403,9 @@ def pump_self_estimate(gen_text):
 # multiplication. Only touches ESTIMATED (LOW) sigs, same as pump_self_estimate.
 _SALV_BRACKET = re.compile(r"［([^］]*)］")
 _SALV_CX = re.compile(r"CX|クライマックス")
-_SALV_NAMED = re.compile(r"「N」")
+_SALV_NAMED = re.compile(r"「N」(?!を含む)")   # "の「N」を選び" = one specific card (narrow) -- but "カード名に
+# 「N」を含む" is a NAME-GROUP restriction (several cards sharing a name fragment, e.g. all "Yotsuba"-named
+# cards), functionally a trait-lock, NOT a single low-flexibility target -- must NOT get the same discount.
 def salvage_estimate(gen_text):
     """Multiplicative-model estimate for a Salvage gen sig: 500 for a same-category (CX<->CX) or
     named-target recycle, 1000 for an unrestricted/trait-restricted character upgrade."""
