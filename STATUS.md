@@ -76,14 +76,22 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   instead of a `Text` line, because the game engine only needs the macro to run the effect, not a
   prose description. `pipeline/sources/macros.tsv` (236 curated macro -> English-template mappings,
   already in the repo) is now used to synthesize real English for these by substituting each macro
-  call's own arguments into its template. Result: **macro lines resolved to English: 30,059 of
-  30,150 found (99.7%)**; site-wide ability EN coverage jumped to **98.4%** (65,752/66,817). Fixed
-  along the way: two bugs in the substitution logic (a bare "X" wrongly treated as a placeholder —
-  it's narrative-only in every template that uses it; "NAME" matching as a false substring of
-  "CARDNAME", demanding a phantom extra argument). The ~91 remaining unresolved macros are mostly
-  ones absent from `macros.tsv` entirely (e.g. `CountSoulTriggers`), not a code bug. Rebuilt `site/`:
-  unchanged 40,393 cards/66,817 abilities, Explained% 95.6%, suspects 3544 (EN text doesn't feed the
-  cost model, so no regression risk there by construction).
+  call's own arguments into its template. Fixed along the way: two bugs in the substitution logic (a
+  bare "X" wrongly treated as a placeholder — it's narrative-only in every template that uses it;
+  "NAME" matching as a false substring of "CARDNAME", demanding a phantom extra argument).
+  **Upgraded further same day**: the user pointed to the simulator's OWN engine source,
+  `StreamingAssets/CommonEffects(copy).txt` (read live at runtime only — never copied into the repo,
+  since it's the simulator's internal source, a step closer to the thing under the Bushiroad C&D
+  than the user's own hand-curated `macros.tsv`; see `NOTICE.md`). It names each macro's parameters
+  in their OWN declared order (e.g. `OnPlayMillGainPowerForEach(NUMBER,POWER,TRAITLIST)` — NUMBER
+  before POWER, contradicting the fixed-priority guess the tsv-only fallback has to make), so it's
+  authoritative where present; `macros.tsv` remains the fallback for macros CE doesn't define a
+  `Text` line for. **Final result: 30,081 of 30,150 macro lines resolved (99.8%)**; site-wide
+  ability EN coverage **98.4%** (65,752/66,817). The ~69 still unresolved have NO English
+  description anywhere in either source (internal sub-routines like `CountSoulTriggers`) — nothing
+  left to extract without inventing prose. Rebuilt `site/`: unchanged 40,393 cards/66,817 abilities,
+  Explained% 95.6%, suspects 3544 (EN text doesn't feed the cost model, so no regression risk there
+  by construction).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

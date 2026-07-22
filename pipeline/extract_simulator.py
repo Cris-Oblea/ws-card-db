@@ -43,11 +43,44 @@ def skey_str(code):
     k = strict_key(code)
     return "/".join(k) if k else None
 
-# --- macro -> English template, loaded from the curated reference table ---
+# --- macro -> English template, loaded from the curated reference table (fallback source) ---
 MACROS = {}
 with open(os.path.join(D, "sources", "macros.tsv"), encoding="utf-8") as f:
     for row in csv.DictReader(f, delimiter="\t"):
         MACROS[row["macro"]] = row["description"]
+
+# --- macro -> (exact param names, template), parsed LIVE from the simulator's own engine source
+# (StreamingAssets/CommonEffects(copy).txt, a sibling of the Cards folder) -- this is the actual
+# definition the game runs, so it's authoritative and even NAMES each parameter in its own
+# declaration order (e.g. "Define: OnPlayMillGainPowerForEach(NUMBER,POWER,TRAITLIST)" -- notice
+# NUMBER comes before POWER here, contradicting the fixed-priority guess PLACEHOLDER_ORDER above
+# has to make for the curated-only fallback). We only read this file at RUNTIME, never copy its
+# content into the repo: it's the simulator's own internal source, a step further from what we're
+# comfortable redistributing than the user's own hand-curated macros.tsv (see NOTICE.md -- this
+# project already deliberately avoids naming/describing the simulator itself in public docs).
+MACROS_CE = {}
+def _load_common_effects(sim_dir):
+    # StreamingAssets/Cards -> StreamingAssets/CommonEffects(copy).txt (one level up from Cards).
+    path = os.path.join(os.path.dirname(sim_dir.rstrip("\\/")), "CommonEffects(copy).txt")
+    if not os.path.isfile(path):
+        return
+    DEFINE = re.compile(r"^Define:\s*(\w+)(?:\((.*)\))?\s*$")
+    name, params, text_lines = None, [], []
+    def flush():
+        if name and text_lines:   # only keep it if the engine itself gives a Text line
+            MACROS_CE[name] = (params, text_lines[0])
+    with open(path, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            t = line.strip()
+            m = DEFINE.match(t)
+            if m:
+                flush()
+                name = m.group(1)
+                params = [p.strip() for p in m.group(2).split(",")] if m.group(2) else []
+                text_lines = []
+            elif t.startswith("Text "):
+                text_lines.append(t[5:].strip())
+        flush()
 
 # Placeholder tokens a template can contain, in the FIXED order the macro's own positional
 # arguments are written in (verified against real calls, e.g. GainPowerWithEnoughCharacters
@@ -83,13 +116,39 @@ def humanize_traitlist(v):
     # it already reads fine ("Choose 1 of your Any characters" isn't used; templates phrase around it).
     return " or ".join(v.split("|"))
 
+def _sub_token(text, token, value):
+    # A CommonEffects Text line sometimes writes a param bare ("NUMBER cards") and sometimes with a
+    # literal $ prefix ("$TRAITLIST characters") for the exact same parameter -- match either form.
+    pattern = r"\$?(?<!\w)" + re.escape(token) + r"(?!\w)"
+    return re.sub(pattern, lambda _m: value, text)
+
+def synthesize_from_common_effects(name, args):
+    """Try the authoritative, engine-sourced definition first: exact param names in their OWN
+    declared order, no guessing. Returns None if this macro isn't defined there (caller falls back
+    to the curated macros.tsv heuristic) or if the argument count doesn't match."""
+    entry = MACROS_CE.get(name)
+    if entry is None:
+        return None
+    params, template = entry
+    if len(args) < len(params):    # extra trailing args are fine, same policy as the tsv fallback
+        return None
+    text = template
+    for param, val in zip(params, args):
+        if "|" in val:
+            val = humanize_traitlist(val)
+        text = _sub_token(text, param, val)
+    return text
+
 def synthesize_macro(name, argstr_or_none):
     """Return the English text for one macro line, or None if the macro/args can't be resolved
     (caller then just skips this ability line rather than emit something wrong)."""
+    args = split_macro_args(argstr_or_none) if argstr_or_none is not None else []
+    ce = synthesize_from_common_effects(name, args)
+    if ce is not None:
+        return ce
     template = MACROS.get(name)
     if template is None:
         return None
-    args = split_macro_args(argstr_or_none) if argstr_or_none is not None else []
     # Which placeholders does this template actually use, in our fixed priority order? A literal
     # "_" is a handful of templates' own placeholder spelling (e.g. "deal _ damage") -- treat it as
     # one more numeric slot, checked right after NUMBER since it plays the same role.
@@ -118,6 +177,10 @@ def synthesize_macro(name, argstr_or_none):
         token = "_" if ph == "_" else ph
         text = re.sub(r"(?<!\w)" + re.escape(token) + r"(?!\w)", lambda _m: val, text)  # ALL occurrences
     return text
+
+_load_common_effects(SIM_DIR)
+print(f"CommonEffects macros loaded from engine source: {len(MACROS_CE)}"
+      + (" (file not found next to Cards/ -- falling back to macros.tsv only)" if not MACROS_CE else ""))
 
 # --- JP cards define the parity set: keep only simulator entries that map to a real JP card ---
 clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
