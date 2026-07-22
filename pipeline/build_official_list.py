@@ -301,6 +301,11 @@ FORMS = [
  ("Free Play (Alt Cost)", "discard a named own card to play THIS card for 0 cost", "500", "30 cards share the exact templated phrasing."),
  ("Self Sacrifice", "the card's own ability sacrifices ANOTHER own character (no payment bracket)", "≈-500 (a bonus)", "A real downside -> the card gets EXTRA power as compensation, not less."),
  ("Attack Redirect", "attack a different opponent character instead of the normal target", "500", "A combat-targeting trick, not a Move."),
+ ("CX Exchange", "swap a climax card between two zones, matched by trigger icon", "≈500", "A combo-assembly tool: trade a useless climax for one whose trigger icon you need."),
+ ("Stock Search", "look at your own STOCK, take a card to hand", "≈500", "Stock is normally spent on costs, not searched -- distinct enough from Search/Salvage to name separately."),
+ ("Clock/Hand Exchange", "a clock character comes to hand, refilled from a hand or deck-top card", "≈1000", "The hand-side sibling of Clock/WR Exchange."),
+ ("Removal (Stock)", "opponent's stage character converted into the ACTOR's OWN stock", "≈1000", "A \"capture\" mechanic -- denies recursion while handing the attacker a resource."),
+ ("Grant Trait", "assign a chosen character a designated trait for the turn", "≈1000", "A stat-grant sibling of Soul/Level, just targeting the trait slot."),
 ]
 for f in FORMS:
     wsf.append(list(f)); rr = wsf.max_row

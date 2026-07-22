@@ -212,17 +212,23 @@ ones). The order is:
    this keyword") — that phrasing always means the keyword is a SEARCH/SELECTION CRITERION for some OTHER
    card (e.g. "look at your deck, choose a card that has 『Change』, add it to hand" is a Search, not a
    Change ability), never the keyword's own performance. Found via a 291-card audit of the `Change` family.
-6. **`FAMPAT` effect-text patterns**, in order: `Burn`, `Heal`, `Clock Kick`, `Removal (Hand)`,
-   `Return to Deck`, `Retreat`, `AllMemoryCleanse`, `Removal (Waiting Room)`, `Removal (Deck Bottom)`,
-   `Removal (Deck Top)`, `Removal (Memory)`, `Removal (Swap)`, `ReviveOpponent`, `Reverse Opp`,
-   `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Memory Bank`, `Search`, `Deck Thin`, `Look & Reorder`,
-   `Look Deck`, `Summon`, `Change`, `Clock/WR Exchange`, `Return to Deck (Own)`, `Stock Gen`,
-   `AddMarkerWaitingRoom`, `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`, `Power Pump (self)`,
-   `Power Pump`, `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`, `Power Debuff`, `Soul`,
+6. **`FAMPAT` effect-text patterns** — ~75 entries, full current order always in `pipeline/cost_model.py`
+   (the list below is illustrative, not exhaustive — see `pipeline/analysis/family_catalog.txt`, gitignored,
+   for the live per-family sig/occurrence counts): `Burn`, `Heal`, `Clock Kick`, `Removal (Hand)`,
+   `Return to Deck`, `Retreat`, `AllMemoryCleanse`, `Removal (Waiting Room)`, `Removal (Stock)`,
+   `Removal (Deck Bottom)`, `Removal (Deck Top)`, `Removal (Memory)`, `Removal (Swap)`, `ReviveOpponent`,
+   `Reverse Opp`, `Opp Disrupt`, `RevealTopSalvage`, `Salvage`, `Stock Search`, `CX Exchange`,
+   `Memory Bank`, `Search`, `Deck Thin`, `Look & Reorder`, `Look Deck`, `Summon`, `Change`,
+   `Clock/WR Exchange`, `Clock/Hand Exchange`, `Return to Deck (Own)`, `Stock Gen`, `AddMarkerWaitingRoom`,
+   `Retreat` (reactive), `Add to Hand`, `Power Pump (board)`, `Power Pump (self)`, `Power Pump`,
+   `DiscardCharacterToDraw`, `DrawDiscard`, `Draw`, `Early Play`, `Grant Trait`, `Power Debuff`, `Soul`,
    `Level`, `Mill (self)`, `Retreat` (this card), `Attack Redirect`, `Move (Opponent)`, `Move (Own)`,
    `Stand/Rest`, `Stock Boost`, `Choice`, `Early Play` (level-gate), `Free Play (Alt Cost)`,
-   `Cannot Attack`, `Restriction`, `Self Sacrifice`, `Drawback`, `Card Select`.
-7. **`Other`** — nothing matched.
+   `Cannot Attack`, `Restriction`, `Self Sacrifice`, `Drawback`.
+7. **`Other`** — nothing matched. As of the 2026-07-22 family-taxonomy audit, this is the ONLY generic
+   fallback — the old `Card Select` catch-all (`\d+枚選`) was deliberately deleted (see below), so `Other`
+   now also catches the tiny remainder of genuinely bespoke, one-off card designs that don't represent a
+   real recurring family.
 
 **How a FAMPAT is matched.** Each entry is `(family_name, regex)`; `family()` runs `re.search(regex, text)`
 on the `gen()`-normalized text and returns the first family whose regex hits. The regexes are tuned so
@@ -252,14 +258,33 @@ but a different final purpose depending on whose board it targets. The negative 
 moved") is excluded from both — that's a lock/restriction, not an actual move, and instead files under
 `Restriction`.
 
-**Other Card-Select-audit families:** `Memory Bank` (bank a named own waiting-room card into Memory, usually
-gated by a low own-Memory-count condition — often paired with a later Summon/Salvage that pulls it back out),
-`Deck Thin` (search your own deck for a specific/trait card and send it to the WAITING ROOM instead of hand —
-a targeted mill, not a Search), `Free Play (Alt Cost)` (discard a named own card to play THIS card for 0
-cost — the game's exact templated phrasing, 30 cards share it verbatim), `Self Sacrifice` (the card's own
-ability sacrifices ANOTHER of your own characters to the waiting room, not via a bracketed payment — distinct
-from `Drawback`, where the OPPONENT acts against your zones instead), `Attack Redirect` (choose a different
-opponent character to attack instead of the normal target/attacker).
+**Other Card-Select-audit families:** `Memory Bank` (bank a named own waiting-room/clock card into Memory,
+usually gated by a low own-Memory-count condition — often paired with a later Summon/Salvage that pulls it
+back out), `Deck Thin` (search your own deck for a specific/trait card and send it to the WAITING ROOM
+instead of hand — a targeted mill, not a Search), `Stock Search` (look at your own STOCK and take a card to
+hand — a resource pile not normally searchable), `Free Play (Alt Cost)` (discard a named own card to play
+THIS card for 0 cost — the game's exact templated phrasing, 30 cards share it verbatim), `Self Sacrifice`
+(the card's own ability sacrifices ANOTHER of your own characters to the waiting room, not via a bracketed
+payment — distinct from `Drawback`, where the OPPONENT acts against your zones instead), `Attack Redirect`
+(choose a different opponent character to attack instead of the normal target/attacker), `CX Exchange`
+(swap a climax card between two zones, matched by trigger icon — a combo-assembly tool, not a one-way
+get), `Clock/Hand Exchange` (a clock character comes to hand, refilled from a hand or deck-top card — the
+hand-side sibling of `Clock/WR Exchange`), `Removal (Stock)` (opponent's stage character converted into the
+ACTOR's own stock — a "capture" mechanic), `Grant Trait` (assign a chosen character a designated trait for
+the turn — a stat-grant sibling of `Soul`/`Level`, just targeting the trait slot).
+
+**`Card Select` was completely eliminated (2026-07-22), not just shrunk.** The generic `\d+枚選` catch-all
+FAMPAT entry was deleted outright once every recurring pattern it swallowed had a real, purpose-named home
+(1547 → 361 → 139 → 34 signatures across three audit passes, then 0). The last ~10 signatures before
+deletion were genuinely bespoke one-off card designs (a unique named skill, a symmetric apocalyptic reset,
+a bare targeting step with no destination of its own) that don't represent a real recurring family — those
+now honestly fall to `Other` instead of the misleadingly-generic `Card Select`. **Do not re-add a generic
+catch-all regex to FAMPAT** — if a new recurring pattern surfaces, give it a real purpose-based name instead.
+Also fixed in the same pass: `Clock Kick` had been **completely dead (0 real matches) since before this
+session** — its original `(クロック置場|クロックに)置` alternation never required the に between 置場 and 置, so
+it could never match the real phrasing `クロック置場に置く`. A latent bug, not something this session
+introduced; caught only because auditing Card Select's remainder required checking why those cards weren't
+landing in Clock Kick already.
 
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the

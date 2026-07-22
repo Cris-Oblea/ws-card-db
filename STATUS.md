@@ -221,6 +221,47 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - Rebuilt `site/`: Explained% flat at 95.3%, suspects 3594→3593 (no regression). `pipeline/analysis/
     family_catalog.txt` regenerated (69 families, up from 61). `documentation/COST_MODEL.md` §6 updated.
   - **Remaining:** `Card Select`'s long tail (139 sigs, mostly n≤2 one-offs) is unaudited, future work.
+- ✅ **Family-taxonomy audit, round 3 (2026-07-22, same session) — `Card Select` eliminated completely.**
+  User: "necesito reducir card select a 0, y luego continuar con otros efectos que aún no tengan familia."
+  Worked through the remaining 99 → 34 → 10 signatures in three passes, widening gap/verb tolerances on
+  existing families and adding new ones for genuine recurring patterns:
+  - **New families:** `CX Exchange` (swap a climax card between two zones, matched by trigger icon — a
+    combo-assembly tool), `Stock Search` (look at your own stock, take a card to hand), `Clock/Hand
+    Exchange` (a clock character comes to hand, refilled from a hand or deck-top card), `Removal (Stock)`
+    (opponent's stage character converted into the ACTOR's own stock — a "capture" mechanic, 136
+    occurrences), `Grant Trait` (assign a chosen character a designated trait for the turn).
+  - **Widened for gap/verb gaps found via real-card near-misses** (a level+cost double condition, a
+    trigger-icon descriptor, a placement-order phrase, etc. kept pushing distances just past the old
+    limits): `Summon`, `AddMarkerWaitingRoom`, `Memory Bank`, `Removal (Memory)`, `Removal (Waiting Room)`,
+    `Removal (Deck Bottom)` (+ added `このカードのバトル相手`/`このカードとバトル中のキャラ` as opponent-reference
+    alternatives to the possessive 相手の), `Stock Gen`, `Return to Deck (Own)`, `Retreat` (+ a 3rd bare
+    "自分の…キャラ" branch — carefully excluded from also matching Salvage's territory, see below), `Self
+    Sacrifice` (+ a random-hand-discard branch), `Power Pump` (+ a named-target branch), `Change` (+ a
+    defensive-swap branch and a 動かす verb).
+  - **Caught and reverted a real regression before it shipped:** the new bare Retreat branch
+    ("自分の…キャラ…選び…手札に戻") was written too broadly and would have hijacked EVERY Salvage-shaped ability
+    (自分の控え室のキャラ…手札に戻す) into Retreat instead, since Retreat is checked earlier in the list. Fixed
+    with a negative lookahead excluding 控え室/山札/思い出置場/クロック置場/手札 right after 自分の. Verified with a
+    direct before/after regex test, not just the aggregate counts, precisely because aggregate counts alone
+    would NOT have caught this (Salvage's total count barely moved — the regression was masked by other
+    families losing/gaining similar amounts elsewhere).
+  - **Found a real pre-existing latent bug, unrelated to this session's other work:** `Clock Kick` had been
+    **completely dead (0 real matches, absent from the family catalog) since before this session started**
+    — its `(クロック置場|クロックに)置` alternation never required the に between 置場 and 置, so it could never
+    match the actual phrasing `クロック置場に置く`. Found only because auditing why specific cards still landed
+    in Card Select led to checking why Clock Kick wasn't claiming them. Fixed.
+  - **`Card Select` (the generic `\d+枚選` catch-all FAMPAT entry) deleted outright once the tail (10
+    signatures) was confirmed to be genuinely bespoke one-off card designs** (a unique named skill, a
+    symmetric apocalyptic reset effect, a bare targeting step with no destination) rather than a recurring
+    pattern. Those now honestly fall to `Other` instead of a misleadingly-generic label. **1547 → 0
+    signatures across the full three-round audit.**
+  - Rebuilt `site/`: Explained% flat at 95.3%, suspects 3593→3588 (small real improvement). `pipeline/
+    analysis/family_catalog.txt` regenerated (74 families, up from 69). `documentation/COST_MODEL.md` §6
+    updated, including an explicit "do not re-add a generic catch-all" note for future sessions.
+  - **Next (per the user's own framing — "continue with other effects that don't have a family yet"):**
+    audit the `Other` family itself (516 signatures) the same way — it's the function's honest fallback, but
+    likely still contains recurring patterns that deserve a real name, same as Card Select did. Not started
+    yet this session.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
