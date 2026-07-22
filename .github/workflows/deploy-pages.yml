@@ -3,14 +3,12 @@ name: Deploy Pages
 # CD: publishes the static lookup site (site/) to GitHub Pages.
 # Mirrors tumatch's "auto-deploy on merge to main", adapted to a static site.
 #
-# ⚠️ PREREQUISITE: GitHub Pages requires either a PUBLIC repo (free) or a paid
-# plan for private repos. This repo is private on the free plan, so this workflow
-# is currently MANUAL-ONLY (workflow_dispatch) and will fail until the repo is
-# public. When you make ws-card-db public, uncomment the `push` trigger below to
-# auto-deploy on every merge to main.
+# GitHub Pages requires either a PUBLIC repo (free) or a paid plan for private
+# repos. The repo went public 2026-07-22, so this now auto-deploys on every
+# push to main (workflow_dispatch is kept too, for a manual re-deploy on demand).
 on:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
