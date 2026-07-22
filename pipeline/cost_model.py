@@ -103,6 +103,9 @@ FAMPAT = [
   # named card (usually itself) may be run together. Effectively a static rules-text exception with no
   # in-game action, hence a near-zero measured cost. User taxonomy.
   ("Deck Copy Limit", r"デッキに(好きな枚数|(合計)?\d+枚まで)入れることができる"),
+  # HandSizeLimit+1 (user's own name): another rules-modifying static, like Deck Copy Limit above — this one
+  # literally raises the hand-size cap rather than granting a gameplay action.
+  ("HandSizeLimit+1", r"あなたの手札の枚数上限を[＋+]\d+"),
   # Color Bypass: a passive CONT permission letting this card (or a whole card TYPE — events/climaxes) be
   # played ignoring the color requirement. Distinct from Summon (an ACTIVE effect that puts a DIFFERENT
   # character into play bypassing its cost/level) — this is a permanent, intrinsic property of the card
@@ -115,6 +118,11 @@ FAMPAT = [
   # — but a distinct specific mechanic) — conditionally IMMUNE to becoming reversed at all when the character
   # it's battling is cost 0 or lower. A defensive tech common in "Standby"-format decks per the user.
   ("Reverse Immunity (Cost 0)", r"このカードの正面のキャラのコストが0以下なら、このカードは【リバース】しない"),
+  # Reverse Immunity generalized (user: "generalizar como se hizo con bomb" -- every distinct CONDITION
+  # gates a genuinely different real cost, so each gets its own explicit name rather than one broad
+  # "Reverse Immunity" bucket). This variant: immune while your hand is large AND you're playing solo (no
+  # other own characters) -- a completely different condition from Cost 0, same destination/purpose.
+  ("Reverse Immunity (Hand4/Solo)", r"あなたの手札が\d+枚以上で、他のあなたのキャラがいないなら、このカードは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
   # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
@@ -422,6 +430,11 @@ FAMPAT = [
   # that BOTH discards a char as cost AND draw-discards keeps the more specific payment-shaped label.
   ("DrawDiscard", r"引[くきい].{0,20}手札を[\dＸ]+枚.{0,4}選.{0,6}控え室に置"),
   ("Draw", r"引[くきい]"),
+  # Hand Discount: a static buff for a NAMED, DIFFERENT card sitting in hand (its cost OR level -N),
+  # checked BEFORE Early Play below (whose broader 手札の…レベルを－ pattern would otherwise wrongly claim the
+  # level-reduction variant — confirmed via GRI/S84-028, which was landing in Early Play despite targeting
+  # an external named card, not "this card"). Common on both events and characters per the user.
+  ("Hand Discount", r"あなたの手札の「N」の(コスト|レベル)を[－\-]"),
   # Early Play (in hand): lowering THIS card's level WHILE IN HAND (手札の…レベルを－N) makes it playable before you
   # reach that level — functionally Early Play. Checked BEFORE the generic Level (レベルを±), which would else grab it.
   # Scoped to 手札の so an on-STAGE level-down (舞台の…レベルを－, a stat mod often paired with a pump) is NOT caught.
@@ -433,6 +446,11 @@ FAMPAT = [
   #soulを与える") -- same purpose as granting a trait (extend a chosen/named external card's identity), just
   # a different identity slot.
   ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|の「N」のトリガーアイコンに\w+を与える"),
+  # Strip Trait: the negative-polarity mirror of Grant Trait -- choose an OPPONENT's character and one of
+  # its traits, it loses that trait until end of turn (denies it to trait-gated effects/Assist/etc.).
+  # User: conceptually part of the broader "disruption" theme (interferes with the opponent's board), but
+  # specific enough to be its own named family rather than folding into Removal (Waiting Room)/Opp Disrupt.
+  ("Strip Trait", r"相手のキャラを[^。]{0,6}と[^。]{0,10}特徴を[^。]{0,10}選[^。]{0,20}その特徴をすべて失う"),
   # Self Identity Grant: this card (not a chosen target) permanently/conditionally gains a TRAIT, an
   # ALTERNATE NAME, or a TRIGGER ICON -- three different "identity slots" but the same final purpose (this
   # card's own identity is extended so other trait/name/icon-gated effects elsewhere can reach it). Distinct
@@ -497,14 +515,25 @@ FAMPAT = [
   # 2nd branch: a RANDOM hand card (自分の手札をランダムに1枚選び), not a chosen character -- same self-cost
   # purpose (the card's own effect costs its controller a resource), just an unchosen/random target.
   ("Self Sacrifice", r"(自分の|他の自分の)[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,6}控え室に置(く|き)|自分の手札をランダムに[^。]{0,10}選び[^。]{0,6}控え室に置"),
-  # Drawback: the OPPONENT acts against the card's OWN CONTROLLER's zones (相手は/が…あなたの…選び…に置) — a
-  # self-inflicted downside the card's controller must accept as part of its own effect (e.g. a pump that
-  # lets the opponent bury one of your own waiting-room cards). Distinct from Disruption/Opp Disrupt (there
-  # the CARD'S OWNER acts against the OPPONENT); here the polarity is reversed, so it needed its own general
-  # family for "negative effect against yourself" rather than being folded into either. User taxonomy
-  # (confirmed via BD/W54-P03's full card context: two such drawback abilities justify its power being
-  # 1000 over vanilla for a level-1/cost-0 print).
+  # Drawback: a negative effect against the CARD'S OWN CONTROLLER. Originally scoped only to "the OPPONENT
+  # acts against your zones" (相手は/が…あなたの…選び…に置), confirmed via BD/W54-P03. Widened (2026-07-22,
+  # Other-audit) to the broader BUT SAME-SPIRIT case of a SELF-inflicted risk with no opponent involved at
+  # all -- the user confirmed this is still "Drawback" (the defining trait is "bad for the controller," not
+  # WHO performs the bad action). Confirmed via vanilla-power-delta math across 8 example cards (LB/W02-065,
+  # FT/S09-069, SAO/S51-P02, GST/SE22-09, MB/S10-019, PD/S29-105, IMC/W43-P02, KC/S42-021): every one prices
+  # at or ABOVE vanilla (the Drawback signature -- power GIVEN as compensation, not taken), across 9
+  # completely different triggers (level-up, unpaid cost, no matching ally, front-attacked-with-no-opponent,
+  # Encore step, a linked ally leaving, opponent playing any climax, uncancelled damage) all sharing the SAME
+  # final destination (this card discards ITSELF, unconditionally once triggered) -- the trigger varies, the
+  # effect doesn't, so one family covers all of them. (Contrast `DC/W09-008`, same "self, on leaving stage"
+  # shape but priced BELOW vanilla -- a real beneficial ability, not a drawback -- correctly excluded since
+  # its actual trigger, "舞台から控え室に置かれた時," redirects to Memory instead of discarding outright.)
   ("Drawback", r"相手(は|が)[^。]{0,4}あなたの[^。]{0,20}を[^。]{0,10}選び[^。]{0,14}(山札の(上|下)|控え室|クロック置場)に置"),
+  ("Drawback", r"このカードを控え室に置く(?!］)"),
+  # A conditional, no-upside self-risk: reveal your own deck top; if it fails a check, your OWN clock
+  # advances (a downside -- more clock cards is generally bad). Same "self-risk, no opponent" Drawback
+  # spirit as the branch above. Crosses a sentence break (。) to the conditional clause, so needs . not [^。].
+  ("Drawback", r"自分の山札の上から[^。]{0,10}公開する.{0,30}クロック置場に置"),
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
@@ -533,6 +562,11 @@ ONREV_PAT = [
     # Verb widened する->する|して: some prints phrase this as optional ("…思い出にしてよい"), not just the
     # mandatory dictionary form. Found via GL/S52-052 (a conditional, optional variant landing in Other).
     ("AutoKickToMemory", re.compile(r"【リバース】した時.*このカードを思い出に(する|して)")),
+    # 2nd trigger: "舞台から控え室に置かれた時" (about to be discarded to the waiting room from the stage, for
+    # ANY reason, not just on reverse) redirects into Memory instead. Priced BELOW vanilla (confirmed via
+    # DC/W09-008) -- a real beneficial upgrade (Memory > waiting room for recursion), NOT a Drawback, even
+    # though it shares the "self, conditional" shape with the Drawback self-discard cluster nearby.
+    ("AutoKickToMemory", re.compile(r"舞台から控え室に置かれた時.*このカードを思い出に(する|して)")),
     # This card puts ITSELF into its own clock on reverse (a self-relocation, not a Bomb -- the opponent's
     # character is never touched). Found via the ZM/W03-xxx "アラーム" clock-alarm card cluster.
     # "あなたは" made optional -- many prints phrase this as a flat mandatory action ("…このカードをクロック
