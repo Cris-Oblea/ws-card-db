@@ -210,7 +210,7 @@ FAMPAT = [
   # top OR bottom) is folded in here too rather than split into its own family -- it's the same permanent-
   # removal purpose, just letting the attacker pick the position.
   ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の下に置"),
-  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置"),
+  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の上に置"),
   # Verb widened にし -> にし|にする (dictionary form, no polite/optional suffix -- some prints phrase this as a
   # flat mandatory action, "…選び、思い出にする。", not "…にしてよい/にします").
   # 4th branch: "このカードのバトル相手が【リバース】した時…そのキャラを思い出に…" -- the ANTECEDENT (このカードのバトル
@@ -358,6 +358,10 @@ FAMPAT = [
   # Gap widened 20->50 for the hand/waiting-room/Memory sources -- a compound multi-card select clause
   # ("キャラを1枚までとイベントかクライマックスを1枚まで選んで相手に見せ") runs long before reaching the destination.
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,20}ストック置場[^。]{0,4}に[^。]{0,10}置|(自分の手札|自分の控え室|自分の思い出置場)[^。]{0,50}ストック置場[^。]{0,4}に[^。]{0,10}置"),
+  # Clock Gen: sibling of Stock Gen -- your own DECK TOP goes to your CLOCK instead of your stock. Distinct
+  # destination (clock advances your level/damage count differently than stock does), same "deck-top-into-
+  # a-resource-zone" final purpose.
+  ("Clock Gen", r"自分の山札の上から[^。]{0,14}クロック置場に置"),
   # AddMarkerWaitingRoom: park a card face-up/down as a MARKER under this (or another named) card, to be
   # retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an immediate
   # effect. The user asked the name to spell out source -> destination; the overwhelming majority of prints
@@ -374,6 +378,10 @@ FAMPAT = [
   # retrieve a banked marker to hand, stock, or the climax area too, not just back onto the stage; "マーカー"
   # alone is a specific enough anchor that no other family's text could plausibly contain it.
   ("AddMarkerWaitingRoom", r"マーカーとして[^。]{0,14}置|マーカー[^。]{0,30}選(び|んで)[^。]{0,16}(置|戻)"),
+  # Marker Currency: a banked marker can substitute for a STOCK card when paying a cost (event cost, ACT
+  # cost, ...) — a distinct final purpose from AddMarkerWaitingRoom itself (that's the banking mechanic;
+  # this is a payment-substitution rule built ON TOP of an already-banked marker).
+  ("Marker Currency", r"マーカー[^。]{0,14}ストック[^。]{0,6}のかわりに[^。]{0,10}控え室に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -421,12 +429,18 @@ FAMPAT = [
   # Grant Trait: assign a chosen character a designated TRAIT for the turn (temporarily makes it count as a
   # <Trait> it doesn't normally have -- combos with other trait-gated effects). A stat-grant sibling of
   # Soul/Level below, just targeting the trait slot instead of a number.
-  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)"),
+  # Widened to also accept granting a TRIGGER ICON to an external target ("すべての領域の「N」のトリガーアイコンに
+  #soulを与える") -- same purpose as granting a trait (extend a chosen/named external card's identity), just
+  # a different identity slot.
+  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|の「N」のトリガーアイコンに\w+を与える"),
   # Self Identity Grant: this card (not a chosen target) permanently/conditionally gains a TRAIT, an
   # ALTERNATE NAME, or a TRIGGER ICON -- three different "identity slots" but the same final purpose (this
   # card's own identity is extended so other trait/name/icon-gated effects elsewhere can reach it). Distinct
   # from Grant Trait above (that targets ANOTHER chosen character). User taxonomy.
-  ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の))[^。]{0,20}(を得る|得る|としても扱う)"),
+  # Widened: (1) "手札にこのカードがあるなら" as another condition prefix (gains the identity while IN HAND, not
+  # just on stage/in all zones); (2) a bare "このカードは…を得る" with NO condition prefix at all (an
+  # unconditional, permanent grant — e.g. a fixed color) or deriving the color from this card's own markers.
+  ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の)|手札にこのカードがあるなら)[^。]{0,20}(を得る|得る|としても扱う)|このカードは[^。]{0,24}を得る"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   # Retreat: THIS card (or another of your own STAGE characters) returns to hand -- a self-bounce/withdrawal,
@@ -541,10 +555,14 @@ ONREV_PAT = [
 # gets its own name suffix (LevelN / CostN / AntiEarly / LevelX) combined with the color, computed here
 # rather than listed as ~20+ near-duplicate static strings.
 _BOMB_TRIGGER = re.compile(r"(バトル中の)?このカードが【リバース】した時")
-_BOMB_LEVEL = re.compile(r"バトル相手のレベルが(\d+)以下")
-_BOMB_COST = re.compile(r"バトル相手のコストが(\d+)以下")
-_BOMB_LEVELX = re.compile(r"バトル相手のレベルが[ＸX]以下")
-_BOMB_ANTIEARLY = re.compile(r"バトル相手のレベルが相手のレベルより高い")
+# "バトル相手の" is the common phrasing, but some prints say "このカードとバトルしているキャラの"/"このカードとバトル
+#中のキャラの" instead -- same referent (the character THIS card is fighting), different wording. Both
+# inner groups are non-capturing so the digit capture below stays group(1).
+_BOMB_OPP = r"(?:バトル相手|このカードとバトル(?:中の|している)キャラ)の"
+_BOMB_LEVEL = re.compile(_BOMB_OPP + r"レベルが(\d+)以下")
+_BOMB_COST = re.compile(_BOMB_OPP + r"コストが(\d+)以下")
+_BOMB_LEVELX = re.compile(_BOMB_OPP + r"レベルが[ＸX]以下")
+_BOMB_ANTIEARLY = re.compile(_BOMB_OPP + r"レベルが相手のレベルより高い")
 _BOMB_ACTION = {
     # Accepts both そのキャラ and そのバトル相手 as the pronoun -- real prints use either. Red covers BOTH
     # re-reverse AND Memory (user: "a veces rojo puede ser reverse o memory... más que un 5to color es un
