@@ -546,10 +546,19 @@ _BOMB_COST = re.compile(r"バトル相手のコストが(\d+)以下")
 _BOMB_LEVELX = re.compile(r"バトル相手のレベルが[ＸX]以下")
 _BOMB_ANTIEARLY = re.compile(r"バトル相手のレベルが相手のレベルより高い")
 _BOMB_ACTION = {
-    # Accepts both そのキャラ and そのバトル相手 as the pronoun -- real prints use either.
-    "Red":    re.compile(r"あなたは(そのキャラ|そのバトル相手)を【リバース】してよい"),
+    # Accepts both そのキャラ and そのバトル相手 as the pronoun -- real prints use either. Red covers BOTH
+    # re-reverse AND Memory (user: "a veces rojo puede ser reverse o memory... más que un 5to color es un
+    # efecto nuevo de esta era" -- a newer-era variant of red, not a distinct color, since both are
+    # "soft"/temporary removals as opposed to Blue's permanent deck-bottom or Yellow's economic stock-denial).
+    "Red":    re.compile(r"あなたは(そのキャラ|そのバトル相手)を【リバース】してよい|(そのキャラ|そのバトル相手)を思い出にし"),
     "Blue":   re.compile(r"(そのキャラ|そのバトル相手)を山札の下に置"),
     "Yellow": re.compile(r"(そのキャラ|そのバトル相手)をストック置場に置"),
+    # Green = heal the OPPONENT's clock (move their top clock card to their own waiting room -- structurally
+    # the same "Heal" mechanic already established elsewhere in this taxonomy, just applied to the
+    # OPPONENT's clock) as an ENABLING step, THEN bury the just-reversed battle opponent into that freed
+    # clock slot. Confirmed via a real example (AZL/S102-P02/T48) after Blue/Yellow/Red searches came up
+    # empty for this shape -- crosses a sentence break (。そうしたら、) so needs . not [^。].
+    "Green":  re.compile(r"相手のクロックの上から1枚を[^。]{0,10}控え室に置.{0,20}(そのキャラ|そのバトル相手)をクロック置場に置"),
 }
 def _dynamic_bomb_name(text):
     if not _BOMB_TRIGGER.search(text): return None
