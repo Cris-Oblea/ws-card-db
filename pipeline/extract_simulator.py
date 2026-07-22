@@ -14,10 +14,20 @@
 # source; build_db.py still applies its curated en_card_blocked() exclusions on top when consuming
 # them. See documentation/en-name-matching.md.
 #
+# MACROS: some abilities are written as a single scripted shorthand line, e.g.
+# "*GainPowerWithEnoughCharacters(5000,2,Granblue)", instead of a Text line -- the simulator's game
+# engine only needs the macro to RUN the effect, not a prose description, so plenty of simple
+# mechanical abilities (flat pumps, assists, encores...) have no English text at all in the raw
+# file. pipeline/sources/macros.tsv (curated reference, not code) maps each macro name to an
+# English template with placeholders (POWER, NUMBER, TRAITLIST, ...); we substitute the macro
+# call's own arguments into that template so these abilities get real English too, instead of
+# silently staying blank. Confirmed 2026-07-22: about a quarter of all simulator cards have at
+# least one macro-only ability with no Text line, so skipping this would leave ~25% incomplete.
+#
 # Usage:  python pipeline/extract_simulator.py ["<path to ...StreamingAssets/Cards>"]
 # Output (pipeline/):  name_sim.json {key: name} · traits_sim.json {key: [t1,t2]} ·
 #                      abilities_sim.json {key: [text, ...]}
-import os, re, json, sys
+import os, re, json, sys, csv
 
 D = os.path.dirname(os.path.abspath(__file__))
 # Date-stamped folder — changes on every simulator re-download. Override via argv[1].
@@ -33,6 +43,82 @@ def skey_str(code):
     k = strict_key(code)
     return "/".join(k) if k else None
 
+# --- macro -> English template, loaded from the curated reference table ---
+MACROS = {}
+with open(os.path.join(D, "sources", "macros.tsv"), encoding="utf-8") as f:
+    for row in csv.DictReader(f, delimiter="\t"):
+        MACROS[row["macro"]] = row["description"]
+
+# Placeholder tokens a template can contain, in the FIXED order the macro's own positional
+# arguments are written in (verified against real calls, e.g. GainPowerWithEnoughCharacters
+# (POWER,NUMBER,TRAITLIST) and OnActGivePower(POWER,TIMESPERTURN) -- POWER always comes first when
+# present, a small count/times-per-turn number comes next, and a trait/name/requirement string
+# comes last). This is NOT the order the words appear in the template's prose -- e.g.
+# GainPowerWithEnoughCharacters's text says "...TRAITLIST...NUMBER...POWER" but its arguments are
+# (POWER, NUMBER, TRAITLIST). So placeholders are matched to arguments by this priority list, not
+# by where they sit in the sentence.
+# "X" is deliberately NOT a placeholder: templates only ever use it to EXPLAIN a computed value in
+# prose ("+X power where X is 500 times that character's level"), never as something we substitute
+# -- treating it as one caused false failures (e.g. LevelAssist takes 0 args; its "X" is narrative).
+PLACEHOLDER_ORDER = ["POWER", "TIMESPERTURN", "NUMBER", "TRAITLIST", "CARDNAME", "NAME", "REQUIREMENT", "COLOR"]
+
+def split_macro_args(argstr):
+    """Split a macro call's comma-separated arguments, respecting a backslash-escaped comma
+    inside a single argument (card names sometimes contain a real comma, e.g. 'Hero of Biscotti\\, Cinque')."""
+    if argstr == "":
+        return []
+    parts, buf, i = [], "", 0
+    while i < len(argstr):
+        if argstr[i] == "\\" and i + 1 < len(argstr) and argstr[i + 1] == ",":
+            buf += ","; i += 2; continue     # un-escape \, -> , and keep it IN the current argument
+        if argstr[i] == ",":
+            parts.append(buf); buf = ""; i += 1; continue
+        buf += argstr[i]; i += 1
+    parts.append(buf)
+    return [p.strip() for p in parts]
+
+def humanize_traitlist(v):
+    # Multiple traits are pipe-separated in the raw call ("Master|Servant|Homunculus"); render as
+    # readable English. "Any" is the engine's own keyword for "no trait restriction" -- keep as-is,
+    # it already reads fine ("Choose 1 of your Any characters" isn't used; templates phrase around it).
+    return " or ".join(v.split("|"))
+
+def synthesize_macro(name, argstr_or_none):
+    """Return the English text for one macro line, or None if the macro/args can't be resolved
+    (caller then just skips this ability line rather than emit something wrong)."""
+    template = MACROS.get(name)
+    if template is None:
+        return None
+    args = split_macro_args(argstr_or_none) if argstr_or_none is not None else []
+    # Which placeholders does this template actually use, in our fixed priority order? A literal
+    # "_" is a handful of templates' own placeholder spelling (e.g. "deal _ damage") -- treat it as
+    # one more numeric slot, checked right after NUMBER since it plays the same role.
+    has_minmax = "MIN-MAX" in template
+    has_underscore = re.search(r"(?<!\w)_(?!\w)", template) is not None
+    # Word-boundary check, NOT plain substring -- "NAME" is literally contained inside "CARDNAME",
+    # so a naive `p in template` would wrongly detect BOTH and demand an extra phantom argument.
+    present = [p for p in PLACEHOLDER_ORDER if re.search(r"(?<!\w)" + re.escape(p) + r"(?!\w)", template)]
+    if has_underscore:
+        present.insert(min(2, len(present)), "_")   # numeric slot, same priority band as NUMBER
+    needed = len(present) + (2 if has_minmax else 0)   # MIN-MAX consumes 2 positional args on its own
+    # Extra trailing args beyond what the ENGLISH needs are fine (the game engine may pass more than
+    # the description mentions, e.g. an internal trait key the template doesn't narrate) -- only a
+    # SHORTFALL means we can't safely fill every placeholder, so only bail out on that.
+    if len(args) < needed:
+        return None
+    text = template
+    i = 0
+    if has_minmax:                                      # MIN-MAX is always the pair of args (checked first
+        text = text.replace("MIN-MAX", f"{args[0]}-{args[1]}")   # in practice it's the only placeholder)
+        i = 2
+    for ph in present:
+        val = args[i]; i += 1
+        if ph == "TRAITLIST":
+            val = humanize_traitlist(val)
+        token = "_" if ph == "_" else ph
+        text = re.sub(r"(?<!\w)" + re.escape(token) + r"(?!\w)", lambda _m: val, text)  # ALL occurrences
+    return text
+
 # --- JP cards define the parity set: keep only simulator entries that map to a real JP card ---
 clean = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
 JP = {skey_str(c["card_number"]) for c in clean if not c.get("excluded")}
@@ -41,9 +127,12 @@ print(f"simulator dir: {SIM_DIR}")
 print(f"JP parity keys: {len(JP)}")
 
 CARD = re.compile(r"^(?:Character|Event|Climax|Card)\s*:\s*(\S+)")
+MACRO_LINE = re.compile(r"^\*(\w+)(?:\((.*)\))?$")   # "*HexProof" (no args) or "*Name(a,b,...)"
 names, traits, abilities = {}, {}, {}
 seen = set()
 files = entries = 0
+macro_hits = macro_misses = 0
+unresolved_macros = {}   # macro name -> how many times we failed to synthesize it (for the report)
 
 def commit(cur):
     """Record one parsed card if it maps to a JP card and hasn't been seen (first printing wins)."""
@@ -78,6 +167,18 @@ for root, _, fs in os.walk(SIM_DIR):
                 if len(p) > 1: cur["traits"].append(p[1].strip())
             elif t.startswith("Text "):    cur["texts"].append(t[5:].strip())   # one ability line each
             elif t == "EndCard":           commit(cur); cur = None              # explicit card terminator
+            else:
+                mm = MACRO_LINE.match(t)
+                # A macro line IS one ability slot, same as a "Text " line -- appended here, in the
+                # same left-to-right scan, so it lands in the correct position relative to any Text
+                # lines around it (macros and Text-ending blocks never describe the same ability).
+                if mm:
+                    synth = synthesize_macro(mm.group(1), mm.group(2))
+                    if synth:
+                        cur["texts"].append(synth); macro_hits += 1
+                    else:
+                        macro_misses += 1
+                        unresolved_macros[mm.group(1)] = unresolved_macros.get(mm.group(1), 0) + 1
     commit(cur)   # last card in the file (no trailing EndCard/header to trigger the commit)
 
 for fn, obj in (("name_sim.json", names), ("traits_sim.json", traits), ("abilities_sim.json", abilities)):
@@ -86,3 +187,7 @@ for fn, obj in (("name_sim.json", names), ("traits_sim.json", traits), ("abiliti
 
 print(f"files={files} card entries={entries} | parity-matched cards={len(seen)}")
 print(f"wrote name_sim.json={len(names)}  traits_sim.json={len(traits)}  abilities_sim.json={len(abilities)}")
+print(f"macro lines synthesized to English: {macro_hits} | unresolved (unknown macro or arg-count mismatch): {macro_misses}")
+if unresolved_macros:
+    top = sorted(unresolved_macros.items(), key=lambda kv: -kv[1])[:15]
+    print("top unresolved macros:", ", ".join(f"{n}x{c}" for n, c in top))

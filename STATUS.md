@@ -69,6 +69,21 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   reuse existing ability signatures rather than adding net-new ones). See [[translation-sources]] for the
   general translation-cascade approach; the specific simulator source has separate handling — see
   `NOTICE.md` (its description was deliberately genericized, not removed) for why.
+- ✅ **Macro synthesis added to `extract_simulator.py` (2026-07-22) — big ability-EN coverage win.**
+  The user caught that some GBF cards showed no English abilities despite the simulator clearly
+  having the effect — root cause: ~25% of ALL simulator cards (not just new ones) have at least one
+  ability written as a scripted macro line (e.g. `*GainPowerWithEnoughCharacters(5000,2,Granblue)`)
+  instead of a `Text` line, because the game engine only needs the macro to run the effect, not a
+  prose description. `pipeline/sources/macros.tsv` (236 curated macro -> English-template mappings,
+  already in the repo) is now used to synthesize real English for these by substituting each macro
+  call's own arguments into its template. Result: **macro lines resolved to English: 30,059 of
+  30,150 found (99.7%)**; site-wide ability EN coverage jumped to **98.4%** (65,752/66,817). Fixed
+  along the way: two bugs in the substitution logic (a bare "X" wrongly treated as a placeholder —
+  it's narrative-only in every template that uses it; "NAME" matching as a false substring of
+  "CARDNAME", demanding a phantom extra argument). The ~91 remaining unresolved macros are mostly
+  ones absent from `macros.tsv` entirely (e.g. `CountSoulTriggers`), not a code bug. Rebuilt `site/`:
+  unchanged 40,393 cards/66,817 abilities, Explained% 95.6%, suspects 3544 (EN text doesn't feed the
+  cost model, so no regression risk there by construction).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
