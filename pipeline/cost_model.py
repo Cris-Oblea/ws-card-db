@@ -108,7 +108,12 @@ FAMPAT = [
   # (レベル/コスト/前列 conditions push the old zero-gap "相手のキャラ" literal past its limit); (2) accept
   # "このカードの正面のキャラ" (the character THIS card is facing in combat -- i.e. its battle opponent) as an
   # equivalent way real prints refer to the target without the word 相手.
-  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)"),
+  # 3rd branch: "そのバトル相手"/"このカードのバトル相手" -- a PRONOUN referring back to a target already fixed by
+  # the trigger clause itself (e.g. "このカードのバトル相手が【リバース】した時…そのバトル相手をクロック置場に置く" --
+  # SAO/S47-107). No 選び verb here at all: nothing needs to be SELECTED, since the trigger already pinned
+  # down which single character is meant. Every other branch needs 選び because it's picking one out of a
+  # broader class ("相手の…キャラ" = any matching opponent character); this pronoun form never does.
+  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)"),
   # Removal (Hand): return an OPPONENT character to hand — same final purpose as every other Removal variant
   # below (get the opponent's stage character out of play), just a different destination. Named per-variant
   # (not one flat "Removal") because the destination materially changes the character's cost to the game:
@@ -163,7 +168,7 @@ FAMPAT = [
   # correction: my first write-up wrongly described this as the ACTOR capturing the character into their own
   # stock, which cross-owner mixing rules make impossible.)
   ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
-  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置"),
+  ("Removal (Stock)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}ストック[^。]{0,4}に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}ストック[^。]{0,4}に置"),
   # Removal (Deck Bottom) / (Deck Top) / (Memory) / (Swap): the remaining printed destinations that send an
   # opponent's STAGE character elsewhere — same final purpose as Removal (Hand)/(Waiting Room) above ("el
   # propósito es sacarlo del stage"), each split into its OWN meaningfully-named variant rather than one
@@ -176,11 +181,15 @@ FAMPAT = [
   # sentence break some prints put before it) instead of [^。]. User taxonomy.
   # 2nd branch: "このカードのバトル相手"/"このカードとバトル中のキャラ" -- ways real prints refer to the opponent's
   # character WITHOUT the possessive 相手の (they mean the same thing: the character this card is battling).
-  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置"),
-  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置"),
+  # Pronoun branches (そのバトル相手/このカードのバトル相手, no 選び needed -- see the Clock Kick comment above for
+  # why: the trigger clause already pinned down the single target). "山札の上か下に置" (attacker's choice of
+  # top OR bottom) is folded in here too rather than split into its own family -- it's the same permanent-
+  # removal purpose, just letting the attacker pick the position.
+  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)"),
+  ("Removal (Deck Top)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の上に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の上に置"),
   # Verb widened にし -> にし|にする (dictionary form, no polite/optional suffix -- some prints phrase this as a
   # flat mandatory action, "…選び、思い出にする。", not "…にしてよい/にします").
-  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)"),
+  ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)"),
   ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え"),
   # ReviveOpponent (provisional name, pending user confirmation): the reverse of Removal — put a character
   # from the OPPONENT's OWN waiting room onto a stage slot. Since a character always stays owned by its
