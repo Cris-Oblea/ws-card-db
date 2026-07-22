@@ -386,6 +386,37 @@ def pump_self_estimate(gen_text):
     k = (1 if _PUMP_TEMP.search(gen_text) else 0) + len(_PUMP_COND.findall(gen_text))
     return max(500, r500(n * (0.5 ** k)))
 
+# ---- partial cabling: Salvage multiplicative estimate (see documentation/pump_cost_model.md §"Salvage") ----
+# Salvage's base is the NET ADVANTAGE of the swap, not a printed number like Pump's -- so instead of parsing
+# a magnitude, this classifies the PACKAGE into one of two net-advantage buckets and reads the base off that:
+#   - net-0 "pure recycle": the payment discards the SAME broad category (CX) as what's salvaged (CX too),
+#     or the salvage TARGET is a single SPECIFIC NAMED card (「N」, i.e. a narrow, low-flexibility get) --
+#     both patterns measured at a clean MODE of 500 across many isolated single-ability samples.
+#   - net+1 "upgrade": anything else (most commonly: discard a CX/any card for an UNRESTRICTED or
+#     trait-restricted CHARACTER) -- measured mode 1000.
+# Validated against 729 isolated single-ability measured Character samples (2026-07-22): this 2-way split
+# beats the flat family median on the metric that matters for Explained% -- 86.1% within +/-500 vs the flat
+# median's 75.0% (comparable margin to Power Pump's own 84% vs 75% win). A further attempt to also fold in
+# trigger-difficulty and a hand-loss payment credit made the fit WORSE, not better -- salvage's payment-credit
+# interactions are genuinely more tangled than pump's (matches the OPEN item in pump_cost_model.md: "real-loss
+# payments are NOT a clean fixed per-type factor"), so this stays a plain 2-way categorical read, no further
+# multiplication. Only touches ESTIMATED (LOW) sigs, same as pump_self_estimate.
+_SALV_BRACKET = re.compile(r"［([^］]*)］")
+_SALV_CX = re.compile(r"CX|クライマックス")
+_SALV_NAMED = re.compile(r"「N」")
+def salvage_estimate(gen_text):
+    """Multiplicative-model estimate for a Salvage gen sig: 500 for a same-category (CX<->CX) or
+    named-target recycle, 1000 for an unrestricted/trait-restricted character upgrade."""
+    m = _SALV_BRACKET.search(gen_text)
+    payment = m.group(1) if m else ""
+    rest = gen_text[m.end():] if m else gen_text
+    pay_cx = bool(_SALV_CX.search(payment))
+    tm = re.search(r"(.{0,40})手札に戻", rest)
+    target_clause = tm.group(1) if tm else ""
+    if (pay_cx and _SALV_CX.search(target_clause)) or _SALV_NAMED.search(target_clause):
+        return 500
+    return 1000
+
 
 class CostModel:
     """Result of build_cost_model(clean). Holds the per-signature cost cascade and the lookups both
@@ -629,12 +660,18 @@ def build_cost_model(clean):
         if sig in cost: continue
         base = cxc_med if is_cxc(sig) else fam_med.get(fam_of(sig), 500)
         cost[sig] = base; method[sig] = "estimated"; nsamp[sig] = 0; rng[sig] = (None, None)
-    # STEP 3d partial cabling: override the flat-median ESTIMATE of Power Pump (self) sigs with the
-    # multiplicative model (estimated-only; measured/residual untouched). Stays method "estimated" (LOW) —
-    # still a guess, just an N-scaled one instead of a flat family median.
+    # STEP 3d partial cabling: override the flat-median ESTIMATE of Power Pump (self) and Salvage sigs with
+    # their respective multiplicative/net-advantage models (estimated-only; measured/residual untouched).
+    # Stays method "estimated" (LOW) — still a guess, just an evidence-based one instead of a flat median.
     for sig in ALLV:
-        if method.get(sig) != "estimated" or fam_of(sig) != "Power Pump (self)": continue
-        est = pump_self_estimate(variant_text[sig][1])
+        if method.get(sig) != "estimated": continue
+        fam = fam_of(sig)
+        if fam == "Power Pump (self)":
+            est = pump_self_estimate(variant_text[sig][1])
+        elif fam == "Salvage":
+            est = salvage_estimate(variant_text[sig][1])
+        else:
+            continue
         if est is not None: cost[sig] = est
     # enforce the CXC floor (== 0) on EVERY CX-combo sig — clamps only a genuinely NEGATIVE combo (incl. a
     # single-ability measured combo whose lone over-statted print measured below 0) up to 0; positives pass.

@@ -1,10 +1,11 @@
-# Multiplicative cost-decomposition model (DRAFT — design spec, NOT yet wired into the live model)
+# Multiplicative cost-decomposition model (PARTIALLY wired: Power Pump (self) + Salvage)
 
 > Status: a validated **conceptual** model for how a single ability's power-cost is built up. Derived on
 > the `Power Pump (self)` family (where the effect base is literally the `+N` printed on the card, so the
-> model is directly checkable), but intended to generalize to all families. **Not yet implemented** in
-> `cost_model.py`; this is the agreed design + the open questions before any wiring. Source of the rules:
-> the project owner (the cost designer / oracle), cross-checked against the measured/residual data.
+> model is directly checkable), and since generalized to `Salvage` (whose base is the swap's net advantage,
+> not a printed number — see "Wiring status" below). Cabled in `cost_model.py` for these two families only;
+> Search/Bounce/Debuff/etc. are qualitatively harder and still use the flat family median. Source of the
+> rules: the project owner (the cost designer / oracle), cross-checked against the measured/residual data.
 
 ## The formula
 
@@ -124,15 +125,40 @@ modeling variant tried (trigger-as-discount, trigger-as-multiplier, round-neares
 at **~54% exact / ~84% within ±500**. The residual ~16% is largely **irreducible from text parsing**:
 condition-strength variation, per-card designer adjustments, and the genuinely-split half-step rounding.
 
-## Wiring status — PARTIAL cabling done (2026-06-21)
-- **CABLED: Power Pump (self).** `cost_model.py` step 3d (`pump_self_estimate`) overrides the flat
-  family-median ESTIMATE of self-pump sigs with `base N × (1/2)^(temporal + #conditions)`, floored at 500.
-  Estimated-only — measured/residual untouched. Result: the 484 estimated self-pumps now scale with `N`
-  (e.g. `+10000 if hand ≤1` = 5000 instead of the old flat 500) instead of all sitting at 500. Gates held:
-  validation 99%, Explained% 95.5% (≥94), suspects +14 (negligible).
-- **NOT cabled: the net-advantage families** (salvage / search / bounce / debuff / …). Their base is the
-  effect's net VALUE (card-flow / tempo), which the text parser cannot read reliably (it would need to
-  understand card advantage, trait-lock, riders, real-loss payments). They keep the flat family-median
-  estimate for now. Trigger-difficulty (easy ×1 / hard ×½) is also not yet wired.
-- **Next levers** when resumed: golden-cost overrides for cards the formula can't nail; pin the OPEN items
-  (hard-condition strength, rounding direction, per-cost-type magnitudes) before cabling more families.
+## Wiring status — PARTIAL cabling, two families done
+
+- **CABLED: Power Pump (self)** (2026-06-21). `cost_model.py` step 3d (`pump_self_estimate`) overrides the
+  flat family-median ESTIMATE of self-pump sigs with `base N × (1/2)^(temporal + #conditions)`, floored at
+  500. Estimated-only — measured/residual untouched. Result: the 484 estimated self-pumps now scale with
+  `N` (e.g. `+10000 if hand ≤1` = 5000 instead of the old flat 500) instead of all sitting at 500. Gates
+  held: validation 99%, Explained% 95.5% (≥94), suspects +14 (negligible).
+
+- **CABLED: Salvage** (2026-07-22, `salvage_estimate`). Salvage's base isn't a printed number like Pump's —
+  it's the swap's NET ADVANTAGE, so instead of parsing a magnitude, the estimator classifies the package
+  into one of two buckets read off 729 isolated single-ability measured samples:
+  - **net-0 "pure recycle" → 500**: the payment discards the SAME broad category (CX) as the salvage
+    TARGET (also CX), or the target is a single SPECIFIC NAMED card (`「N」`, a narrow/low-flexibility get).
+  - **net+1 "upgrade" → 1000**: anything else — most commonly discarding a CX/any card for an
+    unrestricted or trait-restricted CHARACTER.
+
+  Validated against the 729 samples: **86.1% within ±500** (comparable margin to Pump's own 84% vs the flat
+  median's 75.0%; exact match is lower at 35.8%, but ±500 is the metric that drives Explained%). A further
+  attempt to also fold in trigger-difficulty and a "hand-discard credits the upgrade back down" rule (the
+  theory in the Payment section above) made the fit WORSE, not better — salvage's payment-credit
+  interactions are genuinely more tangled than a clean multiplier, matching the still-open Payment item
+  below. Shipped as the plain 2-way categorical read; rebuilt `site/`: Explained% unchanged at 95.6%,
+  suspects 3544→3537 (small real improvement, no regression).
+
+- **NOT cabled: Search, Bounce, Power Debuff, …** Investigated Search on the same 2026-07-22 pass (1080
+  isolated samples) and found it's qualitatively harder than Salvage: its variance is dominated by WHICH
+  deck-manipulation mechanic a package uses (e.g. "search whole deck by trait" = 500 vs "reveal top 3, add
+  any card" = 2000 — two disjoint mechanics, not the same base modulated by a condition), so a single
+  base-formula doesn't fit the way it does for Pump/Salvage. Would need a per-mechanic base LOOKUP table
+  (many distinct search mechanics), not a formula — a bigger, separate effort. Left on the flat family
+  median for now rather than force a shaky wire. Trigger-difficulty (easy ×1 / hard ×½) is still not wired
+  anywhere as a standalone factor (folded ad hoc into Pump's own `#conditions` count instead).
+
+- **Next levers** when resumed: build the Search per-mechanic base table (start from the isolated-sample
+  clusters already in this session's analysis — "trait-deck-search" ≈500, "top-3-reveal-any" ≈2000, etc.);
+  golden-cost overrides for cards the formula can't nail; pin the OPEN items (hard-condition strength,
+  rounding direction, per-cost-type magnitudes) before cabling more families.
