@@ -472,7 +472,11 @@ FAMPAT = [
   # Widened: (1) "手札にこのカードがあるなら" as another condition prefix (gains the identity while IN HAND, not
   # just on stage/in all zones); (2) a bare "このカードは…を得る" with NO condition prefix at all (an
   # unconditional, permanent grant — e.g. a fixed color) or deriving the color from this card's own markers.
-  ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の)|手札にこのカードがあるなら)[^。]{0,20}(を得る|得る|としても扱う)|このカードは[^。]{0,24}を得る"),
+  # Bare final-clause branch added: "このカードのカード名は…としても扱う" (this card's name is ALSO treated as X) is
+  # the shared destination regardless of which zone/condition precedes it (在 hand, in Memory, in the
+  # waiting room, a combined condition, etc.) -- enumerating every prefix was missing real cases; anchoring
+  # on the destination clause alone (like AddMarkerWaitingRoom does for マーカーとして) is more robust.
+  ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の)|手札にこのカードがあるなら)[^。]{0,20}(を得る|得る|としても扱う)|このカードは[^。]{0,24}を得る|このカードのカード名は[^。]{0,40}としても扱う"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   # Retreat: THIS card (or another of your own STAGE characters) returns to hand -- a self-bounce/withdrawal,
