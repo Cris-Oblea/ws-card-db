@@ -27,8 +27,8 @@ power_real = power_base − cost                cost is always a multiple of 500
 
 | Metric | Value |
 |---|---|
-| JP cards decoded | 63,350 |
-| Distinct abilities priced | 15,889 |
+| JP cards decoded | 64,663 |
+| Distinct abilities priced | 15,346 |
 | Neo-Standard franchises | 74 |
 | Cards live on the site | ~40k (EN + JP) |
 | English coverage (names / abilities / traits) | 100% / 100% / 100% |
@@ -60,7 +60,7 @@ isn't committed (it's a rebuilt-every-time binary; committing it repeatedly bloa
 MB, see `documentation/RUNBOOK.md` §4), so you build it once after cloning.
 
 ```bash
-python pipeline/build_official_list.py   # -> Complete_Abilities_List.xlsx (15,889 abilities)
+python pipeline/build_official_list.py   # -> Complete_Abilities_List.xlsx (15,346 abilities)
 ```
 
 Every full command sequence (ingest → translate → build → deploy) and every "how do I…" recipe is in

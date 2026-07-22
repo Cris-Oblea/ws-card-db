@@ -23,7 +23,7 @@ power_real = power_base − cost          (so:  cost = power_base − power_real
 - **`power_base`** = what an ability-less card with the same stats *would* have (computed, see §1).
 - **`cost`** = the power the abilities "spent". Always a **multiple of 500** (the game's power economy).
 
-The whole project exists to measure that cost for the ~15,889 distinct abilities that appear in the game, so
+The whole project exists to measure that cost for the ~15,346 distinct abilities that appear in the game, so
 a custom-card designer can look up *"I want this effect → it costs X power"*.
 
 Two facts drive the entire design:

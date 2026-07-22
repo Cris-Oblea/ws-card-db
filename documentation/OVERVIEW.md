@@ -7,7 +7,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 
 ## How it works (the flow)
 1. **Harvest** (`pipeline/ingest/harvest_cardlist.py`): scrapes the official JP list (ws-tcg.com) with polite throttling and resumable state.
-2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (63,350 JP cards, UTF-8 NFKC).
+2. **Clean** (`clean_cardlist.py`): normalizes the raw → `cardlist_clean.json` (64,663 JP cards, UTF-8 NFKC).
 3. **Date** (`date_sets.py` → `set_dates.json`): assigns `release_date`/`release_year` per set; `build_card_era.py` projects a descriptive format-era label (Genesis/Bounty/Gate/Standby/Choice/Horizon, bounded by climax trigger-icon debuts) onto each card → `card_era.json`. Date/era are **metadata only — NOT a cost driver** (validated: there is no power-creep at the package level; the apparent creep was effect-mix shift + dispersion).
 4. **Cost model** (single-sourced in `pipeline/cost_model.py`, imported by both `build_*.py`):
    - **Package = full signature** (`''.join(markers) + ' :: ' + gen(text)`). The **standard cost** of a package = the **MODE (rounded 500)** of its measured per-card actuals, pooled across ALL years (no era split). Each standard carries its evidence: **`mode_share`** (% the modal value takes) and **`n_samples`**.
@@ -19,7 +19,7 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
    - **CX-Combo / replay** keep the residual-ABSORBER cascade (CX-combo floored at ≥0 — it IS the leftover residual, no arbitrary 500 minimum; replay body folded into its citer, counted once).
    - Base power ≈ `3000 + 2500·Level + 1500·Cost − 1000·[Soul trigger] − 1000·(Soul−1)`.
 5. **Outputs:**
-   - `build_official_list.py` → `Complete_Abilities_List.xlsx` (15,889 abilities; local Excel, generated on demand).
+   - `build_official_list.py` → `Complete_Abilities_List.xlsx` (15,346 abilities; local Excel, generated on demand).
    - `build_db.py` → `site/ws.sqlite(.gz)` for the web.
    - `build_cost_sheet.py` → `Ability_Cost_Guide.xlsx` (model for costing new effects).
 6. **Web** (`site/`): static app — downloads `ws.sqlite.gz`, gunzips with pako, sql.js in memory, queries in the browser. **No backend.**
@@ -34,11 +34,15 @@ Measures the **power cost per ability** of Weiss Schwarz cards, to serve as a **
 - **Web:** HTML5 + vanilla JS + **`sql.js`** + **`pako`** + **SQLite**.
 
 ## Key data
-- 63,350 JP cards + 18,532 EN · 15,889 distinct abilities · 74 Neo-Standard franchises · release-date metadata (trigger-debut format eras as flavor, not a cost driver).
+- 64,663 JP cards + 18,727 EN · 15,346 distinct abilities · 74 Neo-Standard franchises · release-date metadata (trigger-debut format eras as flavor, not a cost driver).
 - `pipeline/translation_cache.json` = PERMANENT translation cache (**do not delete**).
 
 ## Status
-Pipeline validated at 98%; web in production (~40k cards). In progress: bilingual JP→EN translation (10/16 batches) + accuracy improvement ("suspects" detection + golden costs).
+Pipeline validated at 98%; web live and public (~40k cards, auto-deployed by CI on every push — see
+`documentation/WEBAPP.md` "Deploy"). Bilingual JP→EN translation is **done** (100%). Current focus is
+cost-model accuracy: hunting over-costed families (e.g. Search, ~+8000) and extending the multiplicative
+cost-decomposition model (`documentation/pump_cost_model.md`) beyond Power Pump (self) — see `STATUS.md`
+for the live state.
 
 ## To go deeper
 The detailed docs in `documentation/`:

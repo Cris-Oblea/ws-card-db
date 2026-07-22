@@ -5,7 +5,7 @@
 > `COST_MODEL.md` wins. In particular, the era claim below has been **superseded** — see §2.
 
 ## 1. What was delivered
-**`Complete_Abilities_List.xlsx`** — the **15,889 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`Ability_Cost_Guide`** for costing effects that do NOT exist on any card.
+**`Complete_Abilities_List.xlsx`** — the **15,346 distinct abilities** that exist in the game (the entire universe of measurable Characters), each with a **cost in power** (multiple of 500), its family, the real JP text, the official EN when it could be verified, and two critical honesty columns: **Method** and **Confidence**. Plus the **`Ability_Cost_Guide`** for costing effects that do NOT exist on any card.
 
 It serves what you wanted: **look up "this effect → costs X"** and **draw inspiration for new cards**.
 

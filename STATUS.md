@@ -7,8 +7,8 @@
 
 ## Current state
 
-- **Query app:** static site in `site/` (~39.9k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
-- **Cost pipeline:** validated ~98% (15,889 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
+- **Query app:** static site in `site/` (~40.4k cards, sql.js + `ws.sqlite`). Run locally: `python -m http.server` from `site/`.
+- **Cost pipeline:** validated ~98% (15,346 abilities). Excel cost sheets generated on demand via `pipeline/build_official_list.py` (local, not versioned).
 - **EN-exclusive sets (WX/SX):** 1,439 cards with EN-native costing.
 - **EN coverage: names 100% · ability text 100% · traits 100%.** Cascade official EN → simulator → Heart of the Cards → LLM (`name_tr`/`abilities_tr`/`trait_tr`) → blank. Curated **legacy-disparity exclusions** (DG/P4/PI/LL whole-franchise, FT only S120, BD W63-102/103/104 + W03) prevent renumbered old sets from grafting the wrong English name. See `documentation/en-name-matching.md`. Remaining: only 2 `#NAME?` data-error cells — all real cards are bilingual.
 - **Translation sources:** `pipeline/extract_simulator.py` (fan WS game `CardData.txt` → `name_sim.json`/`traits_sim.json`/`abilities_sim.json`, ~+19.8k names; set-parity filtered) · `pipeline/fetch_hotc.py` (Heart of the Cards → `name_hotc.json`, 2,909 names, JP-name-keyed; correct even for blocked legacy; rate-limited, paces slowly) · LLM pass (`pipeline/_tr2_extract.py` → batches → agents → `name_tr.json`/`abilities_tr.json`/`trait_tr.json`). Re-run the sim extractor with the new dated path when the simulator updates.
@@ -60,8 +60,15 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   cards (+1,313)**, **EN 18,532 → 18,727 (+195, all Uma Musume)**, 5 new sets (GBF Granblue Fantasy, BRD
   Brown Dust 2, RZ Re:Zero Vol.4, GA Bunko, IMC iM@S Cinderella 2026) + 131 promos, all released
   2026-06-09→07-21. 0 excluded, 0 data-quality flags, all overrides/hand-fixes verified intact, only 10
-  pre-existing cards changed (benign upstream wording/katakana→kanji fixes, zero stat changes). Translation
-  refreshers (simulator/HotC) skipped on purpose — the new cards are too recent to have fan translations.
+  pre-existing cards changed (benign upstream wording/katakana→kanji fixes, zero stat changes).
+- ✅ **Follow-up (2026-07-22): simulator translations DID cover the new sets.** Re-ran
+  `pipeline/extract_simulator.py` against a newer simulator install (dated 21 JULIO 2026) — it turned out
+  to already have the new sets. Result: **502/503 new-set cards now have English** (up from 0). Rebuilt
+  `site/`: still 40,393 cards/66,817 abilities, Explained% 95.6%, suspects 3544 — no regression. Distinct
+  abilities count is now **15,346** (was 15,889 pre-refresh; a plausible drop, not a bug — new cards mostly
+  reuse existing ability signatures rather than adding net-new ones). See [[translation-sources]] for the
+  general translation-cascade approach; the specific simulator source has separate handling — see
+  `NOTICE.md` (its description was deliberately genericized, not removed) for why.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

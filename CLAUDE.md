@@ -1,6 +1,6 @@
 # CLAUDE.md — ws-card-db
 
-An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,889 abilities / 63,350 cards) + a **static lookup website**. Personal repo (Cris-Oblea/ws-card-db).
+An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,346 abilities / 64,663 cards) + a **static lookup website**. Personal repo (Cris-Oblea/ws-card-db).
 
 > ⚠️ **This file is the SOURCE OF TRUTH for the stack and conventions.** When the project grows (new libs, new technology, new folder), update it HERE. The agents read this file and do NOT hardcode versions, so there's no need to modify them when the stack changes.
 
@@ -13,7 +13,7 @@ This repository is **English-only**. All documentation, code comments, commit me
 - Keeping `documentation/` + this `CLAUDE.md` up to date **is part of finishing a change**, just like the code. A change without updated docs is not finished.
 
 ## Underlying purpose
-The reason it exists: **a balance reference for designing CUSTOM cards** — *"I want this effect → it costs X power"*. The cost is the power SUBTRACTED from a card relative to its base (`power_real = power_base − cost`), **always in multiples of 500**. Measuring the cost of the 15,889 real abilities gives the yardstick for costing new effects that don't exist on any card.
+The reason it exists: **a balance reference for designing CUSTOM cards** — *"I want this effect → it costs X power"*. The cost is the power SUBTRACTED from a card relative to its base (`power_real = power_base − cost`), **always in multiples of 500**. Measuring the cost of the 15,346 real abilities gives the yardstick for costing new effects that don't exist on any card.
 
 ## What it is (two products)
 1. **Pipeline (Python):** scrapes the official JP list, normalizes, dates by era, and computes the power cost of each ability (measured → residual → estimated). Output: the SQLite that powers the static site (the deliverable); Excel cost sheets are generated locally on demand.
