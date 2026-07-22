@@ -11,7 +11,7 @@ import urllib.request, json, ssl, os, io
 D = os.path.dirname(os.path.abspath(__file__))
 URL = "https://ws-tcg.com/manage/CardListUser/filter-options"
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (WS power-cost research; contact agentic@propital.com)",
+    "User-Agent": "Mozilla/5.0 (WS power-cost research; https://github.com/CrisRP-dev/ws-card-db)",
     "X-Requested-With": "XMLHttpRequest",              # present it as the page's own AJAX call
     "Referer": "https://ws-tcg.com/cardlist/search/",
     "Accept": "application/json, text/javascript, */*; q=0.01",
