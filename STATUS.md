@@ -1,7 +1,7 @@
 # ws-card-db — Status
 
 > Living status file. Update at the end of each session.  
-> Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db) · Portfolio project **1 of 3**.
+> Repo: [CrisRP-dev/ws-card-db](https://github.com/CrisRP-dev/ws-card-db).
 
 **Last updated:** 2026-07-21
 
@@ -129,8 +129,7 @@ Translation is done, so future sessions are **only** about cost-model accuracy. 
 ## Dependencies
 
 - **Consumes:** official JP/EN card lists, Bushiroad rules (see `reference/`, `pipeline/sources/`)
-- **Feeds:** `ws-sim-ai` (card costs + structured data)
-- **Related:** card images live in `WSAI/Galería/` (4.1 GB, not in git)
+- Card images are not versioned (not tracked in git, see `.gitignore`)
 
 ## Do not commit
 

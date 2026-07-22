@@ -1,7 +1,6 @@
 # ws-card-db
 
 **Weiss Schwarz card database & power-cost-per-ability engine.**
-Project **1 of 3** in the **WSAI** portfolio ([`ws-sim-ai`](https://github.com/CrisRP-dev/ws-sim-ai) consumes its output).
 
 ![Python](https://img.shields.io/badge/python-3.14-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)

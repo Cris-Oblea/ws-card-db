@@ -22,6 +22,5 @@ Read the repo's **`CLAUDE.md`**: that's where the CURRENT stack (don't assume ve
 
 ## What you do NOT do
 - You don't decide the strategy (architect) nor close the task (reviewer).
-- Don't edit `wsai/analisis/` (the workshop) — this repo is the canonical one.
 
 Leave a brief note of what you changed + the validation counts.

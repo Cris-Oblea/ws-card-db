@@ -62,8 +62,7 @@ python build_cost_sheet.py       # -> Ability_Cost_Guide.xlsx        (model for 
 
 ## Simulator duel log (moved out of this repo)
 > **Historical note.** Duel-log parsing (`parse_duel_log.py`) is **no longer in this repo** — it does not
-> belong to the card-cost pipeline. Match-log capture/parsing lives in the sibling **ws-sim-logger**
-> project of the WSAI portfolio. This repo (`ws-card-db`) is only the extraction/cost pipeline + the
+> belong to the card-cost pipeline. This repo (`ws-card-db`) is only the extraction/cost pipeline + the
 > lookup website; ignore any older reference to `parse_duel_log.py` or `duel_logs/` here.
 
 ## Folders

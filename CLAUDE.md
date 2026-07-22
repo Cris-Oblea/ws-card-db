@@ -1,6 +1,6 @@
 # CLAUDE.md — ws-card-db
 
-Project 1 of the **WSAI** portfolio. An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,889 abilities / 63,350 cards) + a **static lookup website**. Personal repo (CrisRP-dev/ws-card-db).
+An extraction/analysis pipeline that measures the **power cost per ability** of Weiss Schwarz cards (validated ~98% against the official JP list: 15,889 abilities / 63,350 cards) + a **static lookup website**. Personal repo (CrisRP-dev/ws-card-db).
 
 > ⚠️ **This file is the SOURCE OF TRUTH for the stack and conventions.** When the project grows (new libs, new technology, new folder), update it HERE. The agents read this file and do NOT hardcode versions, so there's no need to modify them when the stack changes.
 
@@ -70,7 +70,3 @@ Defined by **ROLE** (they defer to this CLAUDE.md for the stack, so they don't b
 - **`pipeline-dev`** — maintains/improves the extraction, cleaning and build pipeline.
 - **`cost-analyst`** — the cost model, validation and accuracy improvement.
 - **`web-maintainer`** — the static lookup website.
-
-## Relationship to the WSAI portfolio
-- It came out of the `wsai/analisis/` workshop → **this repo is the clean canonical version** (if you edit the pipeline, do it here, not in `wsai/analisis/`, to avoid drift).
-- It is consumed by **ws-sim-ai** (P3) to reason about value/tempo/economy with grounded numbers.

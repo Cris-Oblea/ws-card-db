@@ -193,7 +193,6 @@ the builders. See [`COST_MODEL.md`](COST_MODEL.md) for what happens inside that 
 | `pipeline/_tr_batches/`, `pipeline/_tr2/`, `pipeline/_tr/` | **Transient/gitignored** | Translation-workflow scratch. The JP→EN translation pass is **done** (100%, per project memory); these are only used when refreshing translations for a new set. |
 | `pipeline/ingest/build_features.py` | **Research substrate** | Feeds an offline formula-auto-discovery experiment (feature CSVs). Nothing on the shipping path consumes it. Still uses the old binary legacy/modern era split. |
 | `pipeline/sources/`, `reference/` | **Reference material** | Official rules/manuals/PDFs — not code, not touched by the build. |
-| `wsai/analisis/` (elsewhere in the portfolio) | **Out of scope** | The original workshop; **this** repo is the clean canonical version. Edit the pipeline here, not there. |
 
 ## To go deeper
 - What to install → [`STACK.md`](STACK.md)
