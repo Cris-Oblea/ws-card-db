@@ -125,6 +125,17 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   Special link-tag-only markers like `RZ/S132-038`'s "王選" (just a keyword name, not prose — would
   need its own curated tag-translation table, doesn't exist). **Final site-wide coverage: 99.87%
   (66,727/66,817)** — the remainder is categories 2-3, not fixable without new reference material.
+- ✅ **Multiplicative cost model extended: Salvage cabled, Search investigated (2026-07-22).** Picked up
+  exactly where the June 21 rollout left off (only `Power Pump (self)` was cabled). `salvage_estimate()`
+  in `cost_model.py` reads Salvage's base as a 2-way categorical split (net-0 recycle = 500, net+1 upgrade
+  = 1000) instead of a formula, since Salvage's value is the swap's net advantage, not a printed number.
+  Validated on 729 isolated single-ability measured samples: **86.1% within ±500** vs the flat median's
+  75.0% (comparable to Pump's own 84%/75% win). Search was investigated too (1080 samples) but found to be
+  qualitatively harder — its cost is dominated by WHICH deck-manipulation mechanic a package uses (not the
+  same base modulated by conditions), needing a per-mechanic lookup table rather than a formula — correctly
+  left on the flat median instead of forcing an unreliable wire. Rebuilt `site/`: Explained% unchanged
+  95.6%, suspects 3544→3537 (small real improvement, no regression). See `documentation/pump_cost_model.md`
+  for the full write-up and next steps (a Search base table).
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
