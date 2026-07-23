@@ -171,6 +171,11 @@ FAMPAT = [
   # only until end of turn), unlike the two passive/permanent CONT variants above. Same destination/purpose
   # (this card can't be reversed), different activation shape -> its own explicit name, same convention.
   ("Reverse Immunity (Paid)", r"あなたはコストを払ってよい。そうしたら、そのターン中、このカードは【リバース】しない"),
+  # Reverse Immunity (Grant): a 4th variant, split by WHO it protects rather than what gates it -- every
+  # variant above protects THIS card (the one with the ability); this one grants the SAME immunity to a
+  # CHOSEN ALLY instead, reactively and payment-gated. Same destination/purpose (that character can't be
+  # reversed this turn), different target. User-named (2026-07-23). Confirmed via ALL/S90-080.
+  ("Reverse Immunity (Grant)", r"あなたはコストを払ってよい。そうしたら、そのターン中、そのキャラは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
   # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
@@ -674,6 +679,10 @@ FAMPAT = [
   # described-not-chosen group shape as the row-qualified opponent branch above, just matched by name instead
   # of row. Confirmed via RZ/SE35-48.
   ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える|相手の(前列|後列)のキャラすべてに[^。]{0,10}《T》を与える|あなたのキャラすべてに[^。]{0,20}《T》を与える|相手のカード名に「N」を含むキャラすべてに[^。]{0,10}《T》を与える"),
+  # Grant Color: same "extend an identity slot" purpose as Grant Trait/Grant Trigger Icon (Class) above, but
+  # the slot is COLOR (affects legal play/payment) instead of a trait or trigger icon. User-named
+  # (2026-07-23). Confirmed via KGL/S95-059.
+  ("Grant Color", r"他のあなたの[^。]{0,20}「N」すべてに[^。]{0,10}(赤|青|緑|黄|紫)を与える"),
   # Grant Ability: same "extend a chosen/named target's identity" purpose as GRANT_PAT above, but this exact
   # shape (grant the 【カウンター】 keyword to a named EVENT card sitting in hand) doesn't match GRANT_PAT's
   # "能力を/』を" requirement -- 【カウンター】 is a specific keyword name, not the generic word 能力. Kept as its
@@ -739,6 +748,12 @@ FAMPAT = [
   # (e.g. front-attack a back-row character). A combat-targeting trick, not a Move (nobody's position on the
   # stage changes). Checked before Move so it doesn't get read as a generic reposition.
   ("Attack Redirect", r"かわりに相手の[^。]{0,16}キャラを[^。]{0,10}選び[^。]{0,24}(フロントアタック|アタック)"),
+  # Attack Cancel: erase an incoming attack ENTIRELY (trigger/counter/damage/battle steps never happen at
+  # all) and skip straight to the next attack-declaration step -- distinct from Attack Redirect above (which
+  # sends the SAME attack to a different target, it still resolves) and from every Reverse Immunity variant
+  # (those prevent the REVERSAL outcome, not the attack itself). User-named (2026-07-23). Confirmed via
+  # JJ/S66-048.
+  ("Attack Cancel", r"そのアタックを中止し[^。]{0,10}次のアタック宣言ステップに進む"),
   # Move: reposition a character ALREADY on the stage into a different open slot -- entering play for the
   # FIRST time from another zone is Summon, not Move. Split by whose character moves (user taxonomy): moving
   # your OWN character is a defensive/tactical trick (dodge a matchup, set up a Backup/Assist angle); forcibly
@@ -800,6 +815,13 @@ FAMPAT = [
   # 2nd branch: a RANDOM hand card (自分の手札をランダムに1枚選び), not a chosen character -- same self-cost
   # purpose (the card's own effect costs its controller a resource), just an unchosen/random target.
   ("Self Sacrifice", r"(自分の|他の自分の)[^。]{0,20}キャラを[^。]{0,10}選び[^。]{0,6}控え室に置(く|き)|自分の手札をランダムに[^。]{0,10}選び[^。]{0,6}控え室に置"),
+  # Delayed Sacrifice: a 2-ability LINKED variant of Self Sacrifice above -- ability 1 (on entering the
+  # stage) just MARKS a target ("choose another of your own characters," no discard yet); ability 2 (later,
+  # when THIS card leaves the stage) discards whichever character was marked. Two separate FAMPAT branches,
+  # one per ability, since ab_cost() prices each ability independently. The 1st branch is anchored to the
+  # FULL ability text (^...$) since a bare "choose another own character" fragment could otherwise appear as
+  # a substring inside many unrelated compound abilities. User-named (2026-07-23). Confirmed via P4/S08-101.
+  ("Delayed Sacrifice", r"^このカードが舞台に置かれた時[^。]{0,6}(あなたは)?他の自分のキャラを[^。]{0,6}選ぶ。?$|このカードの効果で選んだキャラを[^。]{0,6}控え室に置"),
   # Drawback: a negative effect against the CARD'S OWN CONTROLLER. Originally scoped only to "the OPPONENT
   # acts against your zones" (相手は/が…あなたの…選び…に置), confirmed via BD/W54-P03. Widened (2026-07-22,
   # Other-audit) to the broader BUT SAME-SPIRIT case of a SELF-inflicted risk with no opponent involved at
