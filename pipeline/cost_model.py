@@ -821,6 +821,29 @@ FAMPAT = [
   # shuffle (a proactive self-mulligan that costs a whole turn's tempo) -- confirmed via BM/S15-005,
   # SG/W39-008, SGS/S37-040, IM/S21-011.
   ("Drawback", r"自分の山札[^。]{0,10}公開する.{0,40}このカードを山札に戻.{0,20}シャッフル"),
+  # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
+  # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
+  # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
+  # with THIS card. User's explanation (2026-07-23): the real purpose is to hand the attack off to a second
+  # character in the SAME turn -- IMS/S61-103 swaps this card (front-row center, post-attack) into the back
+  # row and pulls a back-row ally into the vacated attacking slot, functionally a bonus attack (similar in
+  # effect to a re-Stand); BD/W125-039 confirmed as the SAME mechanic via a combo explanation with its
+  # sibling BD/W125-082 (a CX Combo that re-Stands 039 after the swap, letting it clock-kick and attack
+  # again, repeatable with another copy of 082) -- both cards use the swap to enable an extra attack this
+  # turn, just via different combo shapes. User-named.
+  ("Switch Attack", r"自分の(前列|後列)の(キャラ|「N」)を[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Name Alias: a rules-text alias -- this card's (or another character's) card name is ALSO treated as (or
+  # explicitly NOT treated as) a different named card, for the purpose of qualifying/disqualifying it under
+  # other cards' name-matching conditions. Distinct from the official 【リンク】 marker (Link Identity above,
+  # which is a bare, punctuation-free self-name declaration) -- this is regular ability text with a real
+  # "も扱う"/"として扱わない" clause. Confirmed via LB/W02-108, PT/W07-029, RZ/S46-034 (grant an alias) and
+  # 5HY/W83-021 (the negative form: explicitly deny an alias this card would otherwise be assumed to have).
+  ("Name Alias", r"このカードは[^。]{0,6}「N」としても扱う|カード名は[^。]{0,10}「N」としても扱う|カード名は「N」として扱わない"),
+  # Strip Trait (Own): the same action as Strip Trait/Strip Trait (All) below (remove a trait entirely), but
+  # targeting your OWN side instead of the opponent's -- split out as its own scoped sibling per the user's
+  # established "split by scope" convention (Bomb/Removal/Reverse Immunity all do this already), rather than
+  # folding self-targeting into the opponent-targeting family. Confirmed via KJ8/S123-014, SGS/S37-088.
+  ("Strip Trait (Own)", r"他のあなたの[^。]{0,20}キャラすべては[^。]{0,10}《T》をすべて失う"),
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
