@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
-**Last updated:** 2026-07-22 (family-taxonomy audit round 8)
+**Last updated:** 2026-07-23 (family-taxonomy audit round 9)
 
 ## Current state
 
@@ -440,6 +440,29 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     via `is_noop()`) finally gets its own family name instead of falling to `Other`.
   - Explained% flat **95.5%**, suspects **3522 → 3517** (a small real gain). `pipeline/analysis/
     family_catalog.txt`: **126 families** (was 122). `Other` down to **151 signatures / 296 occurrences**.
+- ✅ **Bug-fix pass (2026-07-22/23, same session) — markerless `※` print/legality notices.** 94 real
+  markerless rows in the corpus start with `※` — all print/legal metadata (tournament-ban notices,
+  domestic/overseas distribution notices, same-name-card notices, date-gated bans, foil-type notices), none
+  gameplay text. Added to `ra()`'s drop-list, mirrored in `_tr2_extract.py`/`cost_standardize.py`. Side
+  effect: 16 fewer spurious "distinct" cards after alt-art dedup (the dedup signature is built from `ra()`'s
+  output, so two prints that only differed by a superficial print notice now correctly merge). Explained%
+  flat 95.5%, suspects 3517→3516.
+- ✅ **Family-taxonomy audit, round 9 — 4 more clusters resolved (2026-07-23, same session).**
+  - **`Hand/Level Exchange`** (new): 4th sibling of `Clock/WR Exchange` / `Level/WR Exchange` /
+    `Memory/WR Exchange`, zone pair Hand ↔ Level. **Terminology note from the user:** a stage card leaving
+    play as an ability's own cost is "put into your waiting room," never "discard" (discard = from hand
+    only) — apply this in all future EN citations.
+  - **`Damage Reflect`** (new): "when the damage you received is not canceled, deal the SAME damage to your
+    opponent." Kept separate from `Burn` — variable amount (mirrors incoming damage, not a printed number)
+    and a reactive trigger completely unlike Burn's on-play/on-attack clauses.
+  - **`Strip Trait` gap widened** (20→40 chars) for a marker-wipe clause inserted mid-sentence
+    (`JJ/SE42-01`) — stays plain `Strip Trait`, the wipe is a minor secondary detail on a small cluster.
+  - **`Strip Trait (All)`** (new): wider-scope sibling — a chosen trait is stripped from ALL of the
+    opponent's characters, not just one. Board-wide vs single-target, genuinely broader scope.
+  - **`AutoKickToDeckShuffle`** (new, in `ONREV_PAT`): self-to-deck-and-shuffle on reverse, sibling of
+    `AutoKickToBottom` but a different resource value (random redraw position vs a guaranteed one).
+  - Explained% flat **95.5%**, suspects **3516** (flat). `pipeline/analysis/family_catalog.txt`:
+    **130 families** (was 126). `Other` down to **135 signatures / 238 occurrences**.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

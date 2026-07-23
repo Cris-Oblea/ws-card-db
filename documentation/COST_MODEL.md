@@ -478,6 +478,40 @@ re-classification pass). `pipeline/analysis/family_catalog.txt`: **122 families*
 Explained% flat **95.5%**, suspects **3522 → 3517** (a small real gain). `pipeline/analysis/
 family_catalog.txt`: **126 families** (was 122). `Other` down to **151 signatures / 296 occurrences**.
 
+**Bug-fix pass (same session): markerless `※` print/legality notices.** Survey found 94 real markerless
+rows in the corpus starting with `※` — all print/legal metadata ("cannot be used in official/sanctioned
+tournaments", "domestic/overseas distribution only", "treated as the same-name card as X", date-gated ban
+notices, foil-type notices), none gameplay text. Added to `ra()`'s drop-list (mirrored across the two other
+active tools with their own copy, `_tr2_extract.py`/`cost_standardize.py`). Side effect: 16 fewer spurious
+"distinct" cards after alt-art dedup (two prints previously looked different only because of a superficial
+print-notice ability text; the dedup signature is built from `ra()`'s output, so removing the notice let
+them correctly merge). Explained% flat 95.5%, suspects 3517 → 3516.
+
+**Family-taxonomy audit, round 9 — 4 more clusters resolved.**
+
+- **`Hand/Level Exchange`** (new): a 4th sibling of `Clock/WR Exchange`, `Level/WR Exchange`, and
+  `Memory/WR Exchange` — same "trade which card sits in a resource zone" purpose, this time Hand ↔ Level.
+  **Terminology correction from the user while reviewing the citation:** a card leaving the STAGE as an
+  ability's cost should always be described as "put into your waiting room," never "discard" — discard
+  specifically means a hand card. Worth remembering for all future EN citations.
+- **`Damage Reflect`** (new): "during this card's battle, when the damage you received is not canceled, deal
+  the SAME damage to your opponent." Same final effect as `Burn` (opponent takes damage) but the amount is
+  variable by mirroring whatever you just took (not a printed number) and the trigger is a completely
+  different mechanism (reactive to incoming damage, not an on-play/on-attack clause) — kept as its own family
+  so its cost standard isn't blended with fixed-number Burn's.
+- **`Strip Trait` gap widened** (20→40 chars) to also match `JJ/SE42-01`'s shape, where a marker-wipe clause
+  sits between choosing the trait and the character losing it — still filed as plain `Strip Trait` (the
+  marker wipe is a minor secondary detail on a small cluster, not worth a combined family name).
+- **`Strip Trait (All)`** (new): a wider-scope sibling — choose 1 trait present on the opponent's stage, and
+  ALL of the opponent's characters (not just one) lose it until end of turn. Genuinely broader in scope than
+  plain `Strip Trait` (board-wide vs single-target), so it gets its own name.
+- **`AutoKickToDeckShuffle`** (new, in `ONREV_PAT`): this card returns itself to the deck and shuffles, on
+  reverse — a sibling of `AutoKickToBottom`, but a different resource value: `AutoKickToBottom` guarantees a
+  fixed, known redraw position, while shuffling puts it at a random one.
+
+Explained% flat **95.5%**, suspects **3516** (flat). `pipeline/analysis/family_catalog.txt`: **130 families**
+(was 126). `Other` down to **135 signatures / 238 occurrences**.
+
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
 destination changes the character's cost to the game (a bounce to hand lets the opponent replay it

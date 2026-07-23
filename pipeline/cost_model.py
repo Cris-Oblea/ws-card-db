@@ -101,6 +101,15 @@ FAMPAT = [
   # Widened to also accept SYMMETRIC "deal damage to ALL players" (すべてのプレイヤーに) — the user: still a
   # Burn, just a symmetric one (you take the same hit too).
   ("Burn", r"相手に(\d+|[ＸX])ダメージ|すべてのプレイヤーに、?(\d+|[ＸX])ダメージ"),   # Ｘ (variable) damage — deck-mill burns deal 相手にＸダメージ, missed by \d+
+  # Damage Reflect: a distinct family from Burn even though the final effect is also "opponent takes damage"
+  # -- the AMOUNT here is variable by mirroring whatever damage you just took (相手に同じダメージを与える, "deal
+  # the SAME damage"), not a printed fixed number, and the trigger mechanism (uncancelled damage received
+  # during this card's battle) is completely different from Burn's usual on-play/on-attack triggers. Kept
+  # separate so its cost standard isn't blended with fixed-number Burn's. Confirmed by the user via
+  # KS/W49-001 and KI/S44-077 (same core phrase, different payment-cost brackets).
+  # Gap crosses a sentence break (the optional-payment "…てよい。そうしたら、…" wrapper sits between the trigger
+  # and the payoff), so needs . (not [^。]) like the Modal/Search conditional-payoff patterns elsewhere.
+  ("Damage Reflect", r"あなたの受けたダメージがキャンセルされなかった時.{0,40}相手に同じダメージを与える"),
   # Multi Trigger Check: during this attack, check for a trigger N times instead of once (N is usually 2,
   # occasionally more — generalized to any digit rather than hardcoding "Double", since the per-signature
   # measured cost already scales naturally with whatever N a specific card prints). A well-known WS mechanic
@@ -410,6 +419,12 @@ FAMPAT = [
   # as real (few cards, but they exist): summoning-style effects can source from level zone or clock, not
   # just waiting room/deck.
   ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Hand/Level Exchange: a 4th sibling of Clock/WR Exchange, Level/WR Exchange, and Memory/WR Exchange --
+  # same "trade which card sits in a resource zone" purpose, this time Hand <-> Level. Confirmed by the user
+  # via SHS/W71-023 (on-play, paid) and LRC/WE47-14 (ACT, self-discard cost -- note the cost there is "put
+  # THIS CARD into the waiting room", not a hand discard: this card is on the stage when the ability fires,
+  # so leaving play is a zone-transfer, never a "discard" -- discard specifically means from hand).
+  ("Hand/Level Exchange", r"自分の手札[^。]{0,20}とレベル置場[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Memory/WR Exchange: another sibling of Clock/WR Exchange and Level/WR Exchange -- same "trade which card
   # sits in a resource zone" purpose, this time the zone pair is Memory <-> waiting room. Confirmed by the
   # user via HOL/W104-136.
@@ -561,7 +576,16 @@ FAMPAT = [
   # its traits, it loses that trait until end of turn (denies it to trait-gated effects/Assist/etc.).
   # User: conceptually part of the broader "disruption" theme (interferes with the opponent's board), but
   # specific enough to be its own named family rather than folding into Removal (Waiting Room)/Opp Disrupt.
-  ("Strip Trait", r"相手のキャラを[^。]{0,6}と[^。]{0,10}特徴を[^。]{0,10}選[^。]{0,20}その特徴をすべて失う"),
+  # Gap after the trait-selection clause widened 20->40: JJ/SE42-01 inserts a marker-wipe clause ("そのキャラの
+  # 下のマーカーすべてを、控え室に置き") between choosing the trait and the character actually losing it -- still
+  # filed as plain Strip Trait per the user (the marker wipe is a minor secondary detail on a small cluster,
+  # not worth a combined family name).
+  ("Strip Trait", r"相手のキャラを[^。]{0,6}と[^。]{0,10}特徴を[^。]{0,10}選[^。]{0,40}その特徴をすべて失う"),
+  # Strip Trait (All): a wider-scope sibling -- choose 1 trait present somewhere on the opponent's stage, and
+  # ALL of the opponent's characters (not just the chosen one) lose that trait until end of turn. Genuinely
+  # broader than plain Strip Trait (board-wide vs single-target), so it gets its own name per the user's
+  # "split by variant" rule. Confirmed via LRC/W105-P04 and Fks/W120-016.
+  ("Strip Trait (All)", r"相手の舞台にいるキャラの特徴を[^。]{0,10}選[^。]{0,10}相手のキャラすべては[^。]{0,20}その特徴をすべて失う"),
   # Self Identity Grant: this card (not a chosen target) permanently/conditionally gains a TRAIT, an
   # ALTERNATE NAME, or a TRIGGER ICON -- three different "identity slots" but the same final purpose (this
   # card's own identity is extended so other trait/name/icon-gated effects elsewhere can reach it). Distinct
@@ -721,6 +745,11 @@ ONREV_PAT = [
     # "あなたは" made optional -- many prints phrase this as a flat mandatory action ("…このカードをクロック
     #置場に置く。") without the polite "あなたは…てよい" wrapper.
     ("AutoKickToClock",  re.compile(r"(バトル中の)?このカードが【リバース】した時.*(あなたは)?このカードをクロック置場に置")),
+    # This card returns ITSELF to the deck and shuffles, on reverse -- a sibling of AutoKickToBottom, but a
+    # genuinely different resource value: AutoKickToBottom guarantees a FIXED position (you know exactly when
+    # you'll draw it back), while shuffling into the deck puts it at a RANDOM position (no such guarantee).
+    # Confirmed by the user via DG/S02-058.
+    ("AutoKickToDeckShuffle", re.compile(r"バトルしているこのカードが【リバース】した時.*このカードを山札に戻.*シャッフル")),
 ]
 # RedBomb/BlueBomb/YellowBomb/GreenBomb* = trade the OPPONENT's character away after THIS card wins its own
 # battle (becomes reversed and the battle opponent qualifies under a level/cost condition) -- "punish the
