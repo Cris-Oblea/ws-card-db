@@ -65,7 +65,13 @@ def base_num(cn):  # strip rarity/parallel suffix: DAL/W99-001SP -> DAL/W99-001 
 # identical stats). (User's rule.)
 def reliable(c):
     return not re.match(r"^A\d", (c.get("card_number", "") or "").rsplit("-", 1)[-1])
-ZT = str.maketrans("０１２３４５６７８９＋－", "0123456789+-")
+# ｢｣ (halfwidth corner brackets, U+FF62/FF63) are a rare print-style variant of the standard fullwidth
+# quoting brackets 「」 (same meaning, same NAME-collapsing target) -- a handful of prints (mostly the whole
+# GC/S16-* set) use them instead. Left un-mapped, NAME.sub below can't recognize them, so a name like
+# ｢王の素質｣ never collapses to 「N」, which silently breaks every FAMPAT/CXC_PAT/KW check downstream that
+# expects the 「N」 placeholder (21 abilities corpus-wide, mostly CX-Combo-gated abilities that were
+# misclassifying into whatever generic family the un-collapsed text happened to resemble instead).
+ZT = str.maketrans("０１２３４５６７８９＋－｢｣", "0123456789+-「」")
 TRAIT = re.compile(r"《[^》]*》"); NAME = re.compile(r"「[^」]*」")
 def gen(t):
     t = t.translate(ZT); t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
@@ -306,7 +312,14 @@ FAMPAT = [
   # 3rd branch: wipe all markers in the marker area tied to one of the OPPONENT's stage slots -- confirmed
   # by the user as a kind of disruption, even though it doesn't literally say 相手の(zone) since the zone is
   # referenced indirectly via "the marker area corresponding to that [chosen opponent] slot."
-  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置"),
+  # 4th branch: locking the opponent OUT of their own [ACT] abilities is a kind of disruption too, same as
+  # denying a resource zone above -- user taxonomy (2026-07-23): "hay diferentes formas de hacer disruption al
+  # oponente, hacer que no pueda usar act es una de ellas" (there are different ways to disrupt the opponent;
+  # preventing ACT use is one of them). Confirmed via LB/W02-E11, N1/WE06-17. NOTE: this is checked earlier in
+  # the list than Look & Reorder, so a compound ability that ALSO has a look/reorder clause in the same text
+  # (e.g. NIK/S117-052) now files as Opp Disrupt instead -- a real, deliberate side effect of this fold, not a
+  # bug; flagged for the broader Restriction/Opp Disrupt review the user asked for next.
+  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置|相手は[^。]{0,14}【起】を使えない"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
@@ -512,6 +525,13 @@ FAMPAT = [
   # Gap widened 20->50 for the hand/waiting-room/Memory sources -- a compound multi-card select clause
   # ("キャラを1枚までとイベントかクライマックスを1枚まで選んで相手に見せ") runs long before reaching the destination.
   ("Stock Gen", r"(山札の上|デッキトップ|山札の上から)[^。]{0,20}ストック置場[^。]{0,4}に[^。]{0,10}置|(自分の手札|自分の控え室|自分の思い出置場)[^。]{0,50}ストック置場[^。]{0,4}に[^。]{0,10}置"),
+  # Stock Recall: recover the TOP card of your OWN stock straight to hand -- a distinct resource-recovery
+  # family from Search (deck->hand)/Salvage (waiting room->hand)/Add to Hand (generic fallback), since STOCK
+  # is a resource you'd normally rather spend than give up, so pulling one back is its own real mechanic.
+  # Confirmed by the user (2026-07-23) via 4 cards on a mix of triggers (a named-card trigger check, low hand
+  # size, this card's dealt damage being cancelled, a qualifying battle opponent reversing) -- BD/W54-009,
+  # KMS/W133-080, KC/S67-009, GRI/S72-043.
+  ("Stock Recall", r"自分のストックの上から[^。]{0,6}枚?を[^。]{0,6}手札に戻"),
   # Clock Gen: sibling of Stock Gen -- your own DECK TOP goes to your CLOCK instead of your stock. Distinct
   # destination (clock advances your level/damage count differently than stock does), same "deck-top-into-
   # a-resource-zone" final purpose.
@@ -778,6 +798,18 @@ FAMPAT = [
   # the opponent back onto yourself when it was cancelled) is folded in alongside a literal digit/Ｘ, since
   # it's the same self-punishing shape just phrased relative to an earlier amount instead of a fixed number.
   ("Drawback", r"あなたに.{0,6}(\d+|[ＸX]|同じ)ダメージを与える"),
+  # User's standing rule (2026-07-23, Other-audit round 11): ANY effect that gives power to a card is a
+  # Drawback -- full stop, no separate name needed per shape. Drawbacks range 500-2000 depending on how bad
+  # the granted downside is; going deeper than that (naming each individual self-risk shape) isn't worth the
+  # time. Two more shapes folded in under this rule, both "self-risk, no opponent, no stated compensation in
+  # the same clause" like the branches above:
+  # (1) put a card from your OWN stock (top or bottom) into your OWN waiting room, with nothing gained in the
+  # same clause -- confirmed via GC/S16-031, IM/S14-087, CL/WE07-75, DC/W23-056, KS/W55-028.
+  ("Drawback", r"自分のストックの(上|下)から[^。]{0,6}枚?を[^。]{0,6}控え室に置"),
+  # (2) on play, reveal the top of your own deck; if it's a climax, bury THIS card back into the deck and
+  # shuffle (a proactive self-mulligan that costs a whole turn's tempo) -- confirmed via BM/S15-005,
+  # SG/W39-008, SGS/S37-040, IM/S21-011.
+  ("Drawback", r"自分の山札[^。]{0,10}公開する.{0,40}このカードを山札に戻.{0,20}シャッフル"),
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
