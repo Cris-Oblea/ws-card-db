@@ -153,7 +153,10 @@ FAMPAT = [
   ("Color Bypass", r"色条件を満たさずに(手札から)?プレイできる"),
   # Hexproof: the user's own term (borrowed from a different TCG they know) for "this card cannot be
   # targeted by the opponent's effects" -- a pure protection CONT, no action of its own.
-  ("Hexproof", r"このカードは相手の効果に選ばれない"),
+  # 選ばれず (negative continuative, joining a following clause) accepted alongside 選ばれない (negative
+  # terminal, ending the sentence) -- same negation, different conjugation because the sentence continues into
+  # a 2nd clause (e.g. "…選ばれず、…色を得る。"). Confirmed via PJS/S125-043.
+  ("Hexproof", r"このカードは相手の効果に選ばれ(ない|ず)"),
   # Reverse Immunity (Cost 0): a DIFFERENT protection family from Hexproof (user: same category — protection
   # — but a distinct specific mechanic) — conditionally IMMUNE to becoming reversed at all when the character
   # it's battling is cost 0 or lower. A defensive tech common in "Standby"-format decks per the user.
@@ -866,6 +869,9 @@ FAMPAT = [
   # your own stand state (can't attack, vulnerable) is a real downside even though the trigger varies.
   # Confirmed via KMD/W96-058.
   ("Drawback", r"(あなたは)?このカードを【リバース】する(?!か)"),
+  # (9) self -> bottom of your OWN STOCK, on a reveal-conditional trigger. Same self-relocation-with-no-
+  # stated-benefit spirit as the deck-bottom/clock/waiting-room branches above. Confirmed via OVL/SE54-23.
+  ("Drawback", r"このカードを[^。]{0,4}ストック置場の下に置"),
   # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
   # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
   # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
