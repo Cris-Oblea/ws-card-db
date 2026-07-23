@@ -88,11 +88,19 @@ def to_int(s):
 # arithmetic sign (e.g. "...パワーを＋<br>500。<br>..."), which chops "パワーを＋500。" into two rows.
 # Confirmed via P5/S45-088 (real bug, 1 card in the whole corpus as of 2026-07-22).
 _BARE_NUMBER_RE = re.compile(r"^[0-9０-９ＸX]+。?$")
+# "This ability activates at most once per turn" is a RATE-LIMITER clause that only ever makes sense as a
+# PREFIX modifying the effect that follows it -- it can never be a complete ability on its own. A misplaced
+# <br> right after it (source data typo) can split it into its own bogus row, orphaning the marker it
+# carried from the real effect that was supposed to inherit it. Confirmed via PD/S29-001X (1 card corpus-
+# wide as of 2026-07-23).
+_RATE_LIMITER_TEXT = "この能力は1ターンにつき1回まで発動する。"
 
 def split_abilities(text):
     if not text:
         return []
     out = []
+    pending_prefix = None   # a rate-limiter clause waiting to be prepended to the NEXT real ability
+    pending_markers = []    # the marker(s) that clause carried, inherited by the next ability if it has none
     # robust line-break split: matches <br>, <br/>, <br />, </br>, <BR>, <bR >, < br > etc.
     # (the source data has malformed/cased break tags; if missed, two abilities merge into one row)
     for part in re.split(r"<\s*/?\s*br\s*/?\s*>", text, flags=re.IGNORECASE):
@@ -112,6 +120,15 @@ def split_abilities(text):
             markers.append(m.group(1))
             clean = clean[m.end():]
             m = re.match(r"^(【[^】]+】)\s*", clean)
+        if clean.strip() == _RATE_LIMITER_TEXT:
+            pending_prefix = _RATE_LIMITER_TEXT
+            pending_markers = markers
+            continue
+        if pending_prefix:
+            clean = pending_prefix + " " + clean.strip()
+            if not markers:
+                markers = pending_markers
+            pending_prefix = None; pending_markers = []
         timing = next((TIMING[x] for x in markers if x in TIMING), None)  # AUTO/CONT/ACT or None
         out.append({"markers": markers, "type": timing, "text": clean.strip()})
     return out

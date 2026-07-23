@@ -1143,7 +1143,7 @@ def is_noop(text): return bool(NOOP_PAT.search(text or ""))
 # player ("すべてのプレイヤーは『…』と宣言する", no optional てよい); (3) the companion clause that makes a later
 # declared name retroactively apply to a card already in the climax area. All carry zero game action of their
 # own, same as the base NOOP_PAT shape. Confirmed via SMP/W60-T01, STG/S60-T06, GRI/S84-115.
-DECLARE_LIST_PAT = re.compile(r"以下のカード名のうちあなたが選んだ1つを宣言する|すべてのプレイヤーは.{0,20}と宣言する|クライマックス置場のカードのカード名は宣言したカード名としても扱う")
+DECLARE_LIST_PAT = re.compile(r"以下のカード名のうちあなたが選んだ1つを宣言する|すべてのプレイヤーは.{0,20}と宣言する|クライマックス置場のカードのカード名は宣言したカード名としても扱う|このカードのカード名を宣言してよい")
 # A 4th Declare shape: the text is NOTHING but a back-to-back list of quoted card names, no verb/punctuation
 # at all -- the raw OPTIONS list for an adjacent list-form Declare ability on the same card (e.g. the menu
 # DECLARE_LIST_PAT's "among the following names" ability actually offers). Zero game action of its own, same
