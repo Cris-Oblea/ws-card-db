@@ -115,7 +115,9 @@ FAMPAT = [
   # KS/W49-001 and KI/S44-077 (same core phrase, different payment-cost brackets).
   # Gap crosses a sentence break (the optional-payment "…てよい。そうしたら、…" wrapper sits between the trigger
   # and the payoff), so needs . (not [^。]) like the Modal/Search conditional-payoff patterns elsewhere.
-  ("Damage Reflect", r"あなたの受けたダメージがキャンセルされなかった時.{0,40}相手に同じダメージを与える"),
+  # Gap widened 40->60: a longer ［cost］…そうしたら、… payment wrapper (condition + pay-cost bracket) pushed
+  # past the old limit. Confirmed via VS/W50-T18.
+  ("Damage Reflect", r"あなたの受けたダメージがキャンセルされなかった時.{0,60}相手に同じダメージを与える"),
   # Multi Trigger Check: during this attack, check for a trigger N times instead of once (N is usually 2,
   # occasionally more — generalized to any digit rather than hardcoding "Double", since the per-signature
   # measured cost already scales naturally with whatever N a specific card prints). A well-known WS mechanic
@@ -463,7 +465,9 @@ FAMPAT = [
   # just waiting room/deck.
   # 置場/置き場 spelling variant: some prints spell the level zone with the okurigana き (レベル置き場), others
   # without (レベル置場) -- same zone, purely a print-style difference. Confirmed via CN/SE02-10.
-  ("Level/WR Exchange", r"自分のレベル置き?場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置き?場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # カード/キャラ word variant: some prints call the waiting-room swap partner a generic "カード" (card) rather
+  # than specifically "キャラ" (character) -- same swap, different word choice. Confirmed via UMA/W134-039.
+  ("Level/WR Exchange", r"自分のレベル置き?場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置き?場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}(キャラ|カード)を[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Hand/Level Exchange: a 4th sibling of Clock/WR Exchange, Level/WR Exchange, and Memory/WR Exchange --
   # same "trade which card sits in a resource zone" purpose, this time Hand <-> Level. Confirmed by the user
   # via SHS/W71-023 (on-play, paid) and LRC/WE47-14 (ACT, self-discard cost -- note the cost there is "put
@@ -647,6 +651,13 @@ FAMPAT = [
   # bare "あなたのキャラすべてに…を与える" with no 他の qualifier (ALL your characters, this card included --
   # confirmed via MK/S33-010, whose trigger fires off an ALLY's battle so this card itself is a valid target).
   ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える|相手の(前列|後列)のキャラすべてに[^。]{0,10}《T》を与える|あなたのキャラすべてに[^。]{0,20}《T》を与える"),
+  # Grant Ability: same "extend a chosen/named target's identity" purpose as GRANT_PAT above, but this exact
+  # shape (grant the 【カウンター】 keyword to a named EVENT card sitting in hand) doesn't match GRANT_PAT's
+  # "能力を/』を" requirement -- 【カウンター】 is a specific keyword name, not the generic word 能力. Kept as its
+  # own FAMPAT branch (checked after GRANT_PAT's early pre-check already ran) rather than widening GRANT_PAT
+  # itself, since GRANT_PAT also drives the Pump & Grant dual-nature check and this shape never pumps.
+  # Confirmed via RW/W20-012, HOL/W104-014.
+  ("Grant Ability", r"手札のイベントの[^。]{0,10}に[^。]{0,6}【カウンター】を与える"),
   # Grant Trigger Icon (Class): grants a trigger icon to an entire CLASS of climaxes (any CX that already
   # has trigger icon X, in all zones), not a specific NAMED target -- broader in scope than Grant Trait
   # above, so it needed its own name even though the underlying mechanic (extend an identity slot) is
@@ -962,7 +973,7 @@ def family(text, markers=""):
     # with no real game action -- already costed 0 via is_noop() (a structural no-op, same treatment as a
     # replay body), but previously had no family name of its own and fell to Other despite being fully
     # audited/intentional.
-    if is_noop(text): return "Declare"
+    if is_noop(text) or DECLARE_LIST_PAT.search(text) or _DECLARE_NAMELIST_PAT.match(text.strip()): return "Declare"
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
@@ -1010,6 +1021,18 @@ def ability_type(markers):
 # card that declares THEN does something real (e.g. then both players search) is NOT matched.
 NOOP_PAT = re.compile(r"[「『][^」』]*[」』]と(宣言し|言っ)て(も)?よい[。\s]*$")
 def is_noop(text): return bool(NOOP_PAT.search(text or ""))
+# Same "Declare" no-op family as NOOP_PAT above, but 3 more textual shapes that don't fit its single-quoted
+# "'X' と宣言してもよい" template: (1) a LIST-form declare ("among the following card names, the one you chose,
+# declare" -- no single quoted name, since the choice is open); (2) a MANDATORY, SYMMETRIC declare by every
+# player ("すべてのプレイヤーは『…』と宣言する", no optional てよい); (3) the companion clause that makes a later
+# declared name retroactively apply to a card already in the climax area. All carry zero game action of their
+# own, same as the base NOOP_PAT shape. Confirmed via SMP/W60-T01, STG/S60-T06, GRI/S84-115.
+DECLARE_LIST_PAT = re.compile(r"以下のカード名のうちあなたが選んだ1つを宣言する|すべてのプレイヤーは.{0,20}と宣言する|クライマックス置場のカードのカード名は宣言したカード名としても扱う")
+# A 4th Declare shape: the text is NOTHING but a back-to-back list of quoted card names, no verb/punctuation
+# at all -- the raw OPTIONS list for an adjacent list-form Declare ability on the same card (e.g. the menu
+# DECLARE_LIST_PAT's "among the following names" ability actually offers). Zero game action of its own, same
+# as every other Declare shape. Confirmed via SMP/W60-T01, GRI/S84-115.
+_DECLARE_NAMELIST_PAT = re.compile(r"^(「[^」]*」)+$")
 
 # ---------------- EN-side cost math (for English-EXCLUSIVE WX/SX cards) ----------------
 # Same methodology as JP, applied over the ENGLISH ability text. The caller owns the EN-card iteration
