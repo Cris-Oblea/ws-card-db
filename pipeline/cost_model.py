@@ -649,6 +649,9 @@ FAMPAT = [
   # Shot Damage Boost (user-named, 2026-07-23): a conditional amplifier for the official "shot" trigger-icon
   # damage effects specifically. Confirmed via BAV/W129-016.
   ("Shot Damage Boost", r"あなたのshotの効果で与えるダメージを[＋+]\d+"),
+  # Refresh Protect (user-named, 2026-07-23): protects a specific climax or named card from being buried in
+  # your clock during a deck REFRESH, redirecting it to the waiting room instead. Confirmed via BAV/W129-071.
+  ("Refresh Protect", r"(CX|クライマックス)か「N」がリフレッシュでクロック置場に置かれた時[^。]{0,10}(あなたは)?そのカードを[^。]{0,6}控え室に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -955,6 +958,13 @@ FAMPAT = [
   # -- ceding control over your own resource to the opponent is a real downside even though no card is lost
   # outright. Confirmed +500 (compensated at/above vanilla) via FS/S34-023.
   ("Drawback", r"相手はあなたの山札の上から[^。]{0,6}枚?を[^。]{0,6}山札の下に置"),
+  # (11) voluntarily advance your OWN clock -- choose a name-matched own character and put IT into your
+  # clock. User: a genuinely bad effect, priced well above vanilla (+1000). Confirmed via FS/S03-052.
+  ("Drawback", r"自分のカード名に「N」を含むキャラを[^。]{0,6}選び[^。]{0,6}クロック置場に置"),
+  # (12) choose either this card OR a named own ally, and put it into the waiting room -- a forced
+  # self-or-ally sacrifice with no stated benefit. User: even worse than the clock-advance branch above,
+  # priced +2000. Confirmed via FS/S03-084.
+  ("Drawback", r"このカードか自分の「N」を[^。]{0,6}選び[^。]{0,6}控え室に置"),
   # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
   # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
   # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
@@ -1132,6 +1142,7 @@ def family(text, markers=""):
     # audited/intentional.
     if is_noop(text) or DECLARE_LIST_PAT.search(text) or _DECLARE_NAMELIST_PAT.match(text.strip()): return "Declare"
     if DAMAGE_SOURCE_PAT.search(text): return "Damage Source (Bottom)"
+    if FLAVOR_TEXT_PAT.search(text): return "Flavor Text"
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
@@ -1198,7 +1209,13 @@ _DECLARE_NAMELIST_PAT = re.compile(r"^(「[^」]*」)+$")
 # real budget on this card's total power belongs entirely to its other abilities (e.g. a CX Combo). Confirmed
 # via CSM/S96-065.
 DAMAGE_SOURCE_PAT = re.compile(r"このカードの与えるダメージは山札の下からダメージ処理を行う")
-def is_zero_flavor(text): return bool(is_noop(text) or DAMAGE_SOURCE_PAT.search(text or ""))
+# Flavor Text: a small set of promo/joke cards whose "ability" is pure flavor with zero mechanical effect --
+# the user confirmed both are otherwise plain vanilla stat-lines, so the ability itself costs 0 (same
+# structural-zero treatment as Damage Source (Bottom) and no-op Declare). Matched by exact text rather than a
+# generalized pattern since flavor text can't be reliably distinguished from real effects any other way.
+# Confirmed via WS/WPR-P05, MK/SJ01-P01.
+FLAVOR_TEXT_PAT = re.compile(r"語尾にニャーを付けてよい|相手は月刊ブシロードを購入したくなる")
+def is_zero_flavor(text): return bool(is_noop(text) or DAMAGE_SOURCE_PAT.search(text or "") or FLAVOR_TEXT_PAT.search(text or ""))
 
 # ---------------- EN-side cost math (for English-EXCLUSIVE WX/SX cards) ----------------
 # Same methodology as JP, applied over the ENGLISH ability text. The caller owns the EN-card iteration
