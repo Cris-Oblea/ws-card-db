@@ -22,7 +22,14 @@ names = sorted({r[0] for r in c.execute(
 # cardlist_clean (abilities keep their original order, so DB idx == index into the card's real abilities).
 cl = json.load(open(os.path.join(D, "cardlist_clean.json"), encoding="utf-8"))
 CLEAN = {cc["card_number"]: cc for cc in cl}
-def ra(cc): return [a for a in cc.get("abilities", []) if (a.get("text") or "").strip() not in ("-", "ー", "－", "ｰ", "‐", "―", "")]
+def ra(cc):  # drop dash placeholders AND markerless ※ print/legality notices (mirrors cost_model.ra())
+    out = []
+    for a in cc.get("abilities", []):
+        t = (a.get("text") or "").strip()
+        if t in ("-", "ー", "－", "ｰ", "‐", "―", ""): continue
+        if not a.get("markers") and t.startswith("※"): continue
+        out.append(a)
+    return out
 seen, abils = set(), []
 for cn, idx, jp in c.execute("SELECT card_number,idx,jp_text FROM abilities WHERE COALESCE(en_text,'')='' ORDER BY card_number,idx"):
     cc = CLEAN.get(cn)

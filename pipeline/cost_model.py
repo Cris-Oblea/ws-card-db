@@ -48,6 +48,12 @@ def ra(c):   # real abilities = non-empty rows; drop dash placeholders AND marke
         # Markerless text fully wrapped in （）/() is beginner/trigger-icon REMINDER text (e.g. "（bounce：…）",
         # "（このデッキの切り札！…）") — it has no 自/永/起 marker and is not a real ability. Drop it.
         if not a.get("markers") and _REMINDER.fullmatch(t): continue
+        # Markerless text starting with ※ is a printed PRINT/LEGALITY notice, never a real ability -- e.g.
+        # "cannot be used in official/sanctioned tournaments", "domestic/overseas distribution only", "treated
+        # as the same-name card as X, the English print can't be used in JP-run tournaments", date-gated ban
+        # notices, foil-type notices. Verified: every real markerless ※ row in the corpus (94 total) is one of
+        # these, none are gameplay text.
+        if not a.get("markers") and t.startswith("※"): continue
         out.append(a)
     return out
 def base_num(cn):  # strip rarity/parallel suffix: DAL/W99-001SP -> DAL/W99-001 (same card, only art differs)
