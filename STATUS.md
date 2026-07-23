@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
-**Last updated:** 2026-07-23 (family-taxonomy audit round 9)
+**Last updated:** 2026-07-23 (family-taxonomy audit round 10)
 
 ## Current state
 
@@ -463,6 +463,22 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
     `AutoKickToBottom` but a different resource value (random redraw position vs a guaranteed one).
   - Explained% flat **95.5%**, suspects **3516** (flat). `pipeline/analysis/family_catalog.txt`:
     **130 families** (was 126). `Other` down to **135 signatures / 238 occurrences**.
+- ✅ **Family-taxonomy audit, round 10 — 7 more clusters resolved (2026-07-23, same session).**
+  - **`Power Pump` widened**: a 2-target selection including the citing card itself, and a fixed/named/
+    positional target with no selection verb — same final purpose, folded in.
+  - **`Effect Copy`** (new): play another of your own character's named on-play `[AUTO]` as this card's own —
+    distinct from `Grant Ability` (that gives a NEW ability; this reuses an EXISTING one elsewhere on board).
+  - **`LastAttacker`** (new): a REPLAY finisher — sacrifice your whole remaining board, swap this card for a
+    named waiting-room ally to get one more attack in. User's framing: pay the cost, sacrifice everything,
+    bring in one more character ready to attack, and swing with it too.
+  - **`Cost Substitute`** (new): a hand card substitutes for a STOCK payment on a *different* card's ACT
+    ability elsewhere on the board — distinct from `Free Play (Alt Cost)` (discounts THIS card's own cost).
+  - **`Memory/Hand Exchange`** and **`Memory Partner Swap`** (both new): 5th/6th siblings of the Exchange
+    group — the former trades Memory ↔ Hand; the latter swaps which of two NAMED partner identities occupies
+    a shared Memory slot (not a resource-zone trade like its siblings).
+  - Explained% flat **95.5%**, suspects **3516 → 3518** (noise, several thin new sub-families).
+    `pipeline/analysis/family_catalog.txt`: **135 families** (was 130). `Other` down to
+    **123 signatures / 206 occurrences**.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`

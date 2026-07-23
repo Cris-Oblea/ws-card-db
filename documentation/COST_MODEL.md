@@ -512,6 +512,31 @@ them correctly merge). Explained% flat 95.5%, suspects 3517 → 3516.
 Explained% flat **95.5%**, suspects **3516** (flat). `pipeline/analysis/family_catalog.txt`: **130 families**
 (was 126). `Other` down to **135 signatures / 238 occurrences**.
 
+**Family-taxonomy audit, round 10 — 7 more clusters resolved.**
+
+- **`Power Pump` widened** with 2 more branches: a 2-target selection that includes the citing card itself
+  ("choose another character AND this card, both get +N power"), and a fixed/named/positional target with
+  no selection verb at all ("your other card named X in slot Y gets +N power"). Same final purpose as the
+  existing family — folded in per the user.
+- **`Effect Copy`** (new): play another of your own character's named on-play `[AUTO]` ability as if it were
+  this card's own. Distinct from `Grant Ability` (that GIVES a new ability; this REUSES one already printed
+  elsewhere on your board).
+- **`LastAttacker`** (new): a REPLAY/finisher shape — sacrifice every other one of your own characters, then
+  swap this card for a specific named waiting-room ally. Per the user: this is the last attack of a
+  sequence, sacrificing your whole remaining board to bring in one more fresh attacker.
+- **`Cost Substitute`** (new): distinct from `Free Play (Alt Cost)` (which discounts THIS card's own play
+  cost) — this lets a hand card substitute for a STOCK payment on a *different* card's ACT ability elsewhere
+  on the board.
+- **`Memory/Hand Exchange`** (new): a 5th sibling of the Clock/WR-style Exchange group — this card sits in
+  Memory and swaps for a chosen hand character.
+- **`Memory Partner Swap`** (new): this card sits in Memory and swaps for a specific *named* partner card
+  also in Memory — not a resource-zone trade like its siblings, but switching which of two named identities
+  occupies a shared Memory slot.
+
+Explained% flat **95.5%**, suspects **3516 → 3518** (noise, expected for several thin new sub-families).
+`pipeline/analysis/family_catalog.txt`: **135 families** (was 130). `Other` down to
+**123 signatures / 206 occurrences**.
+
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
 destination changes the character's cost to the game (a bounce to hand lets the opponent replay it

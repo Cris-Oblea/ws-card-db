@@ -429,6 +429,25 @@ FAMPAT = [
   # sits in a resource zone" purpose, this time the zone pair is Memory <-> waiting room. Confirmed by the
   # user via HOL/W104-136.
   ("Memory/WR Exchange", r"自分の控え室の[^。]{0,20}と思い出置場の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Memory/Hand Exchange: THIS CARD is in Memory (記憶 condition-keyword) and swaps for a chosen HAND
+  # character -- a 5th sibling of the Clock/WR-style Exchange group, zone pair Memory <-> Hand. Confirmed by
+  # the user via KMS/W133-T03.
+  ("Memory/Hand Exchange", r"思い出置場にこのカードがあるなら[^。]{0,60}自分の手札の[^。]{0,20}とこのカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Memory Partner Swap: THIS CARD is in Memory and swaps for a SPECIFIC NAMED partner card also sitting in
+  # Memory -- not a resource-zone trade like the siblings above, but switching which of two named identities
+  # occupies the shared Memory slot. Confirmed by the user via KMS/W133-P04S.
+  ("Memory Partner Swap", r"自分の思い出置場の[^。]{0,20}とこのカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # LastAttacker: a REPLAY/finisher shape -- put EVERY other one of your own characters into the waiting
+  # room, then swap this card for a specific NAMED waiting-room ally. Per the user's explanation: this is the
+  # last attack of a sequence -- you sacrifice your whole remaining board to bring in one more (fresh,
+  # ready-to-attack) character and swing with it too. Distinct from the plain resource-zone Exchange group
+  # above (this isn't tidying a resource zone, it's a board-wipe finisher). Confirmed via UMA/W134-056.
+  ("LastAttacker", r"あなたは他の自分のキャラすべてを、?控え室に置き[^。]{0,10}控え室の[^。]{0,20}とこのカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Effect Copy: play another one of your OWN character's named on-play [AUTO] ability as if it were this
+  # card's own -- a genuine "replicate an ability" mechanic, distinct from Grant Ability (that GIVES a NEW
+  # ability to a target; this REUSES an EXISTING ability already printed on another of your characters).
+  # Confirmed by the user via IMC/WE51-42.
+  ("Effect Copy", r"を1つ選び[^。]{0,10}選んだ【自】を持つキャラの【自】としてプレイする"),
   # Clock/Hand Exchange: a clock character comes to hand, and (as a SEPARATE step, not a true simultaneous
   # swap) a hand card goes to the clock -- net effect is the same shape as Clock/WR Exchange (trade WHICH
   # card sits in a clock slot) but the other side of the trade is your hand instead of your waiting room, a
@@ -528,7 +547,12 @@ FAMPAT = [
   # 3rd branch: a NAMED target («N») instead of the literal word キャラ -- some prints select a specific own
   # character by name to pump rather than saying キャラ. Narrowly scoped to 自分の…選 (a selected own target)
   # to avoid touching the two well-established, heavily-measured branches above.
-  ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]|自分の「N」を[^。]{0,6}選[^。]{0,18}パワーを[＋+]"),
+  # 4th branch: a 2-target selection that includes the CITING card itself ("…キャラを1枚とこのカードを選び、…パワーを
+  # +N" -- choose another character AND this card, both get the pump). 5th branch: a FIXED/named/positional
+  # target with no selection verb at all ("他のあなたの…枠の「N」に、パワーを+N" -- a specific named ally in a
+  # specific board slot). Same final purpose as the branches above (give power); confirmed by the user to
+  # fold in via AOT/S50-026 and AOT/S50-015.
+  ("Power Pump", r"キャラ[^。]{0,16}パワーを[＋+]|キャラを[^。]{0,6}選[^。]{0,18}パワーを[＋+]|自分の「N」を[^。]{0,6}選[^。]{0,18}パワーを[＋+]|キャラを[^。]{0,6}とこのカードを[^。]{0,6}選[^。]{0,18}パワーを[＋+]|他のあなたの[^。]{0,20}「N」に、?パワーを[＋+]"),
   # DiscardCharacterToDraw: pay by DISCARDING A CHARACTER from hand (［…手札の…キャラ…控え室に置…］ cost bracket),
   # then draw. A specific payment-shaped draw (you spend a card to dig), distinct from a bare Draw — split out
   # BEFORE Draw so it doesn't hide in the generic 引く family. The cost bracket must contain 手札→キャラ→控え室に置
@@ -644,6 +668,10 @@ FAMPAT = [
   # Anchored on the game's exact templated phrasing for this mechanic (30 cards share it verbatim). User
   # taxonomy.
   ("Free Play (Alt Cost)", r"手札のこのカードをプレイするにあたり.{0,60}コスト0でプレイできる"),
+  # Cost Substitute: distinct from Free Play (Alt Cost) above -- that one discounts THIS card's OWN play
+  # cost; this one lets THIS card (from hand) substitute for a STOCK payment on a DIFFERENT card's ACT
+  # ability elsewhere on the board. Confirmed by the user via LRC/WE47-06.
+  ("Cost Substitute", r"あなたが自分の[^。]{0,10}の【起】のコストを払う時[^。]{0,10}手札のこのカードを[^。]{0,20}ストック[^。]{0,20}のかわりに控え室に置"),
   # "Cannot Attack" (an effect YOU inflict ON THE OPPONENT so THEIR character can't attack — a disruption
   # tool) is DELETED outright, not just narrowed. The user clarified the concept it was meant for, and after
   # checking the real corpus: every single occurrence of the old broad pattern (523/527) was actually
