@@ -76,8 +76,12 @@ TRAIT = re.compile(r"《[^》]*》"); NAME = re.compile(r"「[^」]*」")
 def gen(t):
     t = t.translate(ZT); t = TRAIT.sub("《T》", t); t = NAME.sub("「N」", t)
     # trait COUNT does not affect cost (user rule): any trait restriction = 1 category. Collapse a list of
-    # traits to a single 《T》; only NO-trait (generic) stays distinct (and pricier).
-    t = re.sub(r"、?《T》(?:[かや・/／、]《T》)+", "《T》", t)
+    # traits to a single 《T》; only NO-trait (generic) stays distinct (and pricier). と (and) added to the
+    # connector class -- some prints join a long trait list with と instead of か/や/・/／/、 (e.g. a 9-trait
+    # "《本》と《ヒトデ》と《演劇》と…" self-identity grant); safe to add since と only fires here when it's directly
+    # sandwiched between two 《T》 placeholders, which can only happen in a real trait list. Confirmed via
+    # Kcl/WE50-51.
+    t = re.sub(r"、?《T》(?:[かやとも・/／、]《T》)+", "《T》", t)
     return re.sub(r"\s+", " ", t).strip()
 def r500(x): return int(round(x/500.0)*500)
 def mode500(xs): return collections.Counter(r500(x) for x in xs).most_common(1)[0][0]
@@ -190,7 +194,10 @@ FAMPAT = [
   # up このカードとバトル中のキャラ/このカードのバトル相手 as antecedent, then a ［cost］…そうしたら、…そのキャラを
   # クロック置場に置く payoff follows several sentences later (crosses 。, so needs . not [^。]). Confirmed via
   # PT/W07-031, CTB/W118-047.
-  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(クロック置場に置|クロックに置)|(このカードとバトル中のキャラ|このカードのバトル相手).{0,90}(あなたは)?そのキャラを[^。]{0,4}クロック置場に置"),
+  # Last branch: a BULK variant, no 選び (choose) verb -- "相手の前列のキャラすべてを、クロック置場に…置く" removes
+  # every qualifying character at once (usually payment-gated), the same "bulk, no selection needed" shape
+  # already added to Removal (Waiting Room). Confirmed via GBF/S134-082.
+  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(クロック置場に置|クロックに置)|(このカードとバトル中のキャラ|このカードのバトル相手).{0,90}(あなたは)?そのキャラを[^。]{0,4}クロック置場に置|相手の[^。]{0,10}キャラすべてを[^。]{0,10}クロック置場に[^。]{0,10}置"),
   # Removal (Hand): return an OPPONENT character to hand — same final purpose as every other Removal variant
   # below (get the opponent's stage character out of play), just a different destination. Named per-variant
   # (not one flat "Removal") because the destination materially changes the character's cost to the game:
@@ -349,6 +356,12 @@ FAMPAT = [
   # regardless of which own zone it came from. Verb widened にし -> にし|にする for the same reason as
   # Removal (Memory) above.
   ("Memory Bank", r"自分の(控え室|クロック置場)の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}(思い出にし|思い出にする)"),
+  # Ally Memory Bank: same destination/purpose as the ONREV-gated AutoKickToMemory (self, on reverse -> own
+  # Memory), but targeting an ALLY that just reversed instead of this card itself -- doesn't match ONREV_PAT
+  # (that's strictly self-referential "このカードが【リバース】した時"), so it needed its own FAMPAT branch.
+  # Banking a just-defeated ally in Memory protects it from further board-state effects. User-named
+  # (2026-07-23). Confirmed via GBF/S134-014, DD/WE12-17.
+  ("Ally Memory Bank", r"他のあなたの[^。]{0,40}が【リバース】した時.{0,60}(あなたは)?そのキャラを[^。]{0,6}思い出に(し|する)"),
   # MemorySelf: a plain ACT ability that sends THIS CARD itself into Memory -- NOT a Retreat (the user's
   # correction: this fires in the main phase, has nothing to do with attacking/battle, and isn't a combat
   # escape -- it's a bare main-phase self-relocation whose only real effect is shrinking your own board by
@@ -478,6 +491,10 @@ FAMPAT = [
   # sits in a resource zone" purpose, this time the zone pair is Memory <-> waiting room. Confirmed by the
   # user via HOL/W104-136.
   ("Memory/WR Exchange", r"自分の控え室の[^。]{0,20}と思い出置場の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Memory/Stage Exchange: another sibling of Clock/Stage Exchange -- while THIS card sits in your Memory
+  # zone, trade it for an own stage character (matching a trait), so this card returns to the stage and the
+  # chosen character goes to Memory instead. User-named (2026-07-23). Confirmed via KMS/W133-018.
+  ("Memory/Stage Exchange", r"思い出置場にこのカードがあり.{0,80}自分の《T》のキャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Memory/Hand Exchange: THIS CARD is in Memory (記憶 condition-keyword) and swaps for a chosen HAND
   # character -- a 5th sibling of the Clock/WR-style Exchange group, zone pair Memory <-> Hand. Confirmed by
   # the user via KMS/W133-T03.
@@ -650,7 +667,10 @@ FAMPAT = [
   # described-not-chosen group, same as the 他のあなたの…すべて branch above but on the opponent's side); and a
   # bare "あなたのキャラすべてに…を与える" with no 他の qualifier (ALL your characters, this card included --
   # confirmed via MK/S33-010, whose trigger fires off an ALLY's battle so this card itself is a valid target).
-  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える|相手の(前列|後列)のキャラすべてに[^。]{0,10}《T》を与える|あなたのキャラすべてに[^。]{0,20}《T》を与える"),
+  # Last branch: a name-matched OPPONENT target ("相手のカード名に「N」を含むキャラすべてに…を与える") -- same
+  # described-not-chosen group shape as the row-qualified opponent branch above, just matched by name instead
+  # of row. Confirmed via RZ/SE35-48.
+  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える|相手の(前列|後列)のキャラすべてに[^。]{0,10}《T》を与える|あなたのキャラすべてに[^。]{0,20}《T》を与える|相手のカード名に「N」を含むキャラすべてに[^。]{0,10}《T》を与える"),
   # Grant Ability: same "extend a chosen/named target's identity" purpose as GRANT_PAT above, but this exact
   # shape (grant the 【カウンター】 keyword to a named EVENT card sitting in hand) doesn't match GRANT_PAT's
   # "能力を/』を" requirement -- 【カウンター】 is a specific keyword name, not the generic word 能力. Kept as its
@@ -821,6 +841,31 @@ FAMPAT = [
   # shuffle (a proactive self-mulligan that costs a whole turn's tempo) -- confirmed via BM/S15-005,
   # SG/W39-008, SGS/S37-040, IM/S21-011.
   ("Drawback", r"自分の山札[^。]{0,10}公開する.{0,40}このカードを山札に戻.{0,20}シャッフル"),
+  # 6 more shapes folded in under the same "self-risk, no opponent, no stated compensation" Drawback rule,
+  # confirmed via the Other-family audit (2026-07-23):
+  # (3) self -> bottom of deck, on a trigger OTHER than 【リバース】 (attack-end, Encore step, an アラーム clock-
+  # top condition) -- the ONREV-gated version of this exact action is the established AutoKickToBottom family
+  # (a separate, EARLIER-checked detection path via ONREV_PAT, not touched here); this branch only catches
+  # the non-onrev-triggered leftover. Confirmed via CTB/W118-026, TRV/S92-069, ALL/S127-060.
+  ("Drawback", r"このカードを[^。]{0,4}山札の下に置"),
+  # (4) self -> own clock, gated by a marker or other condition broader than a bare on-reverse trigger (e.g.
+  # "leaving the stage" generally, not just reversing) -- more clock cards is a real downside. The pure
+  # on-reverse version is the established AutoKickToClock family (ONREV_PAT, unaffected). Confirmed via
+  # MKI/W126-080.
+  ("Drawback", r"このカードを[^。]{0,4}クロック置場に置"),
+  # (5) dump your ENTIRE stock or deck into your OWN waiting room, no benefit in the same clause -- the
+  # blunter, unqualified sibling of the "top/bottom 1 card" branch above. Confirmed via VRG/WE52-13.
+  ("Drawback", r"自分の(山札|ストック)すべてを[^。]{0,6}控え室に置"),
+  # (6) shuffle your own stock (no zone change, just randomize order) -- a mild self-inflicted loss of
+  # planning certainty over your own resource. Confirmed via GIM/W124-056, GA17/S131-T12.
+  ("Drawback", r"自分のストックを[^。]{0,4}シャッフルする"),
+  # (7) this card's battle opponent never reverses -- a self-imposed combat limitation (this card can win
+  # fights but never finish an opponent off). Confirmed via RKN/S115-085.
+  ("Drawback", r"このカードのバトル相手は【リバース】しない"),
+  # (8) voluntarily REVERSE this card yourself, with no stated benefit in the same clause -- surrendering
+  # your own stand state (can't attack, vulnerable) is a real downside even though the trigger varies.
+  # Confirmed via KMD/W96-058.
+  ("Drawback", r"(あなたは)?このカードを【リバース】する(?!か)"),
   # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
   # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
   # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
