@@ -612,6 +612,14 @@ FAMPAT = [
   # destination (clock advances your level/damage count differently than stock does), same "deck-top-into-
   # a-resource-zone" final purpose.
   ("Clock Gen", r"自分の山札の上から[^。]{0,14}クロック置場に置"),
+  # Clock Park (user-named, 2026-07-23): temporarily bench a WAITING-ROOM character at the bottom of your
+  # clock, then return it to the waiting room at the next Encore step -- a delayed round-trip, distinct from
+  # a permanent Removal/Heal-style zone move. Confirmed via DC4/W81-090.
+  ("Clock Park", r"自分の控え室のキャラを[^。]{0,6}選び[^。]{0,6}クロック置場の下に置いてよい.{0,40}アンコールステップの始めに[^。]{0,10}そのキャラを[^。]{0,6}控え室に置"),
+  # Climax Recall (user-named, 2026-07-23): recover a named CLIMAX card from your clock or waiting room
+  # straight into your climax area -- sibling in spirit to Salvage/Search but the destination is the climax
+  # zone specifically, letting you replay a climax's effect. Confirmed via P3/S01-036.
+  ("Climax Recall", r"自分のクロックか控え室の「N」を[^。]{0,6}選び[^。]{0,6}(クライマックス置場に置|CX置場に置)"),
   # The "AddMarker (...)" group: park a card face-up/down as a MARKER under this (or another named) card, to
   # be retrieved later (often at the next Draw Phase, onto a stage slot) — a banked resource, not an
   # immediate effect. User: markers can genuinely come from ANY zone (deck top, deck search, waiting room,
