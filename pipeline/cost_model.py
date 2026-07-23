@@ -127,6 +127,11 @@ FAMPAT = [
   # measured cost already scales naturally with whatever N a specific card prints). A well-known WS mechanic
   # that had NO family at all before this pass (330+ occurrences landing in Other). User taxonomy.
   ("Multi Trigger Check", r"トリガーステップにトリガーチェックを[0-9０-９]+回行う"),
+  # First Turn Rush (user-named, 2026-07-23): overrides the rule that the FIRST PLAYER cannot attack at all
+  # on turn 1, letting up to N characters attack that turn instead. A rare, narrow rules-exception, distinct
+  # from Multi Trigger Check above (that's about extra TRIGGER CHECKS, not extra attackers). Confirmed via
+  # FH/SE03-011.
+  ("First Turn Rush", r"先攻プレイヤーの第[１1]ターンなら[^。]{0,10}あなたは[\dＸ]+枚まで(アタック|キャラ)"),
   # Side Attack (No Soul Loss): an OFFENSIVE damage tool, not a defensive one (user correction) -- normally
   # side-attacking loses Soul equal to the defender's level minus your Soul, which can make a side attack
   # deal LESS damage than a front attack against a higher-level defender; this ignores that penalty entirely,
@@ -146,6 +151,12 @@ FAMPAT = [
   # HandSizeLimit+1 (user's own name): another rules-modifying static, like Deck Copy Limit above — this one
   # literally raises the hand-size cap rather than granting a gameplay action.
   ("HandSizeLimit+1", r"あなたの手札の枚数上限を[＋+]\d+"),
+  # LoseAtLevel5 (user's own name, 2026-07-23): another rules-modifying static, same category as
+  # HandSizeLimit+1/Deck Copy Limit above -- this one delays the alternate "level 4 = instant loss" rule some
+  # other effect enforces, so the real threshold becomes level 5 while this card is banked in Memory. The
+  # user's framing: this directly changes the original game rule, more than just granting immunity to it.
+  # Confirmed via MKI/W126-077.
+  ("LoseAtLevel5", r"思い出置場にこのカードがあるなら[^。]{0,6}(あなたは)?レベル4であることによって敗北しない"),
   # Color Bypass: a passive CONT permission letting this card (or a whole card TYPE — events/climaxes) be
   # played ignoring the color requirement. Distinct from Summon (an ACTIVE effect that puts a DIFFERENT
   # character into play bypassing its cost/level) — this is a permanent, intrinsic property of the card
@@ -612,6 +623,12 @@ FAMPAT = [
   # "すべて" -- distinct from the AddMarker (...) retrieval branch, which requires CHOOSING one marker to
   # bring back). A forced end-of-effect/end-of-turn/on-level-up cleanup of the whole banked pile at once.
   ("Marker Cleanup", r"このカードの下のマーカーをすべて控え室に置く"),
+  # Marker Handoff (user-named, 2026-07-23): a multi-step combo piece -- move a named Level-zone card onto a
+  # marked slot, transfer every marker from the card that WAS in that slot onto the newly-placed card, then
+  # send the displaced card to the Level zone. Distinct from AddMarker/Marker Cleanup/Marker Currency (those
+  # add/discard/spend a marker directly) -- this hands an EXISTING pile of markers off from one card to
+  # another via a swap. Confirmed via ALL/S127-088.
+  ("Marker Handoff", r"自分のレベル置場の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}舞台のマーカーを持つ[^。]{0,20}のいる枠に置"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
@@ -914,6 +931,10 @@ FAMPAT = [
   # (9) self -> bottom of your OWN STOCK, on a reveal-conditional trigger. Same self-relocation-with-no-
   # stated-benefit spirit as the deck-bottom/clock/waiting-room branches above. Confirmed via OVL/SE54-23.
   ("Drawback", r"このカードを[^。]{0,4}ストック置場の下に置"),
+  # (10) the OPPONENT gets to manipulate YOUR OWN deck (reveal your top card, they may bury it at the bottom)
+  # -- ceding control over your own resource to the opponent is a real downside even though no card is lost
+  # outright. Confirmed +500 (compensated at/above vanilla) via FS/S34-023.
+  ("Drawback", r"相手はあなたの山札の上から[^。]{0,6}枚?を[^。]{0,6}山札の下に置"),
   # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
   # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
   # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
@@ -1090,6 +1111,7 @@ def family(text, markers=""):
     # replay body), but previously had no family name of its own and fell to Other despite being fully
     # audited/intentional.
     if is_noop(text) or DECLARE_LIST_PAT.search(text) or _DECLARE_NAMELIST_PAT.match(text.strip()): return "Declare"
+    if DAMAGE_SOURCE_PAT.search(text): return "Damage Source (Bottom)"
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"
@@ -1149,6 +1171,14 @@ DECLARE_LIST_PAT = re.compile(r"以下のカード名のうちあなたが選ん
 # DECLARE_LIST_PAT's "among the following names" ability actually offers). Zero game action of its own, same
 # as every other Declare shape. Confirmed via SMP/W60-T01, GRI/S84-115.
 _DECLARE_NAMELIST_PAT = re.compile(r"^(「[^」]*」)+$")
+# Damage Source (Bottom): a purely cosmetic rules-tech CONT -- this card's dealt damage is resolved from the
+# BOTTOM of the deck instead of the top. User's ruling (2026-07-23): this costs 0, same "structural zero"
+# treatment as a no-op Declare -- it does NOT deal MORE damage or otherwise change the outcome of combat, it
+# only changes WHICH cards get milled by that damage (a flavor/tech distinction, not a power source). Any
+# real budget on this card's total power belongs entirely to its other abilities (e.g. a CX Combo). Confirmed
+# via CSM/S96-065.
+DAMAGE_SOURCE_PAT = re.compile(r"このカードの与えるダメージは山札の下からダメージ処理を行う")
+def is_zero_flavor(text): return bool(is_noop(text) or DAMAGE_SOURCE_PAT.search(text or ""))
 
 # ---------------- EN-side cost math (for English-EXCLUSIVE WX/SX cards) ----------------
 # Same methodology as JP, applied over the ENGLISH ability text. The caller owns the EN-card iteration
@@ -1472,7 +1502,7 @@ def build_cost_model(clean):
             sigs.append(sig)
             variant_occ[sig].append((c["card_number"], i, mk, a.get("text", "")))
             variant_text.setdefault(sig, (mk, sig.split(" :: ", 1)[1]))   # gen text from the sig (folded for citers)
-            if is_noop(a.get("text", "")): noop_sigs.add(sig)             # "declare 『X』" and nothing else -> 0
+            if is_zero_flavor(a.get("text", "")): noop_sigs.add(sig)      # "declare 『X』" (or other flavor-only text) -> 0
         delta = pb(c) - c["power"]
         char_cards.append((c["card_number"], delta, sigs, None))
         if len(ab) == 1 and reliable(c):      # only normal prints seed the measured standard (no demo A-prints)
