@@ -322,7 +322,12 @@ FAMPAT = [
   # Same battle-opponent-reference gap fixed for Deck Top/Bottom above -- confirmed via KF/S05-032
   # ("このカードとバトル中のキャラが【リバース】した時...そのキャラを思い出にする").
   ("Removal (Memory)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(思い出にし|思い出にする)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(思い出にし|思い出にする)|(このカードのバトル相手|このカードとバトル(中の|している)キャラ)が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(思い出にし|思い出にする)"),
-  ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え"),
+  # 2nd branch: a compound-object phrasing -- "相手の…キャラと控え室の…キャラを1枚ずつ選び、入れ替え" (an opponent
+  # character AND a waiting-room character, one each, choose and swap) puts を after BOTH nouns instead of
+  # directly after 相手の…キャラ, which the branch above requires. Same Removal (Swap) purpose, a slightly
+  # weaker variant (the user's read: "very similar to [the usual Removal (Swap) shape] but a bit worse").
+  # Confirmed via PRD/W84-062.
+  ("Removal (Swap)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで).{0,90}入れ替え|相手の[^。]{0,20}キャラと控え室の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,10}入れ替え"),
   # ReviveOpponent (provisional name, pending user confirmation): the reverse of Removal — put a character
   # from the OPPONENT's OWN waiting room onto a stage slot. Since a character always stays owned by its
   # original controller, an unmarked "舞台" here can only mean the OPPONENT's stage: this "revives" an
@@ -629,6 +634,21 @@ FAMPAT = [
   # add/discard/spend a marker directly) -- this hands an EXISTING pile of markers off from one card to
   # another via a swap. Confirmed via ALL/S127-088.
   ("Marker Handoff", r"自分のレベル置場の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}舞台のマーカーを持つ[^。]{0,20}のいる枠に置"),
+  # SummonFromMarker (user's own term, 2026-07-23): the core action is bringing a BANKED MARKER onto the
+  # stage as a real character. This branch is the "swap" variant -- choose this card's own marker and this
+  # card, swap them (the marker becomes the new stage character, this card becomes the new marker underneath
+  # it) -- distinct from a sibling shape (not yet in this family, flagged for a future full-family audit)
+  # where the marker is summoned WITHOUT displacing the summoning card, so both end up on the stage at once.
+  # Confirmed via KNK/W132-031, and the user separately confirmed BD/W95-017 (currently misfiled under
+  # Stand/Rest, not touched here -- reclassifying already-measured established families is out of scope for
+  # this Other-family cleanup pass) shares this exact swap shape.
+  ("SummonFromMarker", r"このカードのマーカーの[^。]{0,20}を[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Miracle Win (user-named, 2026-07-23): a bespoke, near-impossible alternate win-condition -- reveal 8,
+  # shuffle back, win if 8+ were climaxes. Confirmed via MAR/S89-038.
+  ("Miracle Win", r"自分の山札の上から8枚を公開し[^。]{0,10}その山札をシャッフルする.{0,40}クライマックスの枚数が8枚以上なら[^。]{0,10}あなたは勝利する"),
+  # Shot Damage Boost (user-named, 2026-07-23): a conditional amplifier for the official "shot" trigger-icon
+  # damage effects specifically. Confirmed via BAV/W129-016.
+  ("Shot Damage Boost", r"あなたのshotの効果で与えるダメージを[＋+]\d+"),
   # Add to Hand: a card ends up in hand. 戻す (return) is included, but NOT "このカードを手札に戻す" — returning THIS
   # card to hand is almost always a PAYMENT (［このカードを手札に戻す］ cost bracket), so letting it match here stole
   # the ability from its real EFFECT family (…パワーを＋N / ソウルを＋N / draw). The negative lookbehind lets those
