@@ -427,6 +427,57 @@ Explained% flat at **95.5%**, suspects **3521** (up 1 from 3520 — effectively 
 re-classification pass). `pipeline/analysis/family_catalog.txt`: **122 families** (was 115). `Other` down to
 **178 signatures / 399 occurrences**.
 
+**Bug-fix pass (same session): two clean fixes, no family-naming call needed.**
+
+- **`ra()`'s dash-placeholder filter was missing two Unicode dash variants** (HYPHEN U+2010 `‐`, HORIZONTAL
+  BAR U+2015 `―`) actually used by 18 real "no ability" rows in the raw JP data — these were being costed
+  and family-labeled as if they were real abilities instead of dropped. Fixed in `cost_model.py` (the
+  canonical source both `build_db.py` and `build_official_list.py` import `ra()` from) and mirrored in the
+  two other active tools with their own local copy (`_tr2_extract.py`, `cost_standardize.py`); the two
+  known-superseded legacy tools (`build_master_list.py`, `_tr_extract.py`) were left untouched.
+- **`Removal (Deck Top)` / `Removal (Memory)` / `Removal (Stock)` were each missing the same
+  battle-opponent-reference branch** (`このカードとバトル(中の|している)キャラ`) that their sibling
+  `Removal (Deck Bottom)` already had — the same gap class fixed repeatedly this session for Bomb's
+  `_BOMB_OPP`, Clock Kick, etc. Real cards fell through to `Grant Ability`, the generic `Stock Boost`
+  catch-all, or `Other` instead. Fixed all three, verified against real corpus text (`DC/W01-059`,
+  `KF/S05-032`, `LB/W06-T06`, `LB/W06-018`, `FH/SE03-001`).
+
+**Family-taxonomy audit, round 8 — 8 more `Other` clusters resolved, with several user corrections.**
+
+- **`Grant Trait` widened** to also accept a fixed/described target (not just "choose 1"): a face-off
+  opponent (`このカードの正面のキャラに…を与える`) or every matching character (`他のあなたの…キャラすべてに…を与える`,
+  incl. name-matched groups). Same final purpose (assign a trait) — confirmed by the user to fold in rather
+  than split.
+- **`Deck Mill`** (new): blindly put the top N (or up to N, or a variable X) of your own deck straight into
+  the waiting room — no 見る/選ぶ verb, unlike the existing `Deck Thin` (which views and picks). **Deliberately
+  kept OUT of `Brainstorm`/集中**, even though both end in the waiting room: the user was emphatic that this
+  is a rules-level distinction, not just a different trigger — the official 集中/Brainstorm keyword reveals
+  cards into an intermediate *resolution zone* before discarding, while a plain mill sends cards straight to
+  the waiting room with no such step. `Brainstorm` stays reserved for the keyword mechanic only.
+- **`MemorySelf`** (new): a plain ACT ability that sends THIS CARD itself into Memory. NOT filed as a Retreat
+  variant — the user's correction: it fires in the main phase, has nothing to do with attacking/battle, and
+  isn't a combat escape, just a bare self-relocation. Also NOT named the more generic "Compress" — the user
+  pointed out that banking a card in Memory is only ONE of several ways to achieve a similar board-tidying
+  effect (having a lot of clean stock is another), so the family is named for the specific zone/action, not
+  the abstract goal.
+- **`Drawback` widened** to also cover "this card's power does not increase or decrease" — looks protective
+  at first glance (immune to a Bomb/Drawback-style power cut), but the user's ruling is Drawback: locking
+  your own power ALSO blocks every beneficial modifier (Backup/Assist/Power Pump from teammates), which are
+  more common/valuable in practice than a targeted power reduction would be, so the net effect is negative.
+- **`Memory/WR Exchange`** (new): a third sibling of `Clock/WR Exchange` and `Level/WR Exchange` — same
+  "trade which card sits in a resource zone" purpose, this time Memory ↔ waiting room.
+- **`Link Identity`** (new): the official 【リンク】 marker's whole "ability" is just its own bare name (e.g.
+  "ASMR", "Groovy Mix") — an identity tag other cards' text can reference/search for, carrying zero game
+  action. Verified across the full corpus: every real 【リンク】-marked row has no Japanese punctuation at all,
+  so detecting on "marker present + no 。/、 in text" can't misfire on a real ability that happens to also
+  carry the marker.
+- **`Declare`** (new): an AUTO/CONT/ACT whose whole effect is announcing a flavor quote
+  ("…と宣言してよい"/"…と言ってよい") — already costed 0 via the pre-existing `is_noop()` structural no-op check, but
+  had no family name of its own and fell to `Other` despite being fully audited/intentional.
+
+Explained% flat **95.5%**, suspects **3522 → 3517** (a small real gain). `pipeline/analysis/
+family_catalog.txt`: **126 families** (was 122). `Other` down to **151 signatures / 296 occurrences**.
+
 **The `Removal (...)` group** (added in the family-taxonomy audit pass): every ability whose final purpose
 is "get the opponent's STAGE character out of play" is a Removal variant, split by destination because the
 destination changes the character's cost to the game (a bounce to hand lets the opponent replay it

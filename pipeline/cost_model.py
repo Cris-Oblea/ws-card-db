@@ -298,6 +298,17 @@ FAMPAT = [
   # regardless of which own zone it came from. Verb widened にし -> にし|にする for the same reason as
   # Removal (Memory) above.
   ("Memory Bank", r"自分の(控え室|クロック置場)の[^。]{0,20}を[^。]{0,10}選び[^。]{0,10}(思い出にし|思い出にする)"),
+  # MemorySelf: a plain ACT ability that sends THIS CARD itself into Memory -- NOT a Retreat (the user's
+  # correction: this fires in the main phase, has nothing to do with attacking/battle, and isn't a combat
+  # escape -- it's a bare main-phase self-relocation whose only real effect is shrinking your own board by
+  # one card, banking it in Memory). Named "MemorySelf" rather than a generic "Compress": the user pointed out
+  # that banking a card in Memory is only ONE of several ways to achieve a similar board-tidying effect (e.g.
+  # keeping a lot of clean stock is another) -- a broad conceptual name would wrongly lump genuinely different
+  # mechanics together, so the family is named for the SPECIFIC zone/action, not the abstract goal. The
+  # on-reverse "self to Memory" shape is a completely different family (AutoKickToMemory, resolved earlier via
+  # ONREV_PAT before FAMPAT even runs) -- this only catches the non-reactive, ACT-triggered case. Confirmed
+  # via LB/W02-033.
+  ("MemorySelf", r"このカードを(思い出にし|思い出にする)"),
   # Search = look at your DECK and take a card to HAND. Two phrasings: 見る (look) and 公開 (reveal the top,
   # then conditionally add). The reveal-top dig crosses a sentence break (…公開する。…なら手札に加え), so its
   # branch uses . (not [^。]) to bridge it; 山札…公開 anchors it to own-deck reveal, 手札に加え to taking to hand.
@@ -308,6 +319,15 @@ FAMPAT = [
   # takes the found card to hand). Checked after Search since the destination is mutually exclusive (手札 vs
   # 控え室), so order doesn't matter for correctness, but grouped here thematically. User taxonomy.
   ("Deck Thin", r"自分の山札[^。]{0,10}見[^。]{0,20}選(び|んで)[^。]{0,10}控え室に置"),
+  # Deck Mill: BLINDLY put the top N (or up to N, or a variable X) cards of your own deck straight into the
+  # waiting room -- no 見る (look)/選ぶ (choose) verb at all, unlike Deck Thin just above (which specifically
+  # views the revealed cards and picks which one to discard). NEVER fold this into Brainstorm/集中, even though
+  # both end up putting cards in the waiting room: Brainstorm is a RULES-LEVEL different mechanic -- its
+  # revealed cards sit in an intermediate "resolution zone" before being discarded, while a plain mill sends
+  # cards straight to the waiting room with no such step. Brainstorm stays reserved for the keyword mechanic
+  # ONLY (via the KW dict); this plain on-play mill is its own family (checked AFTER Deck Thin so the
+  # look+choose shape keeps its own family first).
+  ("Deck Mill", r"自分の山札の上から[^。]{0,14}控え室に置"),
   # Look & Reorder = look at top N then put them back in ANY order (好きな順番) — a scry/setup, distinct from a
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
@@ -384,6 +404,10 @@ FAMPAT = [
   # as real (few cards, but they exist): summoning-style effects can source from level zone or clock, not
   # just waiting room/deck.
   ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Memory/WR Exchange: another sibling of Clock/WR Exchange and Level/WR Exchange -- same "trade which card
+  # sits in a resource zone" purpose, this time the zone pair is Memory <-> waiting room. Confirmed by the
+  # user via HOL/W104-136.
+  ("Memory/WR Exchange", r"自分の控え室の[^。]{0,20}と思い出置場の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Clock/Hand Exchange: a clock character comes to hand, and (as a SEPARATE step, not a true simultaneous
   # swap) a hand card goes to the clock -- net effect is the same shape as Clock/WR Exchange (trade WHICH
   # card sits in a clock slot) but the other side of the trade is your hand instead of your waiting room, a
@@ -512,7 +536,11 @@ FAMPAT = [
   # a different identity slot.
   # Trigger-icon branch gap widened around 「N」 (…領域の、「N」と「N」のトリガーアイコンに… has a 、 before the name
   # and a と before the trailing の, which the tight "の「N」の" literal missed).
-  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える"),
+  # 2 more branches folded in (same final purpose -- assign a trait -- just no selection verb since the
+  # target is already fixed/described rather than chosen): "このカードの正面のキャラに…を与える" (the character
+  # facing this card, a fixed reference) and "他のあなたの…キャラすべてに…を与える" (every one of your other
+  # characters, or every character whose name matches, a described-not-chosen group).
+  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える"),
   # Grant Trigger Icon (Class): grants a trigger icon to an entire CLASS of climaxes (any CX that already
   # has trigger icon X, in all zones), not a specific NAMED target -- broader in scope than Grant Trait
   # above, so it needed its own name even though the underlying mechanic (extend an identity slot) is
@@ -631,6 +659,11 @@ FAMPAT = [
   # advances (a downside -- more clock cards is generally bad). Same "self-risk, no opponent" Drawback
   # spirit as the branch above. Crosses a sentence break (。) to the conditional clause, so needs . not [^。].
   ("Drawback", r"自分の山札の上から[^。]{0,10}公開する.{0,30}クロック置場に置"),
+  # "This card's power does not increase or decrease": looks protective (immune to a Bomb/Drawback-style
+  # opposing power cut) but the user's ruling is Drawback -- locking your OWN power also blocks every
+  # BENEFICIAL modifier (Backup/Assist/Power Pump from teammates), and those are more common/valuable in
+  # practice than a targeted power reduction would be, so the net effect on the controller is negative.
+  ("Drawback", r"このカードはパワーが増減しない"),
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
@@ -758,6 +791,18 @@ _GRANTED_QUOTE = re.compile(r"『[^』]*』")
 def _is_citing_pump(text):
     return any(p.search(_GRANTED_QUOTE.sub("", text)) for p in _PUMP_RES)  # pump must be in the CITING text
 def family(text, markers=""):
+    # Link Identity: the official 【リンク】 marker's WHOLE "ability" is just its own bare name (e.g. "ASMR",
+    # "Groovy Mix") -- an identity tag other cards' text can reference/search for, carrying zero game action
+    # of its own. Verified across the full corpus: every real 【リンク】-marked row has no Japanese punctuation
+    # at all (a genuine effect would have at least a 。), so this check can't misfire on a real ability that
+    # merely also happens to carry the marker. Intentional zero-function flavor, named so it stops looking
+    # like an unaudited leftover in Other.
+    if "リンク" in markers and "。" not in text and "、" not in text: return "Link Identity"
+    # Declare: an AUTO/CONT/ACT whose WHOLE effect is announcing a flavor quote ("…と宣言してよい"/"…と言ってよい")
+    # with no real game action -- already costed 0 via is_noop() (a structural no-op, same treatment as a
+    # replay body), but previously had no family name of its own and fell to Other despite being fully
+    # audited/intentional.
+    if is_noop(text): return "Declare"
     # CX Combo FIRST (a combo encapsulates whatever sub-effects it mixes): the official 【CXコンボ】 MARKER is
     # the definitive signal; also the climax-area gate in the text (incl. the "CX置場" abbreviation).
     if "CXコンボ" in markers or "ＣＸコンボ" in markers or CXC_PAT.search(text): return "CX Combo"

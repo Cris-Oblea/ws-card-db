@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
-**Last updated:** 2026-07-22 (family-taxonomy audit round 7)
+**Last updated:** 2026-07-22 (family-taxonomy audit round 8)
 
 ## Current state
 
@@ -403,6 +403,43 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - Explained% flat at **95.5%**, suspects **3521** (up 1 from 3520 — effectively unchanged, within noise
     for a re-classification pass). `pipeline/analysis/family_catalog.txt`: **122 families** (was 115).
     `Other` down to **178 signatures / 399 occurrences** (from several hundred more at the batch's start).
+- ✅ **Bug-fix pass (2026-07-22, same session) — no family-naming call needed.** `ra()`'s dash-placeholder
+  filter was missing two Unicode dash variants (HYPHEN U+2010 `‐`, HORIZONTAL BAR U+2015 `―`) used by 18 real
+  "no ability" rows — they were being costed/labeled as real abilities instead of dropped. Fixed in
+  `cost_model.py` (canonical) + mirrored in `_tr2_extract.py`/`cost_standardize.py` (other active tools with
+  their own copy; left the 2 known-superseded legacy tools alone). Also: `Removal (Deck Top)` /
+  `Removal (Memory)` / `Removal (Stock)` were each missing the same battle-opponent-reference branch
+  (`このカードとバトル(中の|している)キャラ`) their sibling `Removal (Deck Bottom)` already had — real cards fell
+  through to `Grant Ability`, the generic `Stock Boost` catch-all, or `Other`. Fixed all three, verified
+  against `DC/W01-059`, `KF/S05-032`, `LB/W06-T06`, `LB/W06-018`, `FH/SE03-001`. Explained% flat 95.5%,
+  suspects 3521→3522 (noise).
+- ✅ **Family-taxonomy audit, round 8 — 8 more `Other` clusters resolved, several user corrections
+  (2026-07-22, same session).**
+  - **`Grant Trait` widened** to accept a fixed/described target (face-off opponent, or "all of X"
+    characters incl. name-matched groups) instead of requiring "choose 1" — same final purpose, user
+    confirmed fold rather than split.
+  - **`Deck Mill`** (new): blindly mill the top N/up-to-N/X of your own deck to the waiting room, no
+    look/choose verb. **Deliberately kept separate from `Brainstorm`/集中** — the user was emphatic this is a
+    RULES-LEVEL distinction, not just a different trigger: Brainstorm's official keyword reveals cards into
+    an intermediate resolution zone before discarding, while a plain mill goes straight to the waiting room.
+    Never fold simple milling into Brainstorm going forward.
+  - **`MemorySelf`** (new, renamed from an initial "Compress" proposal): a plain ACT ability that sends THIS
+    CARD itself into Memory. NOT a Retreat (user: fires in the main phase, unrelated to attacking/battle, not
+    a combat escape). NOT the more generic "Compress" either — user: Memory-banking is only ONE of several
+    ways to achieve a similar board-tidying effect (lots of clean stock is another), so name the specific
+    mechanic, not the abstract goal.
+  - **`Drawback` widened** for "this card's power does not increase or decrease" — looks protective at first
+    glance, but user's ruling is Drawback: locking your own power also blocks every beneficial modifier
+    (Backup/Assist/Power Pump from teammates), a net negative in practice.
+  - **`Memory/WR Exchange`** (new): 3rd sibling of `Clock/WR Exchange` / `Level/WR Exchange`, zone pair is
+    Memory ↔ waiting room.
+  - **`Link Identity`** (new): the official 【リンク】 marker's whole "ability" is just its own bare name (e.g.
+    "ASMR", "Groovy Mix") — a searchable identity tag, zero game action. Verified: every real 【リンク】-marked
+    row in the corpus has no Japanese punctuation at all, so detection can't misfire on a real ability.
+  - **`Declare`** (new): the pre-existing quote-declaration no-op ("…と宣言してよい"/"…と言ってよい", already costed 0
+    via `is_noop()`) finally gets its own family name instead of falling to `Other`.
+  - Explained% flat **95.5%**, suspects **3522 → 3517** (a small real gain). `pipeline/analysis/
+    family_catalog.txt`: **126 families** (was 122). `Other` down to **151 signatures / 296 occurrences**.
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
