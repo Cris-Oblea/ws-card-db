@@ -176,6 +176,10 @@ FAMPAT = [
   # CHOSEN ALLY instead, reactively and payment-gated. Same destination/purpose (that character can't be
   # reversed this turn), different target. User-named (2026-07-23). Confirmed via ALL/S90-080.
   ("Reverse Immunity (Grant)", r"あなたはコストを払ってよい。そうしたら、そのターン中、そのキャラは【リバース】しない"),
+  # Reverse Immunity (Level Comparison): a 5th condition variant -- immune whenever this card's battle
+  # opponent outlevels the actual opponent PLAYER's own level (a level-race tech). User-named (2026-07-23).
+  # Confirmed via SHS/W71-095.
+  ("Reverse Immunity (Level Comparison)", r"このカードの正面のキャラのレベルが相手のレベルより高いなら、このカードは【リバース】しない"),
   # Clock Kick is DELIBERATELY NOT a Removal variant, even though it also relocates an opponent's stage
   # character: its real purpose is dealing UNCANCELLABLE damage (bypassing the climax-reveal cancel that a
   # normal Burn allows), using the clock-placement as the delivery mechanism — not board control. Contrast
@@ -336,7 +340,12 @@ FAMPAT = [
   # the list than Look & Reorder, so a compound ability that ALSO has a look/reorder clause in the same text
   # (e.g. NIK/S117-052) now files as Opp Disrupt instead -- a real, deliberate side effect of this fold, not a
   # bug; flagged for the broader Restriction/Opp Disrupt review the user asked for next.
-  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置|相手は[^。]{0,14}【起】を使えない"),
+  # 5th branch: a compound punishment on reverse -- the opponent is forced to bounce their OWN battling
+  # character to hand AND discard a card from their OWN hand, two actions against their own zones bundled
+  # into one payoff. Same disruption spirit as the branches above (opponent forced to act against their own
+  # resources), just two actions instead of one. Confirmed via P4/S08-001, CHA/W40-014 (each phrases the
+  # battle-opponent reference differently, hence 2 separate sigs for the same mechanic).
+  ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置|相手は[^。]{0,14}【起】を使えない|相手は自分のバトル中のキャラを[^。]{0,4}手札に戻し[^。]{0,10}自分の手札を[^。]{0,10}選び[^。]{0,6}控え室に置"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
@@ -503,6 +512,9 @@ FAMPAT = [
   # zone, trade it for an own stage character (matching a trait), so this card returns to the stage and the
   # chosen character goes to Memory instead. User-named (2026-07-23). Confirmed via KMS/W133-018.
   ("Memory/Stage Exchange", r"思い出置場にこのカードがあり.{0,80}自分の《T》のキャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # Level/Stage Exchange: completes the Clock/Stage + Memory/Stage sibling group -- choose an own Level-zone
+  # card and this card (on stage), swap them. User-named (2026-07-23). Confirmed via GZL/SE33-14.
+  ("Level/Stage Exchange", r"自分のレベル置場の[^。]{0,20}を[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Memory/Hand Exchange: THIS CARD is in Memory (記憶 condition-keyword) and swaps for a chosen HAND
   # character -- a 5th sibling of the Clock/WR-style Exchange group, zone pair Memory <-> Hand. Confirmed by
   # the user via KMS/W133-T03.
@@ -683,6 +695,11 @@ FAMPAT = [
   # the slot is COLOR (affects legal play/payment) instead of a trait or trigger icon. User-named
   # (2026-07-23). Confirmed via KGL/S95-059.
   ("Grant Color", r"他のあなたの[^。]{0,20}「N」すべてに[^。]{0,10}(赤|青|緑|黄|紫)を与える"),
+  # Grant Trait (All): a symmetric variant -- EVERY other character regardless of owner (both players'
+  # boards) gains the trait, unlike every other Grant Trait branch above (each scoped to just one side).
+  # Sibling naming matches the existing Strip Trait (All) (a symmetric-scope split, same convention).
+  # User-named (2026-07-23). Confirmed via DG/S02-032 (a legacy S02-era card).
+  ("Grant Trait (All)", r"^他のキャラすべてに[^。]{0,6}《T》を与える。?$"),
   # Grant Ability: same "extend a chosen/named target's identity" purpose as GRANT_PAT above, but this exact
   # shape (grant the 【カウンター】 keyword to a named EVENT card sitting in hand) doesn't match GRANT_PAT's
   # "能力を/』を" requirement -- 【カウンター】 is a specific keyword name, not the generic word 能力. Kept as its
@@ -729,6 +746,9 @@ FAMPAT = [
   # waiting room, a combined condition, etc.) -- enumerating every prefix was missing real cases; anchoring
   # on the destination clause alone (like AddMarkerWaitingRoom does for マーカーとして) is more robust.
   ("Self Identity Grant", r"(舞台にこのカードがいるなら|すべての領域にあるこのカード(は|の)|手札にこのカードがあるなら)[^。]{0,20}(を得る|得る|としても扱う)|このカードは[^。]{0,24}を得る|このカードのカード名は[^。]{0,40}としても扱う"),
+  # Self Identity Strip: the mirror of Self Identity Grant above -- this card LOSES its own trait(s) entirely
+  # while on stage, instead of gaining an identity slot. User-named (2026-07-23). Confirmed via SG/W70-013.
+  ("Self Identity Strip", r"舞台にこのカードがいるなら[^。]{0,6}このカードは《T》をすべて失う"),
   ("Power Debuff", r"パワーを[－\-]"), ("Soul", r"ソウルを[＋+\-－]"), ("Level", r"レベルを[＋+\-－]"),
   ("Mill (self)", r"山札の上から\d+枚を[^。]{0,8}控え室"),
   # Retreat: THIS card (or another of your own STAGE characters) returns to hand -- a self-bounce/withdrawal,
