@@ -362,6 +362,11 @@ FAMPAT = [
   # resources), just two actions instead of one. Confirmed via P4/S08-001, CHA/W40-014 (each phrases the
   # battle-opponent reference differently, hence 2 separate sigs for the same mechanic).
   ("Opp Disrupt", r"相手の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手は自分の(手札|ストック|山札|思い出|レベル置場|クロック|控え室)|相手の枠を[^。]{0,6}選び[^。]{0,20}マーカー置場のマーカー[^。]{0,10}控え室に置|相手は[^。]{0,14}【起】を使えない|相手は自分のバトル中のキャラを[^。]{0,4}手札に戻し[^。]{0,10}自分の手札を[^。]{0,10}選び[^。]{0,6}控え室に置"),
+  # Recursion Tax (user-named, 2026-07-23): a symmetric tax on waiting-room recursion during the attack
+  # phase -- whichever player (either side) returns a character from their waiting room to hand via their
+  # own card's effect gets punished with a 2-card hand discard. Applies equally to both players, distinct
+  # from Opp Disrupt above (which only ever targets the opponent). Confirmed via LB/WE18-04.
+  ("Recursion Tax", r"自分のカードの効果で控え室から手札に戻った時[^。]{0,10}そのプレイヤーは自分の手札を[^。]{0,6}選び[^。]{0,6}控え室に置"),
   # RevealTopSalvage: reveal the DECK TOP, then salvage a (often level-X-gated) character from the waiting
   # room. A costlier salvage MECHANIC (the cheap discard-only prints measure ~2000) — checked BEFORE generic
   # Salvage so it peels off. Payment still drives the per-sig cost; the family is for grouping/estimate. (User.)
@@ -429,6 +434,20 @@ FAMPAT = [
   # plain "look" (no reorder = cards return in their original order). Checked BEFORE the generic Look Deck;
   # AFTER Search (a look that TAKES to hand is a Search, not a reorder). User taxonomy.
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
+  # Stock to Deck (user-named, 2026-07-23): an unusual resource conversion -- look at the top N of your OWN
+  # STOCK and put them back on top of your DECK in a chosen order (stock is normally spent, not returned to
+  # the deck). Distinct from Look & Reorder above (deck-sourced) and Clock Reorder (clock-sourced).
+  # Confirmed via MK/SE29-07.
+  ("Stock to Deck", r"自分のストックを[^。]{0,6}枚まで見て[^。]{0,6}山札の上に好きな順番で置"),
+  # Stock Peek (user-named, 2026-07-23): a pure information peek at your own stock -- look, no reorder, no
+  # take. Sibling of Look Deck (the deck-side equivalent). Confirmed via RZ/SE35-24.
+  ("Stock Peek", r"あなたは自分のストックを[^。]{0,6}枚?選び[^。]{0,6}見てよい"),
+  # AntiEarlyGlobal (user-named, 2026-07-23): the user's own read -- "a global anti-early removal" -- SAME
+  # spirit as the AntiEarly*Bomb condition variants (punish an over-leveled character relative to a
+  # threshold), but SYMMETRIC (every player, including the actor, buries their own over-leveled characters)
+  # instead of a single-target opponent punish, so it doesn't fit the color-keyed dynamic Bomb generator.
+  # Confirmed via GL/S52-093.
+  ("AntiEarlyGlobal", r"すべてのプレイヤーは自分の[^。]{0,4}レベルが自分のレベルより高いキャラすべてを[^。]{0,10}山札の下に好きな順番で置"),
   # Clock Reorder: the same "look, then set back in any order" scry purpose as Look & Reorder above, but
   # applied to your OWN CLOCK instead of your deck -- a distinct zone, so it needed its own name.
   # Verb widened 並べ直す -> also accept 置く: some prints phrase the reorder as "…好きな順番で置く" (put back down
@@ -965,6 +984,15 @@ FAMPAT = [
   # self-or-ally sacrifice with no stated benefit. User: even worse than the clock-advance branch above,
   # priced +2000. Confirmed via FS/S03-084.
   ("Drawback", r"このカードか自分の「N」を[^。]{0,6}選び[^。]{0,6}控え室に置"),
+  # (13) reveal your own HAND -- gives the opponent free information to plan around, a real disadvantage
+  # even with no card lost. Confirmed +500 via APO/S53-078.
+  ("Drawback", r"あなたは自分の手札を公開する"),
+  # (14) reveal the top of your own deck with NO other stated consequence (pure information, the card
+  # returns unchanged) -- same self-risk spirit as the branches above; negative lookahead excludes the many
+  # reveal-THEN-conditional-payoff shapes already claimed by earlier, more specific families (Summon, Search,
+  # Removal (...), etc.), which all continue with "そのカードが..." after the reveal. Confirmed +500 via
+  # OVL/S62-019.
+  ("Drawback", r"相手のドローフェイズの始めに[^。]{0,6}(あなたは)?自分の山札の上から[^。]{0,6}枚?を公開する(?!.{0,20}そのカードが)"),
   # Switch Attack: choose another of your own STAGE characters (front row OR back row, explicitly row-
   # qualified so this doesn't swallow the Level/Memory-zone Exchange siblings above, which are checked
   # earlier anyway but use a bare "自分のキャラ"/"自分の《T》のキャラ" with no row qualifier) and swap positions
