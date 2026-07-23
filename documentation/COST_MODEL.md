@@ -564,6 +564,25 @@ median** used to estimate signatures with no measurement (STEP 3a/3c). A family 
 a mixed pattern leaks into it) produces a meaningless median — which is exactly why the taxonomy is so
 carefully ordered.
 
+**`Other` went from 123 signatures / 206 occurrences down to 0** across a single extended session
+(2026-07-23), the same "eliminate the grab-bag" treatment `Card Select` got earlier. ~28 new families were
+named (163 total, up from 135) — see the git history around this date for the full list; a few worth calling
+out for the taxonomy itself: **`Drawback` absorbed most of the round** (grew from 4 branches to ~14) under
+the user's explicit standing rule — *any effect that gives power to a card is a Drawback, no separate name
+needed per shape, regardless of what triggers it or what specific self-risk it takes*. Concretely this
+includes self-relocation on non-`【リバース】` triggers (attack-end, Encore step, `アラーム`-gated), total
+stock/deck dumps, voluntarily reversing yourself, your battle opponent never reversing, revealing your own
+hand or deck top with no other consequence, ceding control of your own deck to the opponent, and forced
+self-or-ally sacrifices — the model prices these anywhere from +500 to +2000 depending on how bad the
+downside actually is, exactly matching the "measured cost = the power given as compensation" principle from
+§0. **`SummonFromMarker`** (new) names the mechanic "bring a banked marker onto the stage as a real
+character" — flagged as **also present, but still mis-filed, in two already-established families**
+(`Stand/Rest` and `AddMarker (Waiting Room)`); not yet reclassified — see the reviewer/roadmap notes for the
+open "audit every family's actual content" task this surfaced. This round's session also fixed 2 real
+parsing bugs unrelated to family logic (both in `pipeline/ingest/clean_cardlist.py`'s `split_abilities()`,
+both a misplaced `<br>` splitting one ability into a bogus two) and one `gen()`-level bug (halfwidth corner
+brackets `｢｣`, used across a whole print run, were invisible to the name-collapsing regex — see `ZT`).
+
 ---
 
 ## 7. The CX-Combo family
@@ -623,15 +642,18 @@ with no citer on the card is left untouched and recorded as an *orphan*.
 
 ## 9. Cost-0 / flavor rules
 
-Not every printed line is a costed ability. Three concrete zero mechanisms exist:
+Not every printed line is a costed ability. Four concrete zero mechanisms exist:
 
 - **Parenthetical reminders are dropped, not costed** (`ra()`). Text wholly wrapped in `（…）`/`(…)` with **no**
   `自/永/起` marker is beginner / trigger-icon reminder text (e.g. "（bounce：…）"), not a real ability. Dash
-  placeholders (`-`, `ー`, …) are dropped too.
-- **No-op declarations cost 0** (`is_noop`, STEP 0b). An ability whose whole effect is "declare/say 『X』"
-  (`『…』と宣言してよい` as the final clause) performs no game action — no resource, no opponent interaction, no
-  power change — so it is a structural 0. The declaration must be the *last* clause, so a card that declares
-  and then does something real is not matched.
+  placeholders (`-`, `ー`, …) and print/legality notices (markerless `※` text) are dropped too.
+- **Structural-zero text costs 0** (`is_zero_flavor`, STEP 0b — a superset of the older `is_noop` check).
+  Three shapes: (1) no-op declarations — an ability whose whole effect is "declare/say 『X』"
+  (`『…』と宣言してよい` as the final clause, plus 3 related list-form/symmetric/bare-namelist Declare shapes) —
+  performs no game action; (2) `Damage Source (Bottom)` — a purely cosmetic CONT that changes which cards get
+  milled by this card's dealt damage without dealing MORE of it; (3) `Flavor Text` — promo cards whose whole
+  "ability" is a joke with zero mechanical effect. Each of these still gets its own real family name via
+  `family()` — the cost-forcing and the naming are independent mechanisms keyed off the same text pattern.
 - **Replay bodies cost 0** (STEP 0, §8) — structural, because the cost is carried by the citer.
 
 The underlying design principle is **net advantage**: an effect that nets neither player an advantage costs

@@ -3,7 +3,7 @@
 > Living status file. Update at the end of each session.  
 > Repo: [Cris-Oblea/ws-card-db](https://github.com/Cris-Oblea/ws-card-db).
 
-**Last updated:** 2026-07-23 (family-taxonomy audit round 10)
+**Last updated:** 2026-07-23 (family-taxonomy audit round 11 — `Other` family eliminated)
 
 ## Current state
 
@@ -479,6 +479,36 @@ EN coverage is now **names 100% · abilities 100% · traits 100%** (only 2 `#NAM
   - Explained% flat **95.5%**, suspects **3516 → 3518** (noise, several thin new sub-families).
     `pipeline/analysis/family_catalog.txt`: **135 families** (was 130). `Other` down to
     **123 signatures / 206 occurrences**.
+- ✅ **Family-taxonomy audit, round 11 — `Other` ELIMINATED (0 signatures) (2026-07-23, same session).**
+  User: get `Other` to 0 the same way `Card Select` was eliminated, then move on to auditing every
+  established family's actual content. ~28 new families named (163 total, was 135) — `Stock Recall`,
+  `Switch Attack`, `Name Alias`, `Strip Trait (Own)`, `Ally Memory Bank`, `Memory/Stage Exchange`,
+  `Attack Cancel`, `Reverse Immunity (Grant)`, `Grant Color`, `Delayed Sacrifice`,
+  `Reverse Immunity (Level Comparison)`, `Level/Stage Exchange`, `Grant Trait (All)`, `Self Identity Strip`,
+  `Damage Source (Bottom)`, `Flavor Text`, `LoseAtLevel5`, `Marker Handoff`, `First Turn Rush`,
+  `SummonFromMarker`, `Miracle Win`, `Shot Damage Boost`, `Refresh Protect`, `Recursion Tax`,
+  `Stock to Deck`, `Stock Peek`, `AntiEarlyGlobal`, `Clock Park`, `Climax Recall`.
+  - **`Drawback` absorbed most of the round** (4 → ~14 branches) under the user's explicit standing rule:
+    *any effect that gives power to a card is a Drawback, no separate name needed per shape* — self-
+    relocation on non-`【リバース】` triggers, total stock/deck dumps, voluntary self-reverse, your battle
+    opponent never reversing, revealing your own hand/deck-top with no other consequence, ceding your own
+    deck to the opponent, forced self-or-ally sacrifice. Priced anywhere from +500 to +2000 depending on
+    how bad the downside actually is.
+  - **New structural-zero mechanism** (`is_zero_flavor`, sibling of the older `is_noop`): forces cost 0
+    for `Damage Source (Bottom)` (a cosmetic CONT that changes which cards get milled, not how much
+    damage is dealt) and `Flavor Text` (2 joke promo cards) — each still gets a real family name.
+  - **2 real data-parsing bugs fixed** in `clean_cardlist.py`'s `split_abilities()` (a misplaced `<br>`
+    splitting one ability into a bogus two — same root cause as the earlier P5/S45-088 fix, this round's
+    instance was a "once per turn" rate-limiter clause orphaning its own marker) and **1 `gen()`-level
+    bug** (halfwidth corner brackets `｢｣`, used across a whole print run, invisible to the name-collapsing
+    regex — silently broke CX-Combo detection on 21 abilities).
+  - **⚠️ Opened, NOT actioned — the next priority per the user:** `SummonFromMarker`'s real scope also
+    covers 2 *already-established, measured* families under the wrong name (`BD/W95-017` currently
+    `Stand/Rest`, `SFN/S108-031` currently `AddMarker (Waiting Room)` with the wrong SOURCE zone too), and
+    the user separately flagged that `Heal`/`Salvage`/`Search` also contain misclassified content. Full
+    writeup in Claude's memory (`drawback-generalization-hypothesis`) for the dedicated future session.
+  - Explained% flat **95.3–95.5%** across ~20 rebuilds, suspects net IMPROVED **3518 → 3520** (several
+    fixes were real corrections). `Other`: **206 → 0 occurrences, 123 → 0 signatures.**
 - **Root-cause fix — harvest wasn't resuming:** `harvest_cardlist.py` already supports proper incremental
   resume (JSONL + state file, appends from `last_page`), but `cardlist_full.jsonl` /
   `cardlist_full.state.json` were missing on disk (only the June 15 consolidated `cardlist_full.json`
