@@ -83,6 +83,12 @@ def to_int(s):
         m = re.search(r"-?\d+", s)
         return int(m.group()) if m else None
 
+# A lone "<digits>。" fragment (nothing else) can never be a real standalone ability -- it only
+# appears when the source data has a stray <br> planted mid-sentence, right after a dangling ＋/－
+# arithmetic sign (e.g. "...パワーを＋<br>500。<br>..."), which chops "パワーを＋500。" into two rows.
+# Confirmed via P5/S45-088 (real bug, 1 card in the whole corpus as of 2026-07-22).
+_BARE_NUMBER_RE = re.compile(r"^[0-9０-９ＸX]+。?$")
+
 def split_abilities(text):
     if not text:
         return []
@@ -93,6 +99,12 @@ def split_abilities(text):
         clean = TAG_RE.sub("", part)
         clean = GIF_RE.sub(r"\1", clean).strip()   # [[bounce.gif]] -> bounce
         if not clean:
+            continue
+        # a bare number fragment right after an ability ending in a dangling ＋/－ is really that
+        # ability's own number, artificially cut in half by a misplaced <br> -- reattach it instead
+        # of letting it become its own bogus "ability" row.
+        if out and _BARE_NUMBER_RE.match(clean) and out[-1]["text"].endswith(("＋", "－", "+", "-")):
+            out[-1]["text"] += clean
             continue
         markers = []                                # capture stacked 【...】 (e.g. 【自】【カウンター】)
         m = re.match(r"^(【[^】]+】)\s*", clean)

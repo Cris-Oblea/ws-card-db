@@ -178,7 +178,11 @@ FAMPAT = [
   # Last branch: antecedent established in an EARLIER trigger clause ("このカードのバトル相手が【リバース】した
   # 時"), then a bare そのキャラ pronoun refers back to it later in the same sentence -- same cross-clause
   # shape as the Removal (Memory) 4th branch below. .{0,60} crosses the gap since it's a different clause.
-  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(クロック置場に置|クロックに置)"),
+  # Last branch: a payment-gated variant of the same pronoun-antecedent shape above -- the trigger clause sets
+  # up このカードとバトル中のキャラ/このカードのバトル相手 as antecedent, then a ［cost］…そうしたら、…そのキャラを
+  # クロック置場に置く payoff follows several sentences later (crosses 。, so needs . not [^。]). Confirmed via
+  # PT/W07-031, CTB/W118-047.
+  ("Clock Kick", r"相手の[^。]{0,20}キャラ[^。]{0,20}(クロック置場に置|クロックに置)|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,16}(クロック置場に置|クロックに置)|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}(クロック置場に置|クロックに置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}(クロック置場に置|クロックに置)|(このカードとバトル中のキャラ|このカードのバトル相手).{0,90}(あなたは)?そのキャラを[^。]{0,4}クロック置場に置"),
   # Removal (Hand): return an OPPONENT character to hand — same final purpose as every other Removal variant
   # below (get the opponent's stage character out of play), just a different destination. Named per-variant
   # (not one flat "Removal") because the destination materially changes the character's cost to the game:
@@ -188,11 +192,17 @@ FAMPAT = [
   # 1枚選び、手札に戻す" is caught here instead of leaking to the Add to Hand (戻す) / Card Select (選) grab-bags.
   # Distance to 手札に戻 kept tight so a "when opp char reverses, return THIS card to hand" (self-return) does
   # NOT match. (Formerly named "Bounce" — renamed into the Removal(...) group, same regex/cost data.)
-  ("Removal (Hand)", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻"),
+  # 2nd branch: same battle-opponent-pronoun gap fixed repeatedly across the Removal(...)/Clock Kick/Reverse
+  # Opp/Return to Deck families -- "このカードとバトルしているキャラ" (this card's battle opponent) established as
+  # the antecedent in the trigger clause, then a bare そのキャラ pronoun in the payoff. Confirmed via DC/W01-016.
+  ("Removal (Hand)", r"相手の[^。]{0,10}キャラ[^。]{0,14}手札に戻|(このカードとバトルしているキャラ|このカードのバトル相手)[^。]{0,20}レベル[^。]{0,20}(あなたは)?そのキャラを[^。]{0,4}手札に戻"),
   # Return to Deck: opponent's waiting-room card(s)/character -> the OPPONENT's OWN deck. Verb widened to
   # also accept 置く (many prints say "山札の上か下に置く" rather than 戻す/加える -- same destination, different
   # phrasing).
-  ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札[^。]{0,6}に(戻|加え|置)"),
+  # 2nd branch: same battle-opponent-pronoun gap as Removal (Hand)/Clock Kick/Reverse Opp above -- the
+  # antecedent (このカードのバトル相手/バトルしているキャラ/バトル中のキャラ) is set up in the trigger clause, then a
+  # bare そのキャラ pronoun in the payoff refers back to it. Confirmed via BM/S15-051, CN/SE02-05.
+  ("Return to Deck", r"相手の(控え室|キャラ)[^。]{0,20}山札[^。]{0,6}に(戻|加え|置)|(このカードのバトル相手|このカードとバトルしているキャラ|このカードとバトル中の).{0,80}そのキャラを[^。]{0,4}山札の(上|下)に[^。]{0,8}置"),
   # Retreat (own-stage-char branch): choosing one of YOUR OWN characters currently ON THE STAGE and returning
   # it to hand (a self-bounce/withdrawal). Checked here, BEFORE Add to Hand, because Add to Hand's own negative
   # lookbehind only excludes "このカードを手札に戻す" (see below) -- it does NOT exclude "自分の舞台の…選び…手札に
@@ -232,7 +242,10 @@ FAMPAT = [
   # variant, just parked in a zone the opponent can later spend as a cost rather than recur from. (User
   # correction: my first write-up wrongly described this as the ACTOR capturing the character into their own
   # stock, which cross-owner mixing rules make impossible.)
-  ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置"),
+  # 3rd branch: a BULK variant with no "選び" (choose) verb at all -- "相手の前列のレベルN以下のキャラすべてを、
+  # 控え室に置く" removes every qualifying character at once, so there's nothing to select. Usually gated behind
+  # a ［cost］ payment bracket. Confirmed via KK/SPR-002, CL/WE04-10.
+  ("Removal (Waiting Room)", r"相手の[^。]{0,24}キャラを[^。]{0,10}選び[^。]{0,10}控え室に置|このカードの正面のキャラ[^。]{0,10}選(び|んで)[^。]{0,10}控え室に置|相手の[^。]{0,10}レベル[^。]{0,8}以下の[^。]{0,10}キャラすべてを.{0,10}控え室に置"),
   # Same battle-opponent-reference gap fixed for Deck Top/Bottom/Memory above -- confirmed via LB/W06-T06 /
   # LB/W06-018 / FH/SE03-001, which were falling through to the late generic "Stock Boost" catch-all
   # (ストック置場に置, checked much later in this list) instead of the earlier, more specific Removal (Stock).
@@ -253,7 +266,10 @@ FAMPAT = [
   # why: the trigger clause already pinned down the single target). "山札の上か下に置" (attacker's choice of
   # top OR bottom) is folded in here too rather than split into its own family -- it's the same permanent-
   # removal purpose, just letting the attacker pick the position.
-  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の下に置"),
+  # "そのバトル中のキャラ" ("that battling character") is a 5th way real prints refer back to a pronoun antecedent
+  # established earlier in the trigger clause (このカードとバトル中のキャラが【リバース】した時…そのバトル中のキャラを…) --
+  # same shape as そのバトル相手/このカードのバトル相手 above, just a different pronoun phrasing. Confirmed via ID/W10-093.
+  ("Removal (Deck Bottom)", r"相手の[^。]{0,20}キャラを[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|このカードのバトル相手[^。]{0,20}選(び|んで)[^。]{0,16}山札の下に置|このカードとバトル(中の|している)[^。]{0,10}キャラ[^。]{0,10}選(び|んで)[^。]{0,16}山札の下に置|(そのバトル相手|このカードのバトル相手)を?[^。]{0,10}山札の(下に置|上か下に置)|このカードのバトル相手が【リバース】した時.{0,60}そのキャラを[^。]{0,10}山札の下に置|このカードとバトル(中の|している)キャラが【リバース】した時.{0,60}そのバトル中のキャラを[^。]{0,10}山札の下に置"),
   # Deck Top was missing the "このカードとバトルしているキャラが【リバース】した時" trigger-pronoun branch that its
   # Deck Bottom sibling already had -- the same battle-opponent-reference gap class fixed repeatedly elsewhere
   # this session (Bomb's _BOMB_OPP, Clock Kick, Removal (Stock)). Found via DC/W01-059.
@@ -281,7 +297,12 @@ FAMPAT = [
   # is the opponent's own reflexive, not the acting player's) alongside the possessive 相手の…, since most
   # real prints phrase it "相手は自分の控え室のCXを1枚選び、そのカード以外を…山札に戻し…" (topic marker 相手は, not
   # possessive 相手の) and the literal-possessive-only pattern silently missed all of them.
-  ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】"),
+  # 2nd branch: the same battle-opponent-pronoun antecedent shape used across the whole Removal(...)/Clock
+  # Kick/Return to Deck cluster -- このカードのバトル相手/このカードとバトルしているキャラ established as antecedent in
+  # the trigger, then a bare そのキャラ/そのバトル中のキャラ/そのバトル相手 pronoun in the payoff forces the REVERSE.
+  # Often wrapped in a 共鳴/経験 condition + ［cost］ bracket, so the gap to the payoff must cross a 。 (use .
+  # not [^。]). Confirmed via WTR/S85-014, SBY/W136-017, LS/W05-059, NM/S24-056, FS/S36-055, TL/W37-073.
+  ("Reverse Opp", r"相手のキャラ[^。]{0,12}【リバース】|(このカードのバトル相手|このカードとバトルしているキャラ|そのバトル相手)[^。]{0,20}レベル[^。]{0,40}その(バトル中の)?キャラ(を|は)?[^。]{0,4}【リバース】(する|してよい)|(このカードのバトル相手).{0,60}その(バトル相手|キャラ)を?[^。]{0,4}【リバース】する"),
   # 3rd branch: wipe all markers in the marker area tied to one of the OPPONENT's stage slots -- confirmed
   # by the user as a kind of disruption, even though it doesn't literally say 相手の(zone) since the zone is
   # referenced indirectly via "the marker area corresponding to that [chosen opponent] slot."
@@ -349,7 +370,11 @@ FAMPAT = [
   ("Look & Reorder", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見[^。]{0,30}好きな順番"),
   # Clock Reorder: the same "look, then set back in any order" scry purpose as Look & Reorder above, but
   # applied to your OWN CLOCK instead of your deck -- a distinct zone, so it needed its own name.
-  ("Clock Reorder", r"自分のクロックすべてを[^。]{0,10}好きな順番で並べ直す"),
+  # Verb widened 並べ直す -> also accept 置く: some prints phrase the reorder as "…好きな順番で置く" (put back down
+  # in preferred order) rather than "並べ直す" (rearrange) -- same reorder-in-place action, different verb.
+  # Also accepts a ［cost: discard this card］ bracket in front, which was stealing the family. Confirmed via
+  # ZM/W03-T13.
+  ("Clock Reorder", r"自分のクロックすべてを[^。]{0,10}(クロック置場に)?[^。]{0,6}好きな順番で(並べ直す|置)"),
   ("Look Deck", r"山札[^。]{0,4}(上から)?[^。]{0,6}\d+枚[^。]{0,8}見"),
   # Summon (renamed from "Comeback" — the old name collided with the official CLIMAX TRIGGER ICON "Comeback",
   # a different game concept entirely; the user flagged the confusion). Final purpose: put YOUR OWN character
@@ -379,6 +404,11 @@ FAMPAT = [
   # いるなら…コストを払わずにプレイ" (if level/color conditions are met, play without paying cost) rather than
   # "色条件を満たさずに" -- same purpose (play a character bypassing its normal requirement), different wording.
   ("Summon", r"自分の手札の[^。]{0,10}(キャラ|「N」)[^。]{0,10}選[^。]{0,30}コストを払わずにプレイ"),
+  # 4th branch: reveal the top of your own deck, then conditionally place THAT card onto the stage -- same
+  # "source deck, destination stage" purpose as the 1st branch above, just sourced via a REVEAL instead of a
+  # free choice, and the reveal-then-conditional-payoff structure crosses a 。 (needs . not [^。]). Confirmed
+  # via DC/W01-E16, DC/WE08-43.
+  ("Summon", r"自分の山札.{0,10}公開する.{0,40}(キャラ|「N」).{0,20}(舞台|前列|後列)(に|の.{0,6}枠に)置"),
   # Change (text-form, no keyword marker): this card retreats to the waiting room/clock/Memory AS the cost of
   # its own ability, and a replacement character (from hand or waiting room) fills the EXACT slot it just
   # vacated ("このカードがいた枠に置く") — functionally identical to the official チェンジ keyword mechanic (already
@@ -418,7 +448,9 @@ FAMPAT = [
   #選び、入れ替え"), the same self-referential shape as the Clock/WR variant above -- confirmed by the user
   # as real (few cards, but they exist): summoning-style effects can source from level zone or clock, not
   # just waiting room/deck.
-  ("Level/WR Exchange", r"自分のレベル置場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
+  # 置場/置き場 spelling variant: some prints spell the level zone with the okurigana き (レベル置き場), others
+  # without (レベル置場) -- same zone, purely a print-style difference. Confirmed via CN/SE02-10.
+  ("Level/WR Exchange", r"自分のレベル置き?場の[^。]{0,20}と[^。]{0,4}控え室の[^。]{0,20}を[^。]{0,6}選び[^。]{0,10}入れ替え|レベル置き?場にこのカードがある[^。]{0,30}控え室の[^。]{0,10}キャラを[^。]{0,10}このカードを[^。]{0,6}選び[^。]{0,10}入れ替え"),
   # Hand/Level Exchange: a 4th sibling of Clock/WR Exchange, Level/WR Exchange, and Memory/WR Exchange --
   # same "trade which card sits in a resource zone" purpose, this time Hand <-> Level. Confirmed by the user
   # via SHS/W71-023 (on-play, paid) and LRC/WE47-14 (ACT, self-discard cost -- note the cost there is "put
@@ -532,7 +564,12 @@ FAMPAT = [
   # 相手 — a reverse-trigger bounce that would else false-match). Keeps 相手はそのカードを手札に戻す (opponent's forced
   # return) OUT. Placed right before Add to Hand so higher-priority families (Grant/CXC/Salvage/…) claim theirs first.
   ("Retreat", r"(自分の|あなたの)(?:(?!相手|このカードとバトル).)*?その(カード|キャラ)を[^。]{0,8}手札に戻"),
-  ("Add to Hand", r"手札に(加える|加え)|(?<!このカードを)手札に戻す"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,8}パワーを[＋+]"),
+  # Power Pump (board) gap widened 8->20 and を made optional: some prints put the duration clause AFTER the
+  # target ("…キャラすべてに、次の相手のターンの終わりまで、パワーを＋500", target before duration) instead of before
+  # it, pushing past the old distance; others drop the を particle entirely ("パワー+500" with no を). Confirmed
+  # via KC/S25-035 (stock-dump-then-pump combo) and BRD/W139-086 (turn-asymmetric dual pump) and NS/W04-103
+  # (bare pump, no を).
+  ("Add to Hand", r"手札に(加える|加え)|(?<!このカードを)手札に戻す"), ("Power Pump (board)", r"あなたの[^。]{0,16}(キャラ|「N」|《T》)すべてに[^。]{0,20}パワー(を)?[＋+]"),
   # Draw = 引く/引き/引い (dictionary, continuative, and the very common て-form 引いて/引いた — a plain "-i" stem
   # match catches all three conjugations at once; the narrower 引[くき] used until now silently missed every
   # "…引いてよい" optional draw, leaking a large slice of real Draw/DrawDiscard prints to Card Select). Placed
@@ -585,12 +622,19 @@ FAMPAT = [
   # target is already fixed/described rather than chosen): "このカードの正面のキャラに…を与える" (the character
   # facing this card, a fixed reference) and "他のあなたの…キャラすべてに…を与える" (every one of your other
   # characters, or every character whose name matches, a described-not-chosen group).
-  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える"),
+  # 2 more branches: "相手の前列/後列のキャラすべてに…を与える" (every character on one of the OPPONENT's rows, a
+  # described-not-chosen group, same as the 他のあなたの…すべて branch above but on the opponent's side); and a
+  # bare "あなたのキャラすべてに…を与える" with no 他の qualifier (ALL your characters, this card included --
+  # confirmed via MK/S33-010, whose trigger fires off an ALLY's battle so this card itself is a valid target).
+  ("Grant Trait", r"キャラを[^。]{0,10}選[^。]{0,20}(特徴を1つ与える|《T》を与える)|[^。]{0,6}「N」[^。]{0,10}のトリガーアイコンに\w+を与える|このカードの正面のキャラに[^。]{0,10}《T》を与える|他のあなたの[^。]{0,20}キャラ(すべて)?に[^。]{0,20}《T》を与える|相手の(前列|後列)のキャラすべてに[^。]{0,10}《T》を与える|あなたのキャラすべてに[^。]{0,20}《T》を与える"),
   # Grant Trigger Icon (Class): grants a trigger icon to an entire CLASS of climaxes (any CX that already
   # has trigger icon X, in all zones), not a specific NAMED target -- broader in scope than Grant Trait
   # above, so it needed its own name even though the underlying mechanic (extend an identity slot) is
   # conceptually the same.
-  ("Grant Trigger Icon (Class)", r"トリガーアイコンが\w+の(CX|クライマックス)のトリガーアイコンに\w+を与える"),
+  # 2nd branch: the condition clause ("あなたのCX置場にトリガーアイコンがXのCXがあるなら") and the grant clause ("あなた
+  # のすべての領域のCXのトリガーアイコンにYを与える") are two SEPARATE clauses bridged by a なら…あなたの gap, not one
+  # continuous run like the branch above -- confirmed via NIK/S117-P06, GA10/S131-012.
+  ("Grant Trigger Icon (Class)", r"トリガーアイコンが\w+の(CX|クライマックス)のトリガーアイコンに\w+を与える|トリガーアイコンが\w+の(CX|クライマックス)があるなら.{0,20}のCXのトリガーアイコンに\w+を与える"),
   # Trigger Icon Reuse: use a specific trigger icon's bonus effect (salvage/gate/choice/...) OUTSIDE of an
   # actual trigger check -- e.g. "you may choose a card in your waiting room with the gate effect" lets you
   # pull off a Gate-icon-style pickup even when no climax with that icon actually triggered. Confirmed by
@@ -671,7 +715,11 @@ FAMPAT = [
   # Cost Substitute: distinct from Free Play (Alt Cost) above -- that one discounts THIS card's OWN play
   # cost; this one lets THIS card (from hand) substitute for a STOCK payment on a DIFFERENT card's ACT
   # ability elsewhere on the board. Confirmed by the user via LRC/WE47-06.
-  ("Cost Substitute", r"あなたが自分の[^。]{0,10}の【起】のコストを払う時[^。]{0,10}手札のこのカードを[^。]{0,20}ストック[^。]{0,20}のかわりに控え室に置"),
+  # Widened to the general shape (dropped the 【起】-cost-specific trigger requirement): any time this card
+  # substitutes for ANOTHER resource being paid/discarded elsewhere on the board, not just a stock cost --
+  # confirmed via HOL/W104-027 (substitutes for 2 CHARACTER discards, not stock) and RZ/S132-073 (substitutes
+  # for a stock payment, same as the original shape, just via a differently-worded trigger clause).
+  ("Cost Substitute", r"あなたが自分の[^。]{0,10}の【起】のコストを払う時[^。]{0,10}手札のこのカードを[^。]{0,20}ストック[^。]{0,20}のかわりに控え室に置|手札のこのカードを[^。]{0,20}(のかわりに|の代わりに)控え室に置"),
   # "Cannot Attack" (an effect YOU inflict ON THE OPPONENT so THEIR character can't attack — a disruption
   # tool) is DELETED outright, not just narrowed. The user clarified the concept it was meant for, and after
   # checking the real corpus: every single occurrence of the old broad pattern (523/527) was actually
@@ -722,6 +770,14 @@ FAMPAT = [
   # BENEFICIAL modifier (Backup/Assist/Power Pump from teammates), and those are more common/valuable in
   # practice than a targeted power reduction would be, so the net effect on the controller is negative.
   ("Drawback", r"このカードはパワーが増減しない"),
+  # Self-inflicted damage ("あなたに...ダメージを与える" -- deal damage to YOURSELF, not the opponent), on any
+  # trigger, with no compensating benefit in the same clause. Same "self-risk, no opponent, compensated by
+  # power elsewhere on the card" Drawback spirit as the branches above -- validated via vanilla-power-delta
+  # across 3 real cards (NM/S24-049 +500, LB/W06-067 net 0 once its paired Encore is priced in, AOH/W127-048
+  # +2000, all AT/ABOVE vanilla, the Drawback signature). "同じ" (the SAME amount, mirroring damage dealt to
+  # the opponent back onto yourself when it was cancelled) is folded in alongside a literal digit/Ｘ, since
+  # it's the same self-punishing shape just phrased relative to an earlier amount instead of a fixed number.
+  ("Drawback", r"あなたに.{0,6}(\d+|[ＸX]|同じ)ダメージを与える"),
   # "Card Select" (a generic "\d+枚選" catch-all) is DELIBERATELY REMOVED as of the 2026-07-22 family-taxonomy
   # audit -- the user identified it as a meaningless label ("card select can be anything, dozens of unrelated
   # mechanics all select N cards"). Every recurring pattern that used to fall here now has its own real,
@@ -777,7 +833,9 @@ ONREV_PAT = [
     # genuinely different resource value: AutoKickToBottom guarantees a FIXED position (you know exactly when
     # you'll draw it back), while shuffling into the deck puts it at a RANDOM position (no such guarantee).
     # Confirmed by the user via DG/S02-058.
-    ("AutoKickToDeckShuffle", re.compile(r"バトルしているこのカードが【リバース】した時.*このカードを山札に戻.*シャッフル")),
+    # "バトル中の" made an accepted alternative to "バトルしている" -- same sibling AutoKickToClock already treats
+    # these as interchangeable print-style phrasings of "while this card is in battle." Confirmed via MB/S10-092.
+    ("AutoKickToDeckShuffle", re.compile(r"(バトルしている|バトル中の)このカードが【リバース】した時.*このカードを山札に戻.*シャッフル")),
 ]
 # RedBomb/BlueBomb/YellowBomb/GreenBomb* = trade the OPPONENT's character away after THIS card wins its own
 # battle (becomes reversed and the battle opponent qualifies under a level/cost condition) -- "punish the
@@ -835,12 +893,19 @@ def _dynamic_bomb_name(text):
 # sub-effect happens to match first (a "look-3 OR heal-1" must NOT pollute the Heal family — that's how a
 # family never converges). Requires the CHOOSING (…のうち…選 / 次の効果から…選), so a "do both" bundle
 # (次の2つの効果を…行う) is deliberately NOT a modal.
-MODAL_PAT = re.compile(r"(次の[\dＸ０-９]+つの効果のうち|次の効果から)[^。]{0,16}選")
+# "以下の効果のうち" ("among the following effects") is the same modal-choice phrasing as "次の...つの効果のうち",
+# just worded with 以下 (following) instead of 次 (next) -- confirmed via STG/S60-001.
+MODAL_PAT = re.compile(r"(次の[\dＸ０-９]+つの効果のうち|次の効果から|以下の効果のうち)[^。]{0,16}選")
 # Grant = someone GAINS an auto/cont/act ability (give OR gain): 次の能力を与える / 『…』を与える / 能力を得る /
 # 『…』を得る. Detected EARLY, like Modal, because the GRANTED ability's text (a look-deck, a heal, an encore,
 # "cannot move"…) must NOT decide the family. Requires "能力を" or "』を" before 与え/得, so it does NOT match
 # "ダメージを与える" (deal damage) nor "『…』を持つ" (HAS the ability — that's a condition, e.g. an Assist target).
-GRANT_PAT = re.compile(r"(能力を|』を)(与え|得)")
+# "次の能力を持つ" is the ONE narrow exception: unlike the excluded 『keyword』を持つ (a search CRITERION for some
+# OTHER card, e.g. "choose a character that HAS 'Backup'"), "次の能力を持つ" self-referentially describes THIS
+# card gaining a brand-new ability right here -- a real grant, just phrased with 持つ (possess) instead of
+# 与え/得. Scoped tightly to that exact 4-character run so it can't swallow the excluded 『keyword』を持つ shape.
+# Confirmed as the only real match corpuswide via SS/W14-079.
+GRANT_PAT = re.compile(r"(能力を|』を)(与え|得)|次の能力を持つ")
 # Dual-nature "Pump & Grant": a SINGLE ability that BOTH pumps power AND grants an ability, e.g.
 # "そのターン中、このカードのパワーを＋N し、…次の能力を得る。『【自】…』". The pump must live in the CITING text
 # (OUTSIDE the granted 『…』 quote) — a pump that sits INSIDE the quote is just a GRANT OF A PUMP ability,
